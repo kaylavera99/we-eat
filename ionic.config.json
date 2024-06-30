@@ -1,0 +1,7 @@
+{
+  "name": "we-eat",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
