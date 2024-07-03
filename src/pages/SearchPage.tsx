@@ -13,7 +13,7 @@ import {
   IonToast
 } from '@ionic/react';
 import axios from 'axios';
-import { collection, doc, setDoc, GeoPoint } from 'firebase/firestore';
+import { doc, setDoc, GeoPoint } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyADCxV3t9rLih5de7GhP7R8OlZ5RA1Y_tk';
@@ -31,73 +31,72 @@ interface Place {
 
 const keywords = ["McDonald's", "Subway"];
 
-
 const SearchPage: React.FC = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [radius, setRadius] = useState<number>(5000); // Default to 5km
-    const [results, setResults] = useState<Place[]>([]);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
-  
-    const handleSearch = async () => {
-      if (!navigator.geolocation) {
-        setToastMessage('Geolocation is not supported by your browser');
-        setShowToast(true);
-        return;
-      }
-  
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
-        const location = `${latitude},${longitude}`;
-  
-        try {
-          const allResults: Place[] = [];
-          for (const keyword of keywords) {
-            const { data } = await axios.get(
-              `http://localhost:3000/proxy`, // Your proxy endpoint
-              {
-                params: {
-                  location,
-                  radius,
-                  keyword,
-                  type: 'restaurant',
-                  key: GOOGLE_PLACES_API_KEY,
-                },
-              }
-            );
-            allResults.push(...data.results);
-          }
-          setResults(allResults);
-        } catch (error) {
-          setToastMessage('Error fetching data from Google Places');
-          setShowToast(true);
-        }
-      }, (error) => {
-        setToastMessage('Unable to retrieve your location');
-        setShowToast(true);
-      });
-    };
-  
-    const handleSavePreferredLocation = async (place: Place) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [radius, setRadius] = useState<number>(5000); // Default to 5km
+  const [results, setResults] = useState<Place[]>([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleSearch = async () => {
+    if (!navigator.geolocation) {
+      setToastMessage('Geolocation is not supported by your browser');
+      setShowToast(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      const { latitude, longitude } = position.coords;
+      const location = `${latitude},${longitude}`;
+
       try {
-        if (auth.currentUser) {
-          const userDocRef = doc(db, 'users', auth.currentUser.uid);
-          await setDoc(userDocRef, {
-            preferredLocation: {
-              name: place.name,
-              address: place.vicinity,
-              coordinates: new GeoPoint(place.geometry.location.lat, place.geometry.location.lng),
-            },
-          }, { merge: true });
-          setToastMessage('Preferred location saved');
-          setShowToast(true);
+        const allResults: Place[] = [];
+        for (const keyword of keywords) {
+          const { data } = await axios.get(
+            `http://localhost:3000/proxy`, // Your proxy endpoint
+            {
+              params: {
+                location,
+                radius,
+                keyword,
+                type: 'restaurant',
+                key: GOOGLE_PLACES_API_KEY,
+              },
+            }
+          );
+          allResults.push(...data.results);
         }
+        setResults(allResults);
       } catch (error) {
-        setToastMessage('Error saving preferred location');
+        setToastMessage('Error fetching data from Google Places');
         setShowToast(true);
       }
-    };
-  
+    }, (error) => {
+      setToastMessage('Unable to retrieve your location');
+      setShowToast(true);
+    });
+  };
+
+  const handleSavePreferredLocation = async (place: Place) => {
+    try {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const preferredLocation = {
+          [`preferredLocations.${place.name}`]: {
+            name: place.name,
+            address: place.vicinity,
+            coordinates: new GeoPoint(place.geometry.location.lat, place.geometry.location.lng),
+          }
+        };
+        await setDoc(userDocRef, preferredLocation, { merge: true });
+        setToastMessage('Preferred location saved');
+        setShowToast(true);
+      }
+    } catch (error) {
+      setToastMessage('Error saving preferred location');
+      setShowToast(true);
+    }
+  };
 
   return (
     <IonPage>

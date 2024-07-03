@@ -12,16 +12,11 @@ import {
   IonToast,
   IonAccordionGroup,
   IonAccordion,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
   IonButton
 } from '@ionic/react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
-
 
 interface MenuItem {
   name: string;
@@ -40,8 +35,18 @@ interface Restaurant {
   menu: MenuCategory[];
 }
 
-const RestaurantPage: React.FC = () => {
+interface PreferredLocation {
+  name: string;
+  address: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+}
+
+const UserProfilePage: React.FC = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [preferredLocations, setPreferredLocations] = useState<PreferredLocation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -52,8 +57,36 @@ const RestaurantPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchRestaurants = async () => {
+    const fetchUserProfile = async () => {
+      setIsLoading(true);
       try {
+        if (auth.currentUser) {
+          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            const locations: PreferredLocation[] = [];
+
+            // Assuming your Firestore data structure
+            const preferredLocations = userData.preferredLocations || {};
+            Object.keys(userData).forEach(key => {
+              if (key.startsWith('preferredLocations.')) {
+                const location = userData[key];
+                locations.push({
+                  name: key.split('.')[1], // Extracting restaurant name from key
+                  address: location.address,
+                  coordinates: {
+                    lat: location.coordinates.latitude,
+                    lng: location.coordinates.longitude,
+                  },
+                });
+              }
+            });;
+
+            setPreferredLocations(locations);
+          }
+        }
+
         const querySnapshot = await getDocs(collection(db, 'restaurants'));
         const restaurantList: Restaurant[] = [];
         for (const docSnap of querySnapshot.docs) {
@@ -86,26 +119,36 @@ const RestaurantPage: React.FC = () => {
       }
     };
 
-    fetchRestaurants();
+    fetchUserProfile();
   }, []);
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Restaurants</IonTitle>
+          <IonTitle>User Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <h2>Welcome to your profile!</h2>
-        {/* Add more profile details here */}
+      <IonContent className="ion-padding">
+        <h2>Welcome to your profile!</h2>
         <IonButton expand="block" onClick={handleEditProfile}>
           Edit Profile
         </IonButton>
-      <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
           <IonList>
+            {preferredLocations.length > 0 && (
+              <div>
+                <h3>Preferred Locations:</h3>
+                {preferredLocations.map((location, index) => (
+                  <div key={index}>
+                    <h4>{location.name}</h4>
+                    <p>{location.address}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             <IonAccordionGroup>
               {restaurants.map(restaurant => (
                 <IonAccordion key={restaurant.id} value={restaurant.id}>
@@ -152,4 +195,4 @@ const RestaurantPage: React.FC = () => {
   );
 };
 
-export default RestaurantPage;
+export default UserProfilePage;
