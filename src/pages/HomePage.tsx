@@ -1,3 +1,5 @@
+// src/pages/HomePage.tsx
+
 import React, { useEffect, useState } from 'react';
 import {
   IonContent,
@@ -6,16 +8,19 @@ import {
   IonTitle,
   IonToolbar,
   IonLoading,
-  IonToast
+  IonToast,
+  IonButton,
 } from '@ionic/react';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import { useHistory } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const history = useHistory();
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -40,6 +45,10 @@ const HomePage: React.FC = () => {
     fetchUserName();
   }, []);
 
+  const goToSearchPage = () => {
+    history.push('/search');
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -53,6 +62,9 @@ const HomePage: React.FC = () => {
         ) : (
           <div>
             <h2>Welcome, {name}!</h2>
+            <IonButton expand="block" onClick={goToSearchPage}>
+              Search Restaurants
+            </IonButton>
           </div>
         )}
         <IonToast

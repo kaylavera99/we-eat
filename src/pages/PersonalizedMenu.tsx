@@ -1,3 +1,5 @@
+// src/pages/PersonalizedMenuPage.tsx
+
 import React, { useEffect, useState } from 'react';
 import {
   IonContent,
@@ -24,20 +26,32 @@ interface MenuItem {
   allergens: string[];
 }
 
+interface MenuCategory {
+  category: string;
+  items: { [key: string]: MenuItem };
+}
+
+interface Location {
+  address: string;
+  latitude: number;
+  longitude: number;
+}
+
 interface Restaurant {
   id: string;
   name: string;
-  menuItems: MenuItem[];
+  locations: Location[];
+  menu: MenuCategory[];
 }
 
 const PersonalizedMenuPage: React.FC = () => {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
   useEffect(() => {
-    const fetchPersonalizedMenus = async () => {
+    const fetchPreferredLocationMenu = async () => {
       setIsLoading(true);
       try {
         if (auth.currentUser) {
@@ -45,53 +59,32 @@ const PersonalizedMenuPage: React.FC = () => {
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data();
-            const userAllergens = userData.allergens || {};
-            console.log('User Allergens:', userAllergens); // Debug: Check user allergens
+            const { restaurantId, location } = userData.preferredLocation;
+            console.log('Preferred Location:', restaurantId, location); // Debug: Check preferred location
 
-            const restaurantQuery = await getDocs(collection(db, 'restaurants'));
-            const restaurantList: Restaurant[] = [];
+            const restaurantDocRef = doc(db, 'restaurants', restaurantId);
+            const restaurantDocSnap = await getDoc(restaurantDocRef);
+            if (restaurantDocSnap.exists()) {
+              const restaurantData = restaurantDocSnap.data() as { name: string };
+              console.log(`Restaurant Data for ${restaurantId}:`, restaurantData);
 
-            for (const restaurantDoc of restaurantQuery.docs) {
-              const restaurantData = restaurantDoc.data() as { name: string };
-              console.log(`Restaurant Data for ${restaurantDoc.id}:`, restaurantData);
-
-              const menuQuery = await getDocs(collection(db, 'restaurants', restaurantDoc.id, 'menu'));
-              let menuItems: MenuItem[] = [];
-
-              for (const menuDoc of menuQuery.docs) {
+              const menuSnapshot = await getDocs(collection(db, 'restaurants', restaurantId, 'menu'));
+              const menuCategories: MenuCategory[] = menuSnapshot.docs.map(menuDoc => {
                 const menuData = menuDoc.data();
-                const items = menuData.items;
+                return {
+                  category: menuData.category,
+                  items: menuData.items,
+                } as MenuCategory;
+              });
 
-                for (const key in items) {
-                  if (items.hasOwnProperty(key)) {
-                    const menuItem = items[key] as MenuItem;
-                    const itemAllergens = menuItem.allergens || [];
-                    
-                    // Ensure itemAllergens is an array
-                    if (Array.isArray(itemAllergens)) {
-                      const hasAllergens = itemAllergens.some(allergen => userAllergens[allergen]);
-                      if (!hasAllergens) {
-                        menuItems.push(menuItem);
-                      }
-                    } else {
-                      console.warn(`Item allergens for ${menuItem.name} is not an array:`, itemAllergens);
-                    }
-                  }
-                }
-              }
-
-              console.log('Menu Items for', restaurantData.name, ':', menuItems); // Debug: Check menu items
-              if (menuItems.length > 0) {
-                restaurantList.push({
-                  id: restaurantDoc.id,
-                  name: restaurantData.name,
-                  menuItems: menuItems
-                });
-              }
+              console.log('Menu Items:', menuCategories); // Debug: Check menu items
+              setRestaurant({
+                id: restaurantId,
+                name: restaurantData.name,
+                locations: [location],
+                menu: menuCategories,
+              });
             }
-
-            console.log('Restaurants:', restaurantList); // Debug: Check restaurants list
-            setRestaurants(restaurantList);
           }
         }
         setIsLoading(false);
@@ -102,45 +95,47 @@ const PersonalizedMenuPage: React.FC = () => {
       }
     };
 
-    fetchPersonalizedMenus();
+    fetchPreferredLocationMenu();
   }, []);
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Personalized Menus</IonTitle>
+          <IonTitle>Personalized Menu</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
-        ) : (
+        ) : restaurant ? (
           <IonList>
-            {restaurants.length > 0 ? (
-              restaurants.map(restaurant => (
-                <IonCard key={restaurant.id}>
-                  <IonCardHeader>
-                    <IonCardTitle>{restaurant.name}</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
+            <IonCard>
+              <IonCardHeader>
+                <IonCardTitle>{restaurant.name} - {restaurant.locations[0].address}</IonCardTitle>
+              </IonCardHeader>
+              <IonCardContent>
+                {restaurant.menu.map((menuCategory, index) => (
+                  <div key={index}>
+                    <h3>{menuCategory.category}</h3>
                     <IonList>
-                      {restaurant.menuItems.map((menuItem, index) => (
-                        <IonItem key={index}>
+                      {Object.entries(menuCategory.items).map(([key, item]: [string, MenuItem]) => (
+                        <IonItem key={key}>
                           <IonLabel>
-                            <h2>{menuItem.name}</h2>
-                            <p>{menuItem.description}</p>
+                            <h2>{item.name}</h2>
+                            <p>{item.description}</p>
+                            <p>Allergens: {item.allergens.join(', ')}</p>
                           </IonLabel>
                         </IonItem>
                       ))}
                     </IonList>
-                  </IonCardContent>
-                </IonCard>
-              ))
-            ) : (
-              <p>No restaurants found</p>
-            )}
+                  </div>
+                ))}
+              </IonCardContent>
+            </IonCard>
           </IonList>
+        ) : (
+          <p>No preferred restaurant set.</p>
         )}
         <IonToast
           isOpen={showToast}

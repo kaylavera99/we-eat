@@ -16,9 +16,12 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonButton
 } from '@ionic/react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { useHistory } from 'react-router-dom';
+
 
 interface MenuItem {
   name: string;
@@ -42,6 +45,11 @@ const RestaurantPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const history = useHistory();
+
+  const handleEditProfile = () => {
+    history.push('/edit-profile');
+  };
 
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -88,6 +96,11 @@ const RestaurantPage: React.FC = () => {
           <IonTitle>Restaurants</IonTitle>
         </IonToolbar>
       </IonHeader>
+      <h2>Welcome to your profile!</h2>
+        {/* Add more profile details here */}
+        <IonButton expand="block" onClick={handleEditProfile}>
+          Edit Profile
+        </IonButton>
       <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
