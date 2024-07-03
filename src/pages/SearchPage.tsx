@@ -48,12 +48,14 @@ const SearchPage: React.FC = () => {
     navigator.geolocation.getCurrentPosition(async (position) => {
       const { latitude, longitude } = position.coords;
       const location = `${latitude},${longitude}`;
+      console.log('Location:', location); // Debugging info
 
       try {
         const allResults: Place[] = [];
         for (const keyword of keywords) {
+          console.log(`Searching for keyword: ${keyword}`);
           const { data } = await axios.get(
-            `http://localhost:3000/proxy`, // Your proxy endpoint
+            `https://proxy-server-we-eat-e24e32c11d10.herokuapp.com/proxy`, // Your proxy endpoint
             {
               params: {
                 location,
