@@ -86,7 +86,7 @@ const App: React.FC = () => {
               <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
               <Route exact path="/create-menu" component={CreateMenuPage} />
                <Redirect exact from="/" to="/personalized-menu" />
-              
+               <Route path="/restaurant/:restaurantName" component={RestaurantPage} exact={true} />
               <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
               <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/home" component={HomePage} exact />
