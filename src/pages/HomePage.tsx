@@ -14,6 +14,8 @@ import {
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
+import {signOut} from 'firebase/auth'
+
 
 const HomePage: React.FC = () => {
   const [name, setName] = useState('');
@@ -28,6 +30,7 @@ const HomePage: React.FC = () => {
       try {
         if (auth.currentUser) {
           const docRef = doc(db, 'users', auth.currentUser.uid);
+          console.log(docRef)
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
@@ -47,6 +50,11 @@ const HomePage: React.FC = () => {
 
   const goToSearchPage = () => {
     history.push('/search');
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    history.push('/login');
   };
 
   return (
@@ -73,6 +81,7 @@ const HomePage: React.FC = () => {
           message={toastMessage}
           duration={2000}
         />
+        <IonButton expand="block" onClick={handleLogout}>Logout</IonButton>
       </IonContent>
     </IonPage>
   );

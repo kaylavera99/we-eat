@@ -10,7 +10,7 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const addRestaurantsToFirestore = async (latitude: number, longitude: number, radius: number, keyword: string) => {
   try {
     const location = `${latitude},${longitude}`;
-    const restaurants = await fetchRestaurantsFromGooglePlaces(location, radius, keyword);
+    const restaurants = await fetchRestaurantsFromGooglePlaces(latitude, longitude, radius, keyword);
 
     const batch = writeBatch(db);
     for (const restaurant of restaurants) {
@@ -46,3 +46,5 @@ export const addRestaurantsToFirestore = async (latitude: number, longitude: num
     throw error;
   }
 };
+
+
