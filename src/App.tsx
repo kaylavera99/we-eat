@@ -22,13 +22,15 @@ import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccount';
 import HomePage from './pages/HomePage';
 import UserProfilePage from './pages/UserProfilePage';
-import AllergenInfoPage from './pages/AllergenInfoPage';
+//import AllergenInfoPage from './pages/AllergenInfoPage';
 import PasswordResetPage from './pages/PasswordReset';
 import RestaurantPage from './pages/RestaurantPage';
 import EditProfilePage from './pages/EditProfilePage';
 import PersonalizedMenuPage from './pages/PersonalizedMenu';
-import FetchAndStorePage from './pages/FetchAndStorePage';  // Import the new page
+import FetchAndStorePage from './pages/FetchAndStorePage';  //Erase Me
 import PrivateRoute from './components/PrivateRoute';
+import CreateMenuPage from './pages/CreateMenuPage';
+import ErrorBoundary from './components/ErrorBoundary'; // Adjust the path as necessary
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -59,13 +61,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
+      setIsAuthenticated(!!user);
+      setIsLoading(false);
+      if (!user) {
         history.push('/login');
       }
-      setIsLoading(false);
     });
     return () => unsubscribe();
   }, [history]);
@@ -83,15 +83,23 @@ const App: React.FC = () => {
               <Route path="/login" component={LoginPage} exact />
               <Route path="/create-account" component={CreateAccountPage} exact />
               <Route path="/password-reset" component={PasswordResetPage} exact />
-              <PrivateRoute path="/allergens" component={AllergenInfoPage} exact />
+              <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
+              <Route exact path="/create-menu" component={CreateMenuPage} />
+               <Redirect exact from="/" to="/personalized-menu" />
+              
               <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
               <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/home" component={HomePage} exact />
-
+              <Route path="/personalized-menu/:restaurantName" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/profile" component={UserProfilePage} exact />
               <PrivateRoute path="/restaurants" component={RestaurantPage} exact />
-              <PrivateRoute path="/search" component={SearchPage} exact /> {/* Add the SearchPage route */}
+              <PrivateRoute path="/search" component={SearchPage} exact /> 
               <Redirect exact path="/" to="/home" />
+              <PrivateRoute path="/profile">
+                <ErrorBoundary>
+                  <UserProfilePage />
+                </ErrorBoundary>
+              </PrivateRoute>
             </Switch>
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
@@ -109,7 +117,7 @@ const App: React.FC = () => {
             </IonTabButton>
             <IonTabButton tab="search" href="/search">
               <IonIcon aria-hidden="true" icon={triangle} />
-              <IonLabel>Fetch & Store</IonLabel>
+              <IonLabel>Restaurants</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

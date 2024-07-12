@@ -10,11 +10,13 @@ import {
   IonLabel,
   IonLoading,
   IonToast,
-  IonAccordionGroup,
-  IonAccordion,
-  IonButton
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
 } from '@ionic/react';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 
@@ -22,6 +24,7 @@ interface MenuItem {
   name: string;
   description: string;
   allergens: string[];
+  note?: string;
 }
 
 interface MenuCategory {
@@ -29,24 +32,38 @@ interface MenuCategory {
   items: { [key: string]: MenuItem };
 }
 
-interface Restaurant {
-  id: string;
-  name: string;
-  menu: MenuCategory[];
+interface CreatedMenu {
+  restaurantName: string;
+  items: {
+    [key: string]: MenuCategory;
+  };
 }
 
 interface PreferredLocation {
-  name: string;
   address: string;
   coordinates: {
-    lat: number;
-    lng: number;
+    latitude: number;
+    longitude: number;
+  };
+  name: string;
+}
+
+interface UserData {
+  name: string;
+  email: string;
+  allergens: {
+    [key: string]: boolean;
+  };
+  preferredLocations: {
+    [key: string]: PreferredLocation;
+  };
+  createdMenus: {
+    [key: string]: CreatedMenu;
   };
 }
 
 const UserProfilePage: React.FC = () => {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [preferredLocations, setPreferredLocations] = useState<PreferredLocation[]>([]);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -54,6 +71,10 @@ const UserProfilePage: React.FC = () => {
 
   const handleEditProfile = () => {
     history.push('/edit-profile');
+  };
+
+  const handleViewPersonalizedMenus = () => {
+    history.push('/personalized-menu');
   };
 
   useEffect(() => {
@@ -64,58 +85,47 @@ const UserProfilePage: React.FC = () => {
           const userDocRef = doc(db, 'users', auth.currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            const locations: PreferredLocation[] = [];
+            const userDocData = userDocSnap.data() || {};
+            const userData: UserData = {
+              name: userDocData.name,
+              email: userDocData.email,
+              allergens: userDocData.allergens || {},
+              preferredLocations: {},
+              createdMenus: {},
+            };
 
-            // Assuming your Firestore data structure
-            const preferredLocations = userData.preferredLocations || {};
-            Object.keys(userData).forEach(key => {
-              if (key.startsWith('preferredLocations.')) {
-                const location = userData[key];
-                locations.push({
-                  name: key.split('.')[1], // Extracting restaurant name from key
-                  address: location.address,
-                  coordinates: {
-                    lat: location.coordinates.latitude,
-                    lng: location.coordinates.longitude,
-                  },
-                });
-              }
-            });;
+            console.log('User document data:', userDocData);
 
-            setPreferredLocations(locations);
+            // Fetch Preferred Locations
+            const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
+            preferredLocationsSnap.forEach((doc) => {
+              userData.preferredLocations[doc.id] = doc.data() as PreferredLocation;
+            });
+
+            // Fetch Created Menus
+            const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
+            createdMenusSnap.forEach((doc) => {
+              userData.createdMenus[doc.id] = doc.data() as CreatedMenu;
+            });
+
+            console.log('Processed user data:', userData);
+            setUserData(userData);
+          } else {
+            console.error('No such document!');
+            setToastMessage('No such document!');
+            setShowToast(true);
           }
+        } else {
+          console.error('User not authenticated');
+          setToastMessage('User not authenticated');
+          setShowToast(true);
         }
-
-        const querySnapshot = await getDocs(collection(db, 'restaurants'));
-        const restaurantList: Restaurant[] = [];
-        for (const docSnap of querySnapshot.docs) {
-          const restaurantData = docSnap.data() as { name: string };
-          console.log(`Restaurant Data for ${docSnap.id}:`, restaurantData);
-
-          const menuSnapshot = await getDocs(collection(db, 'restaurants', docSnap.id, 'menu'));
-          const menuCategories: MenuCategory[] = menuSnapshot.docs.map(menuDoc => {
-            const menuData = menuDoc.data();
-            return {
-              category: menuData.category,
-              items: menuData.items,
-            } as MenuCategory;
-          });
-          console.log(`Menu for ${docSnap.id}:`, menuCategories);
-
-          restaurantList.push({
-            id: docSnap.id,
-            name: restaurantData.name,
-            menu: menuCategories,
-          });
-        }
-        console.log('Restaurant List:', restaurantList);
-        setRestaurants(restaurantList);
-        setIsLoading(false);
       } catch (error: any) {
-        setIsLoading(false);
         setToastMessage(error.message);
         setShowToast(true);
+        console.error('Error fetching user profile:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -134,55 +144,33 @@ const UserProfilePage: React.FC = () => {
         <IonButton expand="block" onClick={handleEditProfile}>
           Edit Profile
         </IonButton>
+        <IonButton expand="block" onClick={handleViewPersonalizedMenus}>
+          View Personalized Menus
+        </IonButton>
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
-        ) : (
+        ) : userData ? (
           <IonList>
-            {preferredLocations.length > 0 && (
+            {Object.keys(userData.preferredLocations).length > 0 ? (
               <div>
                 <h3>Preferred Locations:</h3>
-                {preferredLocations.map((location, index) => (
-                  <div key={index}>
-                    <h4>{location.name}</h4>
-                    <p>{location.address}</p>
-                  </div>
+                {Object.entries(userData.preferredLocations).map(([key, location]) => (
+                  <IonCard key={key}>
+                    <IonCardHeader>
+                      <IonCardTitle>{location.name}</IonCardTitle>
+                    </IonCardHeader>
+                    <IonCardContent>
+                      <p>{location.address}</p>
+                    </IonCardContent>
+                  </IonCard>
                 ))}
               </div>
+            ) : (
+              <p>No preferred locations found.</p>
             )}
-            <IonAccordionGroup>
-              {restaurants.map(restaurant => (
-                <IonAccordion key={restaurant.id} value={restaurant.id}>
-                  <IonItem slot="header" color="light">
-                    <IonLabel>{restaurant.name}</IonLabel>
-                  </IonItem>
-                  <div slot="content">
-                    {restaurant.menu.map((menuCategory, index) => (
-                      <IonAccordionGroup key={index}>
-                        <IonAccordion value={menuCategory.category}>
-                          <IonItem slot="header" color="medium">
-                            <IonLabel>{menuCategory.category}</IonLabel>
-                          </IonItem>
-                          <div slot="content">
-                            <IonList>
-                              {Object.entries(menuCategory.items).map(([key, item]: [string, MenuItem]) => (
-                                <IonItem key={key}>
-                                  <IonLabel>
-                                    <h2>{item.name}</h2>
-                                    <p>{item.description}</p>
-                                    <p>Allergens: {item.allergens.join(', ')}</p>
-                                  </IonLabel>
-                                </IonItem>
-                              ))}
-                            </IonList>
-                          </div>
-                        </IonAccordion>
-                      </IonAccordionGroup>
-                    ))}
-                  </div>
-                </IonAccordion>
-              ))}
-            </IonAccordionGroup>
           </IonList>
+        ) : (
+          <p>Loading user data failed. Please try again later.</p>
         )}
         <IonToast
           isOpen={showToast}
