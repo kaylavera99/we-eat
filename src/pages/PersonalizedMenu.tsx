@@ -15,9 +15,14 @@ import {
   IonCardTitle,
   IonCardContent,
   IonButton,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
 } from '@ionic/react';
-import { fetchMenuData, SavedMenu, MenuItem, addMenuItemToCreatedMenus } from '../services/menuService';
+import { useHistory } from 'react-router-dom';
+import { fetchMenuData, SavedMenu, MenuItem, addMenuItemToCreatedMenus, deleteMenuItemFromCreatedMenus, deleteMenuItemFromSavedMenus, updateNotesInSavedMenus, updateMenuItemInCreatedMenus } from '../services/menuService';
 import AddMenuItemModal from '../components/AddMenuItemModal';
+import EditNotesModal from '../components/EditNotesModal';
 
 const PersonalizedMenuPage: React.FC = () => {
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
@@ -26,7 +31,11 @@ const PersonalizedMenuPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [noteModalOpen, setNoteModalOpen] = useState(false);
   const [currentRestaurantName, setCurrentRestaurantName] = useState('');
+  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+  const [editingNoteItem, setEditingNoteItem] = useState<MenuItem | null>(null);
+  const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,32 +56,88 @@ const PersonalizedMenuPage: React.FC = () => {
 
   const handleAddMenuItem = async (item: MenuItem) => {
     try {
-      await addMenuItemToCreatedMenus(item, currentRestaurantName);
+      if (editingItem) {
+        await updateMenuItemInCreatedMenus(item, currentRestaurantName, editingItem.id!);
+      } else {
+        await addMenuItemToCreatedMenus(item, currentRestaurantName);
+      }
+
       const { createdMenus } = await fetchMenuData();
       setCreatedMenus(createdMenus);
-      setToastMessage('Menu item added successfully!');
+      setToastMessage(editingItem ? 'Menu item updated successfully!' : 'Menu item added successfully!');
       setShowToast(true);
       setModalOpen(false);
+      setEditingItem(null); // Reset editing item
     } catch (error) {
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
     }
   };
 
-  const renderMenuItems = (items: MenuItem[]) => {
+  const handleEditNote = async (itemId: string, newNotes: string, restaurantName: string) => {
+    try {
+      await updateNotesInSavedMenus(itemId, newNotes, restaurantName);
+      const { savedMenus } = await fetchMenuData();
+      setSavedMenus(savedMenus);
+      setToastMessage('Note updated successfully!');
+      setShowToast(true);
+      setNoteModalOpen(false);
+      setEditingNoteItem(null); // Reset editing note item
+    } catch (error) {
+      setToastMessage(`Error: ${(error as Error).message}`);
+      setShowToast(true);
+    }
+  };
+
+  const handleDeleteMenuItem = async (item: MenuItem, restaurantName: string, isCreatedMenu: boolean) => {
+    try {
+      if (isCreatedMenu) {
+        await deleteMenuItemFromCreatedMenus(item, restaurantName);
+        const { createdMenus } = await fetchMenuData();
+        setCreatedMenus(createdMenus);
+      } else {
+        await deleteMenuItemFromSavedMenus(item, restaurantName);
+        const { savedMenus } = await fetchMenuData();
+        setSavedMenus(savedMenus);
+      }
+      setToastMessage('Menu item deleted successfully!');
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage(`Error: ${(error as Error).message}`);
+      setShowToast(true);
+    }
+  };
+
+  const renderMenuItems = (items: MenuItem[], restaurantName: string, isCreatedMenu: boolean) => {
     return items.map((item, index) => (
-      <IonItem key={index}>
-        <IonLabel>
-          <h2>{item.name}</h2>
-          <p>{item.description}</p>
-          <p>Allergens: {item.allergens.join(', ')}</p>
-          <p>{item.note}</p>
-        </IonLabel>
-      </IonItem>
+      <IonItemSliding key={index}>
+        <IonItem>
+          <IonLabel>
+            <h2>{item.name}</h2>
+            <p>{item.description}</p>
+            <p>Allergens: {item.allergens.join(', ')}</p>
+            <p>Note: {item.note}</p>
+          </IonLabel>
+        </IonItem>
+        <IonItemOptions side="end">
+          {isCreatedMenu && (
+            <>
+              <IonItemOption color="primary" onClick={() => { setCurrentRestaurantName(restaurantName); setEditingItem(item); setModalOpen(true); }}>Edit</IonItemOption>
+              <IonItemOption color="danger" onClick={() => handleDeleteMenuItem(item, restaurantName, true)}>Delete</IonItemOption>
+            </>
+          )}
+          {!isCreatedMenu && (
+            <>
+              <IonItemOption color="primary" onClick={() => { setCurrentRestaurantName(restaurantName); setEditingNoteItem(item); setNoteModalOpen(true); }}>Edit Note</IonItemOption>
+              <IonItemOption color="danger" onClick={() => handleDeleteMenuItem(item, restaurantName, false)}>Delete</IonItemOption>
+            </>
+          )}
+        </IonItemOptions>
+      </IonItemSliding>
     ));
   };
 
-  const renderMenuCategories = (dishes: MenuItem[]) => {
+  const renderMenuCategories = (dishes: MenuItem[], restaurantName: string, isCreatedMenu: boolean) => {
     const categories = dishes.reduce((acc: { [key: string]: MenuItem[] }, dish) => {
       if (!acc[dish.category]) acc[dish.category] = [];
       acc[dish.category].push(dish);
@@ -82,7 +147,9 @@ const PersonalizedMenuPage: React.FC = () => {
     return Object.entries(categories).map(([category, items]) => (
       <div key={category}>
         <h5>{category}</h5>
-        {renderMenuItems(items)}
+        <IonList>
+          {renderMenuItems(items, restaurantName, isCreatedMenu)}
+        </IonList>
       </div>
     ));
   };
@@ -107,21 +174,27 @@ const PersonalizedMenuPage: React.FC = () => {
                     <IonCardTitle>{menu.restaurantName}</IonCardTitle>
                   </IonCardHeader>
                   <IonCardContent>
-                    {renderMenuCategories(menu.dishes)}
+                    {renderMenuCategories(menu.dishes, menu.restaurantName, false)}
+                    <IonButton onClick={() => history.push(`/restaurant/${menu.restaurantName}`)}>
+                      View Full Menu
+                    </IonButton>
                   </IonCardContent>
                 </IonCard>
               ))}
             </IonList>
+
             <h2>Created Menus</h2>
             <IonList>
-              {createdMenus.map((menu, index) => (
+              {createdMenus.map((createdMenu, index) => (
                 <IonCard key={index}>
                   <IonCardHeader>
-                    <IonCardTitle>{menu.restaurantName}</IonCardTitle>
+                    <IonCardTitle>{createdMenu.restaurantName}</IonCardTitle>
                   </IonCardHeader>
                   <IonCardContent>
-                    {renderMenuCategories(menu.dishes)}
-                    <IonButton onClick={() => { setCurrentRestaurantName(menu.restaurantName); setModalOpen(true); }}>Add Item</IonButton>
+                    {renderMenuCategories(createdMenu.dishes, createdMenu.restaurantName, true)}
+                    <IonButton onClick={() => { setCurrentRestaurantName(createdMenu.restaurantName); setEditingItem(null); setModalOpen(true); }}>
+                      Add Item
+                    </IonButton>
                   </IonCardContent>
                 </IonCard>
               ))}
@@ -138,7 +211,14 @@ const PersonalizedMenuPage: React.FC = () => {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           onAddMenuItem={handleAddMenuItem}
-          category="" // Empty category, user will specify in the modal
+          initialItem={editingItem || undefined}
+        />
+        <EditNotesModal
+          isOpen={noteModalOpen}
+          onClose={() => setNoteModalOpen(false)}
+          onSaveNotes={handleEditNote}
+          initialItem={editingNoteItem || undefined}
+          restaurantName={currentRestaurantName}
         />
       </IonContent>
     </IonPage>

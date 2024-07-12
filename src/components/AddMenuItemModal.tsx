@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  IonButton,
-  IonContent,
+  IonModal,
   IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonButton,
   IonInput,
   IonItem,
   IonLabel,
-  IonModal,
   IonTextarea,
-  IonTitle,
-  IonToolbar,
-  IonSelect,
-  IonSelectOption
 } from '@ionic/react';
 import { MenuItem } from '../services/menuService';
 
@@ -19,39 +17,45 @@ interface AddMenuItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddMenuItem: (item: MenuItem) => void;
-  category: string;
+  initialItem?: MenuItem & { id?: string }; // Include id for editing
 }
 
-const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, onAddMenuItem }) => {
+const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, onAddMenuItem, initialItem }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [allergens, setAllergens] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [category, setCategory] = useState('');
 
-  const handleAddMenuItem = () => {
-    const newItem: MenuItem = {
-      name,
-      description,
-      allergens,
-      note,
-      category
-    };
+  useEffect(() => {
+    if (initialItem) {
+      setName(initialItem.name);
+      setDescription(initialItem.description);
+      setAllergens(initialItem.allergens);
+      setNote(initialItem.note || '');
+      setCategory(initialItem.category);
+    } else {
+      setName('');
+      setDescription('');
+      setAllergens([]);
+      setNote('');
+      setCategory('');
+    }
+  }, [initialItem]);
+
+  const handleSave = () => {
+    const newItem: MenuItem = { name, description, allergens, note, category };
+    if (initialItem?.id) {
+      newItem.id = initialItem.id; // Include id for editing
+    }
     onAddMenuItem(newItem);
-    setName('');
-    setDescription('');
-    setAllergens([]);
-    setNote('');
-    setCategory('');
-    onClose();
   };
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Add Menu Item</IonTitle>
-          <IonButton slot="end" onClick={onClose}>Close</IonButton>
+          <IonTitle>{initialItem ? 'Edit Menu Item' : 'Add Menu Item'}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -65,13 +69,7 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
         </IonItem>
         <IonItem>
           <IonLabel position="stacked">Allergens</IonLabel>
-          <IonSelect multiple={true} value={allergens} onIonChange={e => setAllergens(e.detail.value!)}>
-            <IonSelectOption value="Wheat">Wheat</IonSelectOption>
-            <IonSelectOption value="Dairy">Dairy</IonSelectOption>
-            <IonSelectOption value="Soy">Soy</IonSelectOption>
-            <IonSelectOption value="Shellfish">Shellfish</IonSelectOption>
-            {/* Add more allergens as needed */}
-          </IonSelect>
+          <IonInput value={allergens.join(', ')} onIonChange={e => setAllergens(e.detail.value!.split(',').map(a => a.trim()))} />
         </IonItem>
         <IonItem>
           <IonLabel position="stacked">Note</IonLabel>
@@ -81,7 +79,12 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
           <IonLabel position="stacked">Category</IonLabel>
           <IonInput value={category} onIonChange={e => setCategory(e.detail.value!)} />
         </IonItem>
-        <IonButton expand="block" onClick={handleAddMenuItem}>Add Item</IonButton>
+        <IonButton expand="block" onClick={handleSave}>
+          Save
+        </IonButton>
+        <IonButton expand="block" color="light" onClick={onClose}>
+          Cancel
+        </IonButton>
       </IonContent>
     </IonModal>
   );

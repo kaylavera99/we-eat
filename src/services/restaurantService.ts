@@ -1,50 +1,57 @@
-// src/services/restaurantService.ts
-
-import { collection, doc, writeBatch, GeoPoint } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import { fetchRestaurantsFromGooglePlaces } from './googlePlacesService';
-import axios from 'axios';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+export interface MenuItem {
+  id?: string;
+  name: string;
+  description: string;
+  allergens: string[];
+  note?: string;
+  category: string;
+}
 
-export const addRestaurantsToFirestore = async (latitude: number, longitude: number, radius: number, keyword: string) => {
-  try {
-    const location = `${latitude},${longitude}`;
-    const restaurants = await fetchRestaurantsFromGooglePlaces(latitude, longitude, radius, keyword);
+export interface MenuCategory {
+  id: string;
+  category: string;
+  items: MenuItem[];
+}
 
-    const batch = writeBatch(db);
-    for (const restaurant of restaurants) {
-      const restaurantRef = doc(collection(db, 'restaurants'));
-      const locationRef = doc(collection(restaurantRef, 'locations'));
+export const fetchFullMenuFromRestaurants = async (restaurantName: string): Promise<MenuCategory[]> => {
+  const categories: MenuCategory[] = [];
 
-      const geoPoint = new GeoPoint(restaurant.geometry.location.lat, restaurant.geometry.location.lng);
+  const restaurantsRef = collection(db, 'restaurants');
+  const q = query(restaurantsRef, where("name", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
 
-      batch.set(restaurantRef, {
-        name: restaurant.name,
+  if (!querySnapshot.empty) {
+    const restaurantDocRef = querySnapshot.docs[0].ref;
+    const menuCollectionRef = collection(restaurantDocRef, 'menu');
+    const menuSnapshot = await getDocs(menuCollectionRef);
+
+    for (const categoryDoc of menuSnapshot.docs) {
+      const categoryData = categoryDoc.data();
+      const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+      const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+      const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+        const itemData = itemDoc.data();
+        return {
+          id: itemDoc.id,
+          name: itemData.name,
+          description: itemData.description,
+          allergens: itemData.allergens,
+          note: itemData.note,
+          category: itemData.category,
+        };
       });
 
-      batch.set(locationRef, {
-        address: restaurant.vicinity,
-        coordinates: geoPoint,
+      categories.push({
+        id: categoryDoc.id,
+        category: categoryData.category,
+        items,
       });
-
-      // Add delay between requests
-      await delay(1000);
     }
-
-    await batch.commit();
-    console.log('Added restaurants to Firestore successfully.');
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Axios error message:', error.message);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-      }
-    } else {
-      console.error('Unknown error:', error);
-    }
-    throw error;
   }
+
+  return categories;
 };
-
-
