@@ -27,7 +27,10 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const token = await userCredential.user.getIdToken();  // Get the ID token
+      localStorage.setItem('authToken', token);  // Store the token in local storage
+      console.log(token)
       setIsLoading(false);
       history.push('/home');
     } catch (error: any) {
@@ -36,7 +39,6 @@ const LoginPage: React.FC = () => {
       setShowToast(true);
     }
   };
-
   return (
     <IonPage>
       <IonHeader>

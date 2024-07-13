@@ -26,6 +26,7 @@
     "axios": "^1.7.2",
     "express": "^4.19.2",
     "firebase": "^10.12.2",
+    "firebase-admin": "^12.2.0",
     "firebase-tools": "^13.13.0",
     "http-proxy-middleware": "^3.0.0",
     "ionicons": "^7.0.0",
