@@ -1,14 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonLoading, IonToast } from '@ionic/react';
-import { useParams } from 'react-router-dom';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonToast } from '@ionic/react';
+import { useParams, useLocation } from 'react-router-dom';
 import { fetchFullMenuFromRestaurants, MenuCategory } from '../services/restaurantService';
+import { setPreferredLocation } from '../services/userService';
+
+interface Place {
+  name: string;
+  vicinity: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+  address?: string; // Optional to avoid conflicts
+  coordinates?: { lat: number; lng: number }; // Optional to avoid conflicts
+}
+
+interface RestaurantDetails {
+  menuCategories: MenuCategory[];
+  place: Place;
+}
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
+  const locationState = useLocation<{ place: Place }>().state;
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [place, setPlace] = useState<Place | null>(locationState?.place || null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,6 +47,22 @@ const RestaurantPage: React.FC = () => {
     fetchData();
   }, [restaurantName]);
 
+  const handleSetPreferredLocation = async () => {
+    if (place) {
+      try {
+        await setPreferredLocation(place);
+        setToastMessage('Preferred location saved');
+        setShowToast(true);
+      } catch (error) {
+        setToastMessage(`Error saving preferred location: ${(error as Error).message}`);
+        setShowToast(true);
+      }
+    } else {
+      setToastMessage('No place information available');
+      setShowToast(true);
+    }
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -35,25 +72,26 @@ const RestaurantPage: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         {isLoading ? (
-          <IonLoading isOpen={isLoading} message="Loading..." />
+          <p>Loading...</p>
         ) : (
-          <IonList>
+          <>
             {menuCategories.map(category => (
               <div key={category.id}>
                 <h5>{category.category}</h5>
                 {category.items.map(item => (
-                  <IonItem key={item.id}>
-                    <IonLabel>
-                      <h2>{item.name}</h2>
-                      <p>{item.description}</p>
-                      <p>Allergens: {item.allergens.join(', ')}</p>
-                      <p>{item.note}</p>
-                    </IonLabel>
-                  </IonItem>
+                  <div key={item.id}>
+                    <h2>{item.name}</h2>
+                    <p>{item.description}</p>
+                    <p>Allergens: {item.allergens.join(', ')}</p>
+                    <p>{item.note}</p>
+                  </div>
                 ))}
               </div>
             ))}
-          </IonList>
+            <IonButton expand="block" onClick={handleSetPreferredLocation}>
+              Set as Preferred Location
+            </IonButton>
+          </>
         )}
         <IonToast
           isOpen={showToast}

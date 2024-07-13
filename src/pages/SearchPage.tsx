@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -12,11 +12,9 @@ import {
   IonLabel,
   IonToast
 } from '@ionic/react';
-import axios from 'axios';
-import { doc, setDoc, GeoPoint } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
-
-const GOOGLE_PLACES_API_KEY = 'AIzaSyADCxV3t9rLih5de7GhP7R8OlZ5RA1Y_tk';
+import { fetchKeywords, searchRestaurants } from '../services/searchService';
+import { useHistory } from 'react-router-dom';
+import { GeoPoint } from 'firebase/firestore';
 
 interface Place {
   name: string;
@@ -27,16 +25,33 @@ interface Place {
       lng: number;
     };
   };
+  address?: string; // Optional to avoid conflicts
+  coordinates?: GeoPoint; // Optional to avoid conflicts
+  distance: number;
 }
-
-const keywords = ["McDonald's", "Subway"];
 
 const SearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [radius, setRadius] = useState<number>(5000); // Default to 5km
+  const [radius, setRadius] = useState<number>(5); // Default to 5 miles
   const [results, setResults] = useState<Place[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [keywords, setKeywords] = useState<string[]>([]);
+  const history = useHistory();
+
+  useEffect(() => {
+    const fetchAllKeywords = async () => {
+      try {
+        const newKeywords = await fetchKeywords();
+        setKeywords(newKeywords);
+      } catch (error) {
+        setToastMessage('Error fetching keywords');
+        setShowToast(true);
+      }
+    };
+
+    fetchAllKeywords();
+  }, []);
 
   const handleSearch = async () => {
     if (!navigator.geolocation) {
@@ -51,23 +66,8 @@ const SearchPage: React.FC = () => {
       console.log('Location:', location); // Debugging info
 
       try {
-        const allResults: Place[] = [];
-        for (const keyword of keywords) {
-          console.log(`Searching for keyword: ${keyword}`);
-          const { data } = await axios.get(
-            `https://proxy-server-we-eat-e24e32c11d10.herokuapp.com/proxy`, // Your proxy endpoint
-            {
-              params: {
-                location,
-                radius,
-                keyword,
-                type: 'restaurant',
-                key: GOOGLE_PLACES_API_KEY,
-              },
-            }
-          );
-          allResults.push(...data.results);
-        }
+        const allResults: Place[] = await searchRestaurants(location, radius, searchQuery || keywords, { lat: latitude, lng: longitude });
+        console.log('Search results:', allResults); // Debugging info
         setResults(allResults);
       } catch (error) {
         setToastMessage('Error fetching data from Google Places');
@@ -79,25 +79,8 @@ const SearchPage: React.FC = () => {
     });
   };
 
-  const handleSavePreferredLocation = async (place: Place) => {
-    try {
-      if (auth.currentUser) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
-        const preferredLocation = {
-          [`preferredLocations.${place.name}`]: {
-            name: place.name,
-            address: place.vicinity,
-            coordinates: new GeoPoint(place.geometry.location.lat, place.geometry.location.lng),
-          }
-        };
-        await setDoc(userDocRef, preferredLocation, { merge: true });
-        setToastMessage('Preferred location saved');
-        setShowToast(true);
-      }
-    } catch (error) {
-      setToastMessage('Error saving preferred location');
-      setShowToast(true);
-    }
+  const handleNavigateToRestaurantPage = (place: Place) => {
+    history.push(`/restaurant/${encodeURIComponent(place.name)}`, { place });
   };
 
   return (
@@ -108,18 +91,31 @@ const SearchPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonInput
-          value={searchQuery}
-          placeholder="Search for restaurants"
-          onIonChange={(e) => setSearchQuery(e.detail.value!)}
-        />
-        <IonButton onClick={handleSearch}>Search</IonButton>
+        <IonItem>
+          <IonLabel position="stacked">Enter radius in miles</IonLabel>
+          <IonInput
+            type="number"
+            value={radius}
+            placeholder="Enter radius in miles"
+            onIonChange={(e) => setRadius(parseInt(e.detail.value!, 10))}
+          />
+        </IonItem>
+        <IonItem>
+          <IonLabel position="stacked">Search by restaurant name</IonLabel>
+          <IonInput
+            value={searchQuery}
+            placeholder="Search by restaurant name"
+            onIonChange={(e) => setSearchQuery(e.detail.value!)}
+          />
+        </IonItem>
+        <IonButton expand="block" onClick={handleSearch}>Search</IonButton>
         <IonList>
           {results.map((place, index) => (
-            <IonItem key={index} button onClick={() => handleSavePreferredLocation(place)}>
+            <IonItem key={index} button onClick={() => handleNavigateToRestaurantPage(place)}>
               <IonLabel>
                 <h2>{place.name}</h2>
                 <p>{place.vicinity}</p>
+                <p>Distance: {place.distance.toFixed(2)} miles</p> {/* Display distance */}
               </IonLabel>
             </IonItem>
           ))}
