@@ -45,33 +45,28 @@ export const fetchKeywords = async (): Promise<string[]> => {
   return newKeywords;
 };
 
-export const searchRestaurants = async (location: string, radius: number, searchQuery: string | string[], userLocation: { lat: number, lng: number }) => {
+export const searchRestaurants = async (location: string, radius: number, searchQuery: string, userLocation: { lat: number, lng: number }) => {
   const allResults: any[] = [];
-  const keywords = typeof searchQuery === 'string' && searchQuery ? [searchQuery] : searchQuery;
 
-  for (const keyword of keywords && keywords.length > 0 ? keywords : await fetchKeywords()) {
-    console.log(`Searching for keyword: ${keyword}`);
+  const params = {
+    location,
+    radius: radius * 1609.34, // Convert miles to meters
+    keyword: searchQuery,
+    type: 'restaurant',
+    key: GOOGLE_PLACES_API_KEY
+  };
 
-    const params = {
-      location,
-      radius: radius * 1609.34, // Convert miles to meters
-      keyword,
-      type: 'restaurant',
-      key: GOOGLE_PLACES_API_KEY
-    };
+  console.log('Request params:', params);
 
-    console.log('Request params:', params);
-
-    try {
-      const { data } = await axios.get(`${PROXY_SERVER_URL}/proxy`, { params });
-      console.log(`Google Places API results for ${keyword}:`, data.results);
-      allResults.push(...data.results);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(`Error fetching data for keyword: ${keyword}`, error.response?.data || error.message);
-      } else {
-        console.error(`Error fetching data for keyword: ${keyword}`, error);
-      }
+  try {
+    const { data } = await axios.get(`${PROXY_SERVER_URL}/proxy`, { params });
+    console.log(`Google Places API results for ${searchQuery}:`, data.results);
+    allResults.push(...data.results);
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(`Error fetching data for keyword: ${searchQuery}`, error.response?.data || error.message);
+    } else {
+      console.error(`Error fetching data for keyword: ${searchQuery}`, error);
     }
   }
 

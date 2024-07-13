@@ -12,7 +12,7 @@ import {
   IonLabel,
   IonToast
 } from '@ionic/react';
-import { fetchKeywords, searchRestaurants } from '../services/searchService';
+import { searchRestaurants } from '../services/searchService';
 import { useHistory } from 'react-router-dom';
 import { GeoPoint } from 'firebase/firestore';
 
@@ -36,27 +36,29 @@ const SearchPage: React.FC = () => {
   const [results, setResults] = useState<Place[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
-    const fetchAllKeywords = async () => {
-      try {
-        const newKeywords = await fetchKeywords();
-        setKeywords(newKeywords);
-      } catch (error) {
-        setToastMessage('Error fetching keywords');
-        setShowToast(true);
-      }
-    };
-
-    fetchAllKeywords();
-  }, []);
+    if (isSearching) {
+      handleSearch();
+    }
+  }, [searchQuery]);
 
   const handleSearch = async () => {
+    const trimmedSearchQuery = searchQuery.trim();
+    console.log(trimmedSearchQuery)
+    if (!trimmedSearchQuery) {
+      setToastMessage('Please enter a restaurant name to search');
+      setShowToast(true);
+      setIsSearching(false);
+      return;
+    }
+
     if (!navigator.geolocation) {
       setToastMessage('Geolocation is not supported by your browser');
       setShowToast(true);
+      setIsSearching(false);
       return;
     }
 
@@ -66,21 +68,29 @@ const SearchPage: React.FC = () => {
       console.log('Location:', location); // Debugging info
 
       try {
-        const allResults: Place[] = await searchRestaurants(location, radius, searchQuery || keywords, { lat: latitude, lng: longitude });
+        const allResults: Place[] = await searchRestaurants(location, radius, trimmedSearchQuery, { lat: latitude, lng: longitude });
         console.log('Search results:', allResults); // Debugging info
         setResults(allResults);
       } catch (error) {
         setToastMessage('Error fetching data from Google Places');
         setShowToast(true);
+      } finally {
+        setIsSearching(false);
       }
     }, (error) => {
       setToastMessage('Unable to retrieve your location');
       setShowToast(true);
+      setIsSearching(false);
     });
   };
 
   const handleNavigateToRestaurantPage = (place: Place) => {
     history.push(`/restaurant/${encodeURIComponent(place.name)}`, { place });
+  };
+
+  const handleInputChange = (e: CustomEvent) => {
+    setSearchQuery(e.detail.value!);
+    setIsSearching(true);
   };
 
   return (
@@ -105,10 +115,17 @@ const SearchPage: React.FC = () => {
           <IonInput
             value={searchQuery}
             placeholder="Search by restaurant name"
-            onIonChange={(e) => setSearchQuery(e.detail.value!)}
+            onIonChange={handleInputChange}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSearch();
+              }
+            }}
           />
         </IonItem>
-        <IonButton expand="block" onClick={handleSearch}>Search</IonButton>
+        <IonButton expand="block" onClick={handleSearch} disabled={isSearching}>
+          {isSearching ? 'Searching...' : 'Search'}
+        </IonButton>
         <IonList>
           {results.map((place, index) => (
             <IonItem key={index} button onClick={() => handleNavigateToRestaurantPage(place)}>

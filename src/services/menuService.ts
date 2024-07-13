@@ -1,7 +1,6 @@
-// src/services/menuService.ts
-
 import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, writeBatch, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
+import { MenuCategory } from './restaurantService';
 
 export interface MenuItem {
   id?: string; // Add the id field here
@@ -233,4 +232,120 @@ export const fetchMenuData = async (): Promise<{ savedMenus: SavedMenu[], create
   }
 
   return { savedMenus, createdMenus };
+};
+
+export const getCreatedMenusForRestaurant = async (restaurantName: string): Promise<MenuCategory[]> => {
+  if (!auth.currentUser) {
+    return [];
+  }
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const createdMenusSnapshot = await getDocs(
+    query(collection(userDocRef, 'createdMenus'), where('restaurantName', '==', restaurantName))
+  );
+
+  const categories: MenuCategory[] = [];
+  for (const categoryDoc of createdMenusSnapshot.docs) {
+    const categoryData = categoryDoc.data();
+    const itemsCollectionRef = collection(categoryDoc.ref, 'dishes');
+    const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+    const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+      const itemData = itemDoc.data();
+      return {
+        id: itemDoc.id,
+        name: itemData.name,
+        description: itemData.description,
+        allergens: itemData.allergens,
+        note: itemData.note,
+        category: itemData.category,
+      };
+    });
+
+    categories.push({
+      id: categoryDoc.id,
+      category: categoryData.category,
+      items,
+    });
+  }
+
+  return categories;
+};
+
+export const getSavedMenusForRestaurant = async (restaurantName: string): Promise<MenuCategory[]> => {
+  if (!auth.currentUser) {
+    return [];
+  }
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const savedMenusSnapshot = await getDocs(
+    query(collection(userDocRef, 'savedMenus'), where('restaurantName', '==', restaurantName))
+  );
+
+  const categories: MenuCategory[] = [];
+  for (const categoryDoc of savedMenusSnapshot.docs) {
+    const categoryData = categoryDoc.data();
+    const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+    const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+    const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+      const itemData = itemDoc.data();
+      return {
+        id: itemDoc.id,
+        name: itemData.name,
+        description: itemData.description,
+        allergens: itemData.allergens,
+        note: itemData.note,
+        category: itemData.category,
+      };
+    });
+
+    categories.push({
+      id: categoryDoc.id,
+      category: categoryData.category,
+      items,
+    });
+  }
+
+  return categories;
+};
+
+export const fetchFullMenuFromRestaurants = async (restaurantName: string): Promise<MenuCategory[]> => {
+  const categories: MenuCategory[] = [];
+
+  const restaurantsRef = collection(db, 'restaurants');
+  const q = query(restaurantsRef, where("name", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
+
+  if (!querySnapshot.empty) {
+    const restaurantDocRef = querySnapshot.docs[0].ref;
+    const menuCollectionRef = collection(restaurantDocRef, 'menu');
+    const menuSnapshot = await getDocs(menuCollectionRef);
+
+    for (const categoryDoc of menuSnapshot.docs) {
+      const categoryData = categoryDoc.data();
+      const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+      const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+      const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+        const itemData = itemDoc.data();
+        return {
+          id: itemDoc.id,
+          name: itemData.name,
+          description: itemData.description,
+          allergens: itemData.allergens,
+          note: itemData.note,
+          category: itemData.category,
+        };
+      });
+
+      categories.push({
+        id: categoryDoc.id,
+        category: categoryData.category,
+        items,
+      });
+    }
+  }
+
+  return categories;
 };
