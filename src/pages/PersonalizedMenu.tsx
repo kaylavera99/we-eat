@@ -153,6 +153,9 @@ const PersonalizedMenuPage: React.FC = () => {
       </div>
     ));
   };
+  const handleViewSavedMenu = (restaurantName: string) => {
+    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`);
+  };
 
   return (
     <IonPage>
@@ -175,7 +178,7 @@ const PersonalizedMenuPage: React.FC = () => {
                   </IonCardHeader>
                   <IonCardContent>
                     {renderMenuCategories(menu.dishes, menu.restaurantName, false)}
-                    <IonButton onClick={() => history.push(`/restaurant/${menu.restaurantName}`)}>
+                    <IonButton onClick={() =>  handleViewSavedMenu(menu.restaurantName)}>
                       View Full Menu
                     </IonButton>
                   </IonCardContent>
