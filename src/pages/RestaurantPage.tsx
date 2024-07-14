@@ -1,37 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonLoading, IonToast, IonButton } from '@ionic/react';
-import { useParams, useLocation, useHistory } from 'react-router-dom';
-import { fetchFullMenuFromRestaurants, fetchMenuData, MenuItem, SavedMenu } from '../services/menuService';
-import { setPreferredLocation } from '../services/userService';
-import { MenuCategory } from '../services/restaurantService';
+import {
+  IonContent,
+  IonHeader,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonLoading,
+  IonToast,
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent,
+} from '@ionic/react';
+import { useParams } from 'react-router-dom';
+import { fetchFullMenuFromRestaurants, MenuCategory, MenuItem } from '../services/restaurantService';
+import { addMenuItemToSavedMenus } from '../services/menuService';
 
 const RestaurantPage: React.FC = () => {
-  const { restaurantName, menuType } = useParams<{ restaurantName: string; menuType: string }>();
+  const { restaurantName } = useParams<{ restaurantName: string }>();
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
-  const [savedMenu, setSavedMenu] = useState<SavedMenu | null>(null);
-  const [preferredLocation, setPreferredLocation] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        if (menuType === 'full') {
-          const categories = await fetchFullMenuFromRestaurants(restaurantName);
-          setMenuCategories(categories);
-        } else {
-          const { savedMenus, createdMenus } = await fetchMenuData();
-          const menu = (menuType === 'saved' ? savedMenus : createdMenus).find(m => m.restaurantName === restaurantName);
-          setSavedMenu(menu || null);
-          if (menuType === 'saved') {
-            // Fetch preferred location if it's a saved menu
-            const userPreferredLocation = savedMenus.find(m => m.restaurantName === restaurantName)?.restaurantName;
-            setPreferredLocation(userPreferredLocation || null);
-          }
-        }
+        console.log("Fetching menu for:", restaurantName);
+        const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
+        setMenuCategories(fullMenu);
+        console.log("Menu categories set:", fullMenu);
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -40,58 +43,56 @@ const RestaurantPage: React.FC = () => {
       }
     };
     fetchData();
-  }, [restaurantName, menuType]);
+  }, [restaurantName]);
 
-  const handleViewFullMenu = () => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
+  const handleAddToSavedMenu = async (item: MenuItem) => {
+    try {
+      await addMenuItemToSavedMenus(item, restaurantName);
+      setToastMessage('Menu item added to saved menu successfully!');
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage(`Error adding menu item: ${(error as Error).message}`);
+      setShowToast(true);
+    }
+  };
+
+  const renderMenuItems = (items: MenuItem[]) => {
+    return items.map((item, index) => (
+      <IonCard key={index}>
+        <IonCardHeader>
+          <IonCardTitle>{item.name}</IonCardTitle>
+        </IonCardHeader>
+        <IonCardContent>
+          <p>{item.description}</p>
+          <p>Allergens: {item.allergens.join(', ')}</p>
+          <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>
+        </IonCardContent>
+      </IonCard>
+    ));
+  };
+
+  const renderMenuCategories = (categories: MenuCategory[]) => {
+    return categories.map((category, index) => (
+      <div key={index}>
+        <h5>{category.category}</h5>
+        <IonList>{renderMenuItems(category.items)}</IonList>
+      </div>
+    ));
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{restaurantName} Menu ({menuType})</IonTitle>
+          <IonTitle>{restaurantName} Full Menu</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <IonList>
-            {menuType === 'full' ? (
-              menuCategories.map(category => (
-                <div key={category.id}>
-                  <h5>{category.category}</h5>
-                  {category.items.map(item => (
-                    <IonItem key={item.id}>
-                      <IonLabel>
-                        <h2>{item.name}</h2>
-                        <p>{item.description}</p>
-                        <p>Allergens: {item.allergens.join(', ')}</p>
-                        <p>{item.note}</p>
-                      </IonLabel>
-                    </IonItem>
-                  ))}
-                </div>
-              ))
-            ) : savedMenu ? (
-              savedMenu.dishes.map((item: MenuItem) => (
-                <IonItem key={item.id}>
-                  <IonLabel>
-                    <h2>{item.name}</h2>
-                    <p>{item.description}</p>
-                    <p>Allergens: {item.allergens.join(', ')}</p>
-                    <p>{item.note}</p>
-                  </IonLabel>
-                </IonItem>
-              ))
-            ) : (
-              <p>No menu available</p>
-            )}
-            {preferredLocation && <p>Preferred Location: {preferredLocation}</p>}
-          </IonList>
+          renderMenuCategories(menuCategories)
         )}
-        {menuType !== 'full' && <IonButton onClick={handleViewFullMenu}>View Full Menu</IonButton>}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}

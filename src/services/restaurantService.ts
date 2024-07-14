@@ -18,7 +18,7 @@ export interface MenuCategory {
 
 export const fetchFullMenuFromRestaurants = async (restaurantName: string): Promise<MenuCategory[]> => {
   const categories: MenuCategory[] = [];
-
+  console.log("Fetching full menu for restaurant:", restaurantName);
   const restaurantsRef = collection(db, 'restaurants');
   const q = query(restaurantsRef, where("name", "==", restaurantName));
   const querySnapshot = await getDocs(q);
@@ -41,7 +41,7 @@ export const fetchFullMenuFromRestaurants = async (restaurantName: string): Prom
           description: itemData.description,
           allergens: itemData.allergens,
           note: itemData.note,
-          category: itemData.category,
+          category: categoryData.category,
         };
       });
 
@@ -51,7 +51,11 @@ export const fetchFullMenuFromRestaurants = async (restaurantName: string): Prom
         items,
       });
     }
+    console.log("Fetched categories:", categories);
+  } else {
+    console.log("No menu found for restaurant:", restaurantName);
   }
 
   return categories;
 };
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+/* import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   IonContent,
@@ -108,3 +108,4 @@ const AllergenInfoPage: React.FC = () => {
 };
 
 export default AllergenInfoPage;
+ */
