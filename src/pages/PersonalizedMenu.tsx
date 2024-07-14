@@ -20,7 +20,16 @@ import {
   IonItemOption,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import { fetchMenuData, SavedMenu, MenuItem, addMenuItemToCreatedMenus, deleteMenuItemFromCreatedMenus, deleteMenuItemFromSavedMenus, updateNotesInSavedMenus, updateMenuItemInCreatedMenus } from '../services/menuService';
+import {
+  fetchMenuData,
+  SavedMenu,
+  MenuItem,
+  addMenuItemToCreatedMenus,
+  deleteMenuItemFromCreatedMenus,
+  deleteMenuItemFromSavedMenus,
+  updateNotesInSavedMenus,
+  updateNotesInCreatedMenus,
+} from '../services/menuService';
 import AddMenuItemModal from '../components/AddMenuItemModal';
 import EditNotesModal from '../components/EditNotesModal';
 
@@ -35,6 +44,7 @@ const PersonalizedMenuPage: React.FC = () => {
   const [currentRestaurantName, setCurrentRestaurantName] = useState('');
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [editingNoteItem, setEditingNoteItem] = useState<MenuItem | null>(null);
+  const [isCreatedMenu, setIsCreatedMenu] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
@@ -57,7 +67,7 @@ const PersonalizedMenuPage: React.FC = () => {
   const handleAddMenuItem = async (item: MenuItem) => {
     try {
       if (editingItem) {
-        await updateMenuItemInCreatedMenus(item, currentRestaurantName, editingItem.id!);
+        await addMenuItemToCreatedMenus(item, currentRestaurantName);
       } else {
         await addMenuItemToCreatedMenus(item, currentRestaurantName);
       }
@@ -74,11 +84,22 @@ const PersonalizedMenuPage: React.FC = () => {
     }
   };
 
-  const handleEditNote = async (itemId: string, newNotes: string, restaurantName: string) => {
+  const handleEditNote = async (updatedItem: MenuItem) => {
+    const { id, note } = updatedItem;
+    if (!id) {
+      console.error('Item ID is missing.');
+      return;
+    }
+
     try {
-      await updateNotesInSavedMenus(itemId, newNotes, restaurantName);
-      const { savedMenus } = await fetchMenuData();
+      if (isCreatedMenu) {
+        await updateNotesInCreatedMenus(id, note!, currentRestaurantName);
+      } else {
+        await updateNotesInSavedMenus(id, note!, currentRestaurantName);
+      }
+      const { savedMenus, createdMenus } = await fetchMenuData();
       setSavedMenus(savedMenus);
+      setCreatedMenus(createdMenus);
       setToastMessage('Note updated successfully!');
       setShowToast(true);
       setNoteModalOpen(false);
@@ -89,14 +110,14 @@ const PersonalizedMenuPage: React.FC = () => {
     }
   };
 
-  const handleDeleteMenuItem = async (item: MenuItem, restaurantName: string, isCreatedMenu: boolean) => {
+  const handleDeleteMenuItem = async (itemId: string, restaurantName: string, isCreatedMenu: boolean) => {
     try {
       if (isCreatedMenu) {
-        await deleteMenuItemFromCreatedMenus(item, restaurantName);
+        await deleteMenuItemFromCreatedMenus(itemId, restaurantName);
         const { createdMenus } = await fetchMenuData();
         setCreatedMenus(createdMenus);
       } else {
-        await deleteMenuItemFromSavedMenus(item, restaurantName);
+        await deleteMenuItemFromSavedMenus(itemId, restaurantName);
         const { savedMenus } = await fetchMenuData();
         setSavedMenus(savedMenus);
       }
@@ -122,14 +143,43 @@ const PersonalizedMenuPage: React.FC = () => {
         <IonItemOptions side="end">
           {isCreatedMenu && (
             <>
-              <IonItemOption color="primary" onClick={() => { setCurrentRestaurantName(restaurantName); setEditingItem(item); setModalOpen(true); }}>Edit</IonItemOption>
-              <IonItemOption color="danger" onClick={() => handleDeleteMenuItem(item, restaurantName, true)}>Delete</IonItemOption>
+              <IonItemOption
+                color="primary"
+                onClick={() => {
+                  setCurrentRestaurantName(restaurantName);
+                  setEditingItem(item);
+                  setModalOpen(true);
+                }}
+              >
+                Edit
+              </IonItemOption>
+              <IonItemOption
+                color="danger"
+                onClick={() => handleDeleteMenuItem(item.id!, restaurantName, true)}
+              >
+                Delete
+              </IonItemOption>
             </>
           )}
           {!isCreatedMenu && (
             <>
-              <IonItemOption color="primary" onClick={() => { setCurrentRestaurantName(restaurantName); setEditingNoteItem(item); setNoteModalOpen(true); }}>Edit Note</IonItemOption>
-              <IonItemOption color="danger" onClick={() => handleDeleteMenuItem(item, restaurantName, false)}>Delete</IonItemOption>
+              <IonItemOption
+                color="primary"
+                onClick={() => {
+                  setCurrentRestaurantName(restaurantName);
+                  setIsCreatedMenu(false);
+                  setEditingNoteItem(item);
+                  setNoteModalOpen(true);
+                }}
+              >
+                Edit Note
+              </IonItemOption>
+              <IonItemOption
+                color="danger"
+                onClick={() => handleDeleteMenuItem(item.id!, restaurantName, false)}
+              >
+                Delete
+              </IonItemOption>
             </>
           )}
         </IonItemOptions>
@@ -147,14 +197,17 @@ const PersonalizedMenuPage: React.FC = () => {
     return Object.entries(categories).map(([category, items]) => (
       <div key={category}>
         <h5>{category}</h5>
-        <IonList>
-          {renderMenuItems(items, restaurantName, isCreatedMenu)}
-        </IonList>
+        <IonList>{renderMenuItems(items, restaurantName, isCreatedMenu)}</IonList>
       </div>
     ));
   };
+
   const handleViewSavedMenu = (restaurantName: string) => {
     history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`);
+  };
+
+  const handleViewCreatedMenu = (restaurantName: string) => {
+    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`);
   };
 
   return (
@@ -178,8 +231,8 @@ const PersonalizedMenuPage: React.FC = () => {
                   </IonCardHeader>
                   <IonCardContent>
                     {renderMenuCategories(menu.dishes, menu.restaurantName, false)}
-                    <IonButton onClick={() =>  handleViewSavedMenu(menu.restaurantName)}>
-                      View Full Menu
+                    <IonButton onClick={() => handleViewSavedMenu(menu.restaurantName)}>
+                      View Saved Menu
                     </IonButton>
                   </IonCardContent>
                 </IonCard>
@@ -195,7 +248,18 @@ const PersonalizedMenuPage: React.FC = () => {
                   </IonCardHeader>
                   <IonCardContent>
                     {renderMenuCategories(createdMenu.dishes, createdMenu.restaurantName, true)}
-                    <IonButton onClick={() => { setCurrentRestaurantName(createdMenu.restaurantName); setEditingItem(null); setModalOpen(true); }}>
+                    <IonButton
+                      onClick={() => handleViewCreatedMenu(createdMenu.restaurantName)}
+                    >
+                      View Created Menu
+                    </IonButton>
+                    <IonButton
+                      onClick={() => {
+                        setCurrentRestaurantName(createdMenu.restaurantName);
+                        setEditingItem(null);
+                        setModalOpen(true);
+                      }}
+                    >
                       Add Item
                     </IonButton>
                   </IonCardContent>

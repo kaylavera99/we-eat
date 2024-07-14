@@ -1,6 +1,7 @@
-import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, writeBatch, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, writeBatch, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { MenuCategory } from './restaurantService';
+
 
 export interface MenuItem {
   id?: string; // Add the id field here
@@ -62,41 +63,35 @@ export const addMenuItemToCreatedMenus = async (item: MenuItem, restaurantName: 
 };
 
 export const updateMenuItemInCreatedMenus = async (item: MenuItem, restaurantName: string, itemId: string) => {
-    if (!auth.currentUser) {
-      throw new Error("No user is currently logged in.");
-    }
-  
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-    const createdMenusRef = collection(userDocRef, 'createdMenus');
-    const menuSnapshot = await getDocs(createdMenusRef);
-  
-    let menuDocRef = null;
-    menuSnapshot.forEach(doc => {
-      const data = doc.data();
-      console.log('Checking menu:', data.restaurantName);
-      if (data.restaurantName === restaurantName) {
-        menuDocRef = doc.ref;
-      }
-    });
-  
-    console.log('Menu Doc Ref:', menuDocRef);
-  
-    if (!menuDocRef) {
-      throw new Error("Menu not found.");
-    }
-  
-    const dishDocRef = doc(collection(menuDocRef, 'dishes'), itemId);
-    await updateDoc(dishDocRef, { ...item } as { [x: string]: any });
-  };
+  if (!auth.currentUser) {
+    throw new Error("No user is currently logged in.");
+  }
 
-export const deleteMenuItemFromCreatedMenus = async (item: MenuItem, restaurantName: string) => {
+  console.log("In the updateMenuItemInCreated")
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const createdMenusRef = collection(userDocRef, 'createdMenus');
+  const q = query(createdMenusRef, where("restaurantName", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
+  console.log("Query", querySnapshot)
+
+  if (querySnapshot.empty) {
+    throw new Error("Menu not found.");
+  }
+
+  const menuDocRef = querySnapshot.docs[0].ref;
+  const dishDocRef = doc(collection(menuDocRef, 'dishes'), itemId);
+  await updateDoc(dishDocRef, { ...item });
+};
+
+
+export const deleteMenuItemFromCreatedMenus = async (itemId: string, restaurantName: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
   }
 
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const createdMenusRef = collection(userDocRef, 'createdMenus');
-
   const q = query(createdMenusRef, where("restaurantName", "==", restaurantName));
   const querySnapshot = await getDocs(q);
 
@@ -107,22 +102,11 @@ export const deleteMenuItemFromCreatedMenus = async (item: MenuItem, restaurantN
   const menuDocRef = querySnapshot.docs[0].ref;
   const dishesCollectionRef = collection(menuDocRef, 'dishes');
 
-  const qItem = query(dishesCollectionRef, where("name", "==", item.name), where("category", "==", item.category));
-  const itemSnapshot = await getDocs(qItem);
-
-  if (itemSnapshot.empty) {
-    throw new Error(`Menu item ${item.name} does not exist in ${restaurantName}.`);
-  }
-
-  const batch = writeBatch(db);
-  itemSnapshot.forEach(doc => {
-    batch.delete(doc.ref);
-  });
-
-  await batch.commit();
+  const dishDocRef = doc(dishesCollectionRef, itemId);
+  await deleteDoc(dishDocRef);
 };
 
-export const deleteMenuItemFromSavedMenus = async (item: MenuItem, restaurantName: string) => {
+export const deleteMenuItemFromSavedMenus = async (itemId: string, restaurantName: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
   }
@@ -140,44 +124,72 @@ export const deleteMenuItemFromSavedMenus = async (item: MenuItem, restaurantNam
   const menuDocRef = querySnapshot.docs[0].ref;
   const dishesCollectionRef = collection(menuDocRef, 'dishes');
 
-  const qItem = query(dishesCollectionRef, where("name", "==", item.name), where("category", "==", item.category));
-  const itemSnapshot = await getDocs(qItem);
+  const dishDocRef = doc(dishesCollectionRef, itemId);
 
-  if (itemSnapshot.empty) {
-    throw new Error(`Menu item ${item.name} does not exist in ${restaurantName}.`);
+  await deleteDoc(dishDocRef);
+};
+
+export const updateNotesInSavedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
+  if (!auth.currentUser) {
+    throw new Error("No user is currently logged in.");
   }
 
-  const batch = writeBatch(db);
-  itemSnapshot.forEach(doc => {
-    batch.delete(doc.ref);
-  });
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const savedMenusRef = collection(userDocRef, 'savedMenus');
+  const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
 
-  await batch.commit();
+  if (querySnapshot.empty) {
+    throw new Error(`Restaurant ${restaurantName} does not exist in saved menus.`);
+  }
+
+  const menuDocRef = querySnapshot.docs[0].ref;
+  const dishesCollectionRef = collection(menuDocRef, 'dishes');
+  const dishDocRef = doc(dishesCollectionRef, itemId);
+
+  console.log(`Updating note for item ${itemId} in restaurant ${restaurantName} with note: ${newNotes}`);
+  
+  try {
+    await updateDoc(dishDocRef, { note: newNotes });
+    console.log(`Note updated successfully in Firestore for item ${itemId}`);
+  } catch (error) {
+    console.error(`Failed to update note for item ${itemId} in restaurant ${restaurantName}: ${error}`);
+    throw error;
+  }
 };
 
 
-export const updateNotesInSavedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
-    if (!auth.currentUser) {
-      throw new Error("No user is currently logged in.");
+
+export const updateNotesInCreatedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
+  if (!auth.currentUser) {
+    throw new Error("No user is currently logged in.");
+  }
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const createdMenusRef = collection(userDocRef, 'createdMenus');
+  const menuSnapshot = await getDocs(createdMenusRef);
+
+  let menuDocRef = null;
+  menuSnapshot.forEach(doc => {
+    const data = doc.data();
+    console.log('Checking menu:', data.restaurantName);
+    if (data.restaurantName === restaurantName) {
+      menuDocRef = doc.ref;
     }
+  });
+
+  console.log('Menu Doc Ref:', menuDocRef);
+
+  if (!menuDocRef) {
+    throw new Error("Menu not found.");
+  }
+
+  const dishDocRef = doc(collection(menuDocRef, 'dishes'), itemId);
+  console.log(`Updating note for item ${itemId} in restaurant ${restaurantName} with note: ${newNotes}`);
   
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-    const savedMenusRef = collection(userDocRef, 'savedMenus');
-  
-    const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
-    const querySnapshot = await getDocs(q);
-  
-    if (querySnapshot.empty) {
-      throw new Error(`Restaurant ${restaurantName} does not exist in saved menus.`);
-    }
-  
-    const menuDocRef = querySnapshot.docs[0].ref;
-    const dishesCollectionRef = collection(menuDocRef, 'dishes');
-  
-    const dishDocRef = doc(dishesCollectionRef, itemId);
-    await updateDoc(dishDocRef, { note: newNotes });
-  };
-  
+  await updateDoc(dishDocRef, { note: newNotes });
+};
+
 
 const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
   const dishesSnapshot = await getDocs(collection(menuDocRef, 'dishes'));
@@ -283,9 +295,9 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
   );
 
   const categories: MenuCategory[] = [];
-  for (const categoryDoc of savedMenusSnapshot.docs) {
-    const categoryData = categoryDoc.data();
-    const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+  for (const menuDoc of savedMenusSnapshot.docs) {
+    const menuData = menuDoc.data();
+    const itemsCollectionRef = collection(menuDoc.ref, 'dishes'); // Ensure you use the correct collection name
     const itemsSnapshot = await getDocs(itemsCollectionRef);
 
     const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
@@ -297,55 +309,102 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
         allergens: itemData.allergens,
         note: itemData.note,
         category: itemData.category,
+        
       };
+
+      
     });
 
+    console.log("Items data: ", menuData)
+
     categories.push({
-      id: categoryDoc.id,
-      category: categoryData.category,
+      id: menuDoc.id,
+      category: menuData.category,
       items,
     });
   }
 
   return categories;
 };
+export const updateMenuItemInSavedMenus = async (item: MenuItem, restaurantName: string, itemId: string) => {
+  if (!auth.currentUser) {
+    throw new Error("No user is currently logged in.");
+  }
 
-export const fetchFullMenuFromRestaurants = async (restaurantName: string): Promise<MenuCategory[]> => {
-  const categories: MenuCategory[] = [];
-
-  const restaurantsRef = collection(db, 'restaurants');
-  const q = query(restaurantsRef, where("name", "==", restaurantName));
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const savedMenusRef = collection(userDocRef, 'savedMenus');
+  const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
   const querySnapshot = await getDocs(q);
 
+  if (querySnapshot.empty) {
+    throw new Error("Menu not found.");
+  }
+
+  const menuDocRef = querySnapshot.docs[0].ref;
+  const dishDocRef = doc(collection(menuDocRef, 'dishes'), itemId);
+  await updateDoc(dishDocRef, { ...item });
+};
+
+
+export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: string) => {
+  if (!auth.currentUser) {
+    throw new Error("No user is currently logged in.");
+  }
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const savedMenusRef = collection(userDocRef, 'savedMenus');
+  const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
+
+  let menuDocRef = null;
   if (!querySnapshot.empty) {
-    const restaurantDocRef = querySnapshot.docs[0].ref;
-    const menuCollectionRef = collection(restaurantDocRef, 'menu');
-    const menuSnapshot = await getDocs(menuCollectionRef);
+    menuDocRef = querySnapshot.docs[0].ref;
+  } else {
+    menuDocRef = await addDoc(savedMenusRef, { restaurantName });
+  }
 
-    for (const categoryDoc of menuSnapshot.docs) {
-      const categoryData = categoryDoc.data();
-      const itemsCollectionRef = collection(categoryDoc.ref, 'items');
-      const itemsSnapshot = await getDocs(itemsCollectionRef);
+  const dishesRef = collection(menuDocRef, 'dishes');
+  console.log(item)
+  await addDoc(dishesRef, { ...item });
+};
 
-      const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
-        const itemData = itemDoc.data();
-        return {
-          id: itemDoc.id,
-          name: itemData.name,
-          description: itemData.description,
-          allergens: itemData.allergens,
-          note: itemData.note,
-          category: itemData.category,
-        };
-      });
+export const fetchCreatedMenus = async (): Promise<SavedMenu[]> => {
+  const createdMenus: SavedMenu[] = [];
 
-      categories.push({
-        id: categoryDoc.id,
-        category: categoryData.category,
-        items,
+  if (auth.currentUser) {
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const createdMenusSnapshot = await getDocs(collection(userDocRef, 'createdMenus'));
+
+    for (const menuDoc of createdMenusSnapshot.docs) {
+      const menuData = menuDoc.data();
+      const dishes = await fetchMenuItems(menuDoc.ref);
+      createdMenus.push({
+        restaurantName: menuData.restaurantName,
+        dishes,
       });
     }
   }
 
-  return categories;
+  return createdMenus;
+};
+
+export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
+  const savedMenus: SavedMenu[] = [];
+
+  if (auth.currentUser) {
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const savedMenusSnapshot = await getDocs(collection(userDocRef, 'savedMenus'));
+
+    for (const menuDoc of savedMenusSnapshot.docs) {
+      const menuData = menuDoc.data();
+      const dishes = await fetchMenuItems(menuDoc.ref);
+      console.log("Saved menus from the menu service: ", savedMenus)
+      savedMenus.push({
+        restaurantName: menuData.restaurantName,
+        dishes,
+      });
+    }
+  }
+
+  return savedMenus;
 };

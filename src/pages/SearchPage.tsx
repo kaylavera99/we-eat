@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -10,11 +10,16 @@ import {
   IonList,
   IonItem,
   IonLabel,
-  IonToast
+  IonToast,
+  IonSearchbar
 } from '@ionic/react';
 import { searchRestaurants } from '../services/searchService';
 import { useHistory } from 'react-router-dom';
 import { GeoPoint } from 'firebase/firestore';
+import { doc, getDocs, collection, query, where } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
+import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
+import { fetchSavedMenus, fetchCreatedMenus } from '../services/menuService';
 
 interface Place {
   name: string;
@@ -25,8 +30,8 @@ interface Place {
       lng: number;
     };
   };
-  address?: string; // Optional to avoid conflicts
-  coordinates?: GeoPoint; // Optional to avoid conflicts
+  address?: string;
+  coordinates?: GeoPoint;
   distance: number;
 }
 
@@ -39,15 +44,8 @@ const SearchPage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const history = useHistory();
 
-  useEffect(() => {
-    if (isSearching) {
-      handleSearch();
-    }
-  }, [searchQuery]);
-
-  const handleSearch = async () => {
+  const handleSearch = useCallback(async () => {
     const trimmedSearchQuery = searchQuery.trim();
-    console.log(trimmedSearchQuery)
     if (!trimmedSearchQuery) {
       setToastMessage('Please enter a restaurant name to search');
       setShowToast(true);
@@ -62,6 +60,7 @@ const SearchPage: React.FC = () => {
       return;
     }
 
+    setIsSearching(true); // Set searching state before geolocation
     navigator.geolocation.getCurrentPosition(async (position) => {
       const { latitude, longitude } = position.coords;
       const location = `${latitude},${longitude}`;
@@ -82,15 +81,75 @@ const SearchPage: React.FC = () => {
       setShowToast(true);
       setIsSearching(false);
     });
+  }, [searchQuery, radius]);
+
+  useEffect(() => {
+    if (isSearching) {
+      const timeoutId = setTimeout(() => {
+        handleSearch();
+      }, 500); // Debounce time
+
+      return () => clearTimeout(timeoutId);
+    }
+  }, [searchQuery, radius, isSearching, handleSearch]);
+
+  const handleNavigateToRestaurantPage = async (place: Place) => {
+    const restaurantName = place.name;
+
+    try {
+      // Check if the full menu exists in the restaurant database
+      const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
+      if (fullMenu.length > 0) {
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
+        return;
+      }
+
+      // Check if the user has a saved menu for this restaurant
+      const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
+      if (userHasSavedMenu) {
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
+        return;
+      }
+
+      // Check if the user has a created menu for this restaurant
+      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
+      if (userHasCreatedMenu) {
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
+        return;
+      }
+
+      // If no menu is found, navigate to the create menu page
+      setToastMessage(`No menu available for ${restaurantName}. You can create one.`);
+      setShowToast(true);
+      history.push(`/restaurant/${encodeURIComponent(restaurantName)}/create`, { place });
+    } catch (error) {
+      setToastMessage(`Error navigating to ${place.name}: ${(error as Error).message}`);
+      setShowToast(true);
+    }
   };
 
-  const handleNavigateToRestaurantPage = (place: Place) => {
-    history.push(`/restaurant/${encodeURIComponent(place.name)}`, { place });
+  // This is a helper function to check if the user has a saved menu for the restaurant
+  const checkIfUserHasSavedMenu = async (restaurantName: string): Promise<boolean> => {
+    if (!auth.currentUser) return false;
+
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const savedMenusRef = collection(userDocRef, 'savedMenus');
+    const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
+    const querySnapshot = await getDocs(q);
+
+    return !querySnapshot.empty;
   };
 
-  const handleInputChange = (e: CustomEvent) => {
-    setSearchQuery(e.detail.value!);
-    setIsSearching(true);
+  // This is a helper function to check if the user has a created menu for the restaurant
+  const checkIfUserHasCreatedMenu = async (restaurantName: string): Promise<boolean> => {
+    if (!auth.currentUser) return false;
+
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const createdMenusRef = collection(userDocRef, 'createdMenus');
+    const q = query(createdMenusRef, where("restaurantName", "==", restaurantName));
+    const querySnapshot = await getDocs(q);
+
+    return !querySnapshot.empty;
   };
 
   return (
@@ -112,18 +171,14 @@ const SearchPage: React.FC = () => {
         </IonItem>
         <IonItem>
           <IonLabel position="stacked">Search by restaurant name</IonLabel>
-          <IonInput
+          <IonSearchbar
             value={searchQuery}
             placeholder="Search by restaurant name"
-            onIonChange={handleInputChange}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}
+            onIonInput={(e: CustomEvent) => setSearchQuery(e.detail.value!)}
+            debounce={500} // Adjust debounce time as needed
           />
         </IonItem>
-        <IonButton expand="block" onClick={handleSearch} disabled={isSearching}>
+        <IonButton expand="block" onClick={() => setIsSearching(true)} disabled={isSearching}>
           {isSearching ? 'Searching...' : 'Search'}
         </IonButton>
         <IonList>
