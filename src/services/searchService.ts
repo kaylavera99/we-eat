@@ -5,6 +5,8 @@ import axios from 'axios';
 const PROXY_SERVER_URL = 'https://proxy-server-we-eat-e24e32c11d10.herokuapp.com';
 const GOOGLE_PLACES_API_KEY = 'YOUR_GOOGLE_PLACES_API_KEY';
 
+
+//Calculating distance from user
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
   const R = 3958.8; // Earth's radius in miles
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -17,6 +19,7 @@ const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
   console.log("Multiplication: ", R * c, "c equals: ", c);
   return R * c;
 };
+
 
 export const fetchKeywords = async (): Promise<string[]> => {
   const newKeywords: string[] = [];
