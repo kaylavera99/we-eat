@@ -8,7 +8,9 @@ export interface MenuItem {
   allergens: string[];
   note?: string;
   category: string;
+  imageUrl?: string;  // Add the imageUrl field
 }
+
 
 export interface MenuCategory {
   id: string;
@@ -42,6 +44,7 @@ export const fetchFullMenuFromRestaurants = async (restaurantName: string): Prom
           allergens: itemData.allergens,
           note: itemData.note,
           category: categoryData.category,
+          imageUrl: itemData.imageUrl  // Include imageUrl
         };
       });
 

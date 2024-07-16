@@ -10,8 +10,9 @@ import {
   IonLabel,
   IonButton,
   IonToast,
+  IonThumbnail,
 } from '@ionic/react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { fetchSavedMenus, MenuItem } from '../services/menuService';
 import EditNotesModal from '../components/EditNotesModal';
 
@@ -21,6 +22,7 @@ const SavedMenuPage: React.FC = () => {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +47,10 @@ const SavedMenuPage: React.FC = () => {
     setEditingItem(null); // Close modal
   };
 
+  const handleViewFullMenu = () => {
+    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -53,9 +59,17 @@ const SavedMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <IonButton expand="block" onClick={handleViewFullMenu}>
+          View Full Menu
+        </IonButton>
         <IonList>
           {menuItems.map((item, index) => (
             <IonItem key={index}>
+              {item.imageUrl && (
+                <IonThumbnail slot="start">
+                  <img src={item.imageUrl} alt={item.name} />
+                </IonThumbnail>
+              )}
               <IonLabel>
                 <h2>{item.name}</h2>
                 <p>{item.description}</p>

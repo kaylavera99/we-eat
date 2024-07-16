@@ -17,7 +17,7 @@ import {
 import { searchRestaurants } from '../services/searchService';
 import { useHistory } from 'react-router-dom';
 import { GeoPoint } from 'firebase/firestore';
-import { doc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDocs, collection, query, where, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
 import { fetchSavedMenus, fetchCreatedMenus } from '../services/menuService';
@@ -129,7 +129,46 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  // This is a helper function to check if the user has a saved menu for the restaurant
+  const handleSetAsPreferredLocation = async (place: Place) => {
+    try {
+      if (!auth.currentUser) {
+        throw new Error('User not authenticated');
+      }
+
+      const userDocRef = doc(db, 'users', auth.currentUser.uid);
+      const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
+      const q = query(preferredLocationsRef, where("name", "==", place.name));
+      const querySnapshot = await getDocs(q);
+
+      const geoPoint = new GeoPoint(place.geometry.location.lat, place.geometry.location.lng);
+
+      if (!querySnapshot.empty) {
+        // If the location already exists, update it
+        const existingDocRef = querySnapshot.docs[0].ref;
+        await setDoc(existingDocRef, {
+          name: place.name,
+          address: place.vicinity,
+          coordinates: geoPoint,
+        });
+        setToastMessage(`Updated ${place.name} as preferred location`);
+      } else {
+        // If the location does not exist, add a new one
+        const newLocationDocRef = doc(preferredLocationsRef);
+        await setDoc(newLocationDocRef, {
+          name: place.name,
+          address: place.vicinity,
+          coordinates: geoPoint,
+        });
+        setToastMessage(`Set ${place.name} as preferred location`);
+      }
+
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage(`Error setting preferred location: ${(error as Error).message}`);
+      setShowToast(true);
+    }
+  };
+
   const checkIfUserHasSavedMenu = async (restaurantName: string): Promise<boolean> => {
     if (!auth.currentUser) return false;
 
@@ -141,7 +180,6 @@ const SearchPage: React.FC = () => {
     return !querySnapshot.empty;
   };
 
-  // This is a helper function to check if the user has a created menu for the restaurant
   const checkIfUserHasCreatedMenu = async (restaurantName: string): Promise<boolean> => {
     if (!auth.currentUser) return false;
 
@@ -184,8 +222,8 @@ const SearchPage: React.FC = () => {
         </IonButton>
         <IonList>
           {results.map((place, index) => (
-            <IonItem key={index} button onClick={() => handleNavigateToRestaurantPage(place)}>
-              {place.icon && (
+            <IonItem key={index}>
+              {place.photoUrl && (
                 <IonThumbnail slot="start">
                   <img src={place.photoUrl} alt={`${place.name}`} />
                 </IonThumbnail>
@@ -195,11 +233,12 @@ const SearchPage: React.FC = () => {
                 <p>{place.vicinity}</p>
                 <p>Distance: {place.distance.toFixed(2)} miles</p> {/* Display distance */}
               </IonLabel>
-              {place.icon && (
-                <IonThumbnail slot="end">
-                 
-                </IonThumbnail>
-              )}
+              <IonButton onClick={() => handleNavigateToRestaurantPage(place)}>
+                View Menu
+              </IonButton>
+              <IonButton onClick={() => handleSetAsPreferredLocation(place)}>
+                Set as Preferred Location
+              </IonButton>
             </IonItem>
           ))}
         </IonList>

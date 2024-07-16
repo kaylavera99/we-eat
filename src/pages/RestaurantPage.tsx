@@ -15,10 +15,12 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonImg
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import { fetchFullMenuFromRestaurants, MenuCategory, MenuItem } from '../services/restaurantService';
 import { addMenuItemToSavedMenus } from '../services/menuService';
+import '../styles/RestaurantPage.css'; // Import custom CSS for the page
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
@@ -31,10 +33,8 @@ const RestaurantPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        console.log("Fetching menu for:", restaurantName);
         const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
         setMenuCategories(fullMenu);
-        console.log("Menu categories set:", fullMenu);
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -63,6 +63,7 @@ const RestaurantPage: React.FC = () => {
           <IonCardTitle>{item.name}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
+          {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} className="menu-img" />} {/* Display the image */}
           <p>{item.description}</p>
           <p>Allergens: {item.allergens.join(', ')}</p>
           <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>

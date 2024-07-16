@@ -6,45 +6,44 @@ import {
   IonTitle,
   IonToolbar,
   IonList,
-  IonItem,
-  IonLabel,
-  IonLoading,
-  IonToast,
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
   IonButton,
-  IonItemSliding,
-  IonItemOptions,
-  IonItemOption,
+  IonLoading,
+  IonToast,
+  IonImg,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
 import {
   fetchMenuData,
   SavedMenu,
-  MenuItem,
-  addMenuItemToCreatedMenus,
-  deleteMenuItemFromCreatedMenus,
-  deleteMenuItemFromSavedMenus,
-  updateNotesInSavedMenus,
-  updateNotesInCreatedMenus,
 } from '../services/menuService';
-import AddMenuItemModal from '../components/AddMenuItemModal';
-import EditNotesModal from '../components/EditNotesModal';
+import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
+import '../styles/PersonalizedMenu.css'; // Import custom CSS for the page
+
+interface Restaurant {
+  name: string;
+  thumbnailUrl: string;
+  address: string;
+}
+
+interface PreferredLocation {
+  name: string;
+  address: string;
+  coordinates: any;
+}
 
 const PersonalizedMenuPage: React.FC = () => {
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
   const [createdMenus, setCreatedMenus] = useState<SavedMenu[]>([]);
+  const [restaurantDetails, setRestaurantDetails] = useState<{ [key: string]: Restaurant }>({});
+  const [preferredLocations, setPreferredLocations] = useState<{ [key: string]: PreferredLocation }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [noteModalOpen, setNoteModalOpen] = useState(false);
-  const [currentRestaurantName, setCurrentRestaurantName] = useState('');
-  const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [editingNoteItem, setEditingNoteItem] = useState<MenuItem | null>(null);
-  const [isCreatedMenu, setIsCreatedMenu] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
@@ -54,6 +53,45 @@ const PersonalizedMenuPage: React.FC = () => {
         const { savedMenus, createdMenus } = await fetchMenuData();
         setSavedMenus(savedMenus);
         setCreatedMenus(createdMenus);
+
+        const restaurantNames = new Set(savedMenus.map(menu => menu.restaurantName).concat(createdMenus.map(menu => menu.restaurantName)));
+        const restaurantDetails: { [key: string]: Restaurant } = {};
+
+        for (const name of restaurantNames) {
+          const q = query(collection(db, 'restaurants'), where("name", "==", name));
+          const querySnapshot = await getDocs(q);
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            restaurantDetails[name] = {
+              name,
+              thumbnailUrl: data.thumbnailUrl || '',
+              address: data.address || '',
+            };
+          });
+
+          if (!restaurantDetails[name]) {
+            console.log(`No data found for restaurant: ${name}`);
+          }
+        }
+
+        setRestaurantDetails(restaurantDetails);
+
+        if (auth.currentUser) {
+          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
+          const preferredLocations: { [key: string]: PreferredLocation } = {};
+
+          preferredLocationsSnap.forEach((doc) => {
+            const data = doc.data();
+            preferredLocations[doc.id] = {
+              name: data.name,
+              address: data.address,
+              coordinates: data.coordinates,
+            };
+          });
+
+          setPreferredLocations(preferredLocations);
+        }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -64,150 +102,49 @@ const PersonalizedMenuPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleAddMenuItem = async (item: MenuItem) => {
-    try {
-      if (editingItem) {
-        await addMenuItemToCreatedMenus(item, currentRestaurantName);
-      } else {
-        await addMenuItemToCreatedMenus(item, currentRestaurantName);
-      }
-
-      const { createdMenus } = await fetchMenuData();
-      setCreatedMenus(createdMenus);
-      setToastMessage(editingItem ? 'Menu item updated successfully!' : 'Menu item added successfully!');
-      setShowToast(true);
-      setModalOpen(false);
-      setEditingItem(null); // Reset editing item
-    } catch (error) {
-      setToastMessage(`Error: ${(error as Error).message}`);
-      setShowToast(true);
-    }
-  };
-
-  const handleEditNote = async (updatedItem: MenuItem) => {
-    const { id, note } = updatedItem;
-    if (!id) {
-      console.error('Item ID is missing.');
-      return;
-    }
-
-    try {
-      if (isCreatedMenu) {
-        await updateNotesInCreatedMenus(id, note!, currentRestaurantName);
-      } else {
-        await updateNotesInSavedMenus(id, note!, currentRestaurantName);
-      }
-      const { savedMenus, createdMenus } = await fetchMenuData();
-      setSavedMenus(savedMenus);
-      setCreatedMenus(createdMenus);
-      setToastMessage('Note updated successfully!');
-      setShowToast(true);
-      setNoteModalOpen(false);
-      setEditingNoteItem(null); // Reset editing note item
-    } catch (error) {
-      setToastMessage(`Error: ${(error as Error).message}`);
-      setShowToast(true);
-    }
-  };
-
-  const handleDeleteMenuItem = async (itemId: string, restaurantName: string, isCreatedMenu: boolean) => {
-    try {
-      if (isCreatedMenu) {
-        await deleteMenuItemFromCreatedMenus(itemId, restaurantName);
-        const { createdMenus } = await fetchMenuData();
-        setCreatedMenus(createdMenus);
-      } else {
-        await deleteMenuItemFromSavedMenus(itemId, restaurantName);
-        const { savedMenus } = await fetchMenuData();
-        setSavedMenus(savedMenus);
-      }
-      setToastMessage('Menu item deleted successfully!');
-      setShowToast(true);
-    } catch (error) {
-      setToastMessage(`Error: ${(error as Error).message}`);
-      setShowToast(true);
-    }
-  };
-
-  const renderMenuItems = (items: MenuItem[], restaurantName: string, isCreatedMenu: boolean) => {
-    return items.map((item, index) => (
-      <IonItemSliding key={index}>
-        <IonItem>
-          <IonLabel>
-            <h2>{item.name}</h2>
-            <p>{item.description}</p>
-            <p>Allergens: {item.allergens.join(', ')}</p>
-            <p>Note: {item.note}</p>
-          </IonLabel>
-        </IonItem>
-        <IonItemOptions side="end">
-          {isCreatedMenu && (
-            <>
-              <IonItemOption
-                color="primary"
-                onClick={() => {
-                  setCurrentRestaurantName(restaurantName);
-                  setEditingItem(item);
-                  setModalOpen(true);
-                }}
-              >
-                Edit
-              </IonItemOption>
-              <IonItemOption
-                color="danger"
-                onClick={() => handleDeleteMenuItem(item.id!, restaurantName, true)}
-              >
-                Delete
-              </IonItemOption>
-            </>
-          )}
-          {!isCreatedMenu && (
-            <>
-              <IonItemOption
-                color="primary"
-                onClick={() => {
-                  setCurrentRestaurantName(restaurantName);
-                  setIsCreatedMenu(false);
-                  setEditingNoteItem(item);
-                  setNoteModalOpen(true);
-                }}
-              >
-                Edit Note
-              </IonItemOption>
-              <IonItemOption
-                color="danger"
-                onClick={() => handleDeleteMenuItem(item.id!, restaurantName, false)}
-              >
-                Delete
-              </IonItemOption>
-            </>
-          )}
-        </IonItemOptions>
-      </IonItemSliding>
-    ));
-  };
-
-  const renderMenuCategories = (dishes: MenuItem[], restaurantName: string, isCreatedMenu: boolean) => {
-    const categories = dishes.reduce((acc: { [key: string]: MenuItem[] }, dish) => {
-      if (!acc[dish.category]) acc[dish.category] = [];
-      acc[dish.category].push(dish);
-      return acc;
-    }, {});
-
-    return Object.entries(categories).map(([category, items]) => (
-      <div key={category}>
-        <h5>{category}</h5>
-        <IonList>{renderMenuItems(items, restaurantName, isCreatedMenu)}</IonList>
-      </div>
-    ));
-  };
-
   const handleViewSavedMenu = (restaurantName: string) => {
     history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`);
   };
 
   const handleViewCreatedMenu = (restaurantName: string) => {
     history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`);
+  };
+
+  const handleViewFullMenu = (restaurantName: string) => {
+    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
+  };
+
+  const renderMenuCard = (menu: SavedMenu, isCreatedMenu: boolean) => {
+    const restaurant = restaurantDetails[menu.restaurantName];
+    const preferredLocation = Object.values(preferredLocations).find(
+      (location) => location.name === menu.restaurantName
+    );
+
+    return (
+      <IonCard key={menu.restaurantName}>
+        <IonCardHeader>
+          {restaurant?.thumbnailUrl && (
+            <IonImg src={restaurant.thumbnailUrl} alt={restaurant.name} className="restaurant-thumbnail" />
+          )}
+          <IonCardTitle>{restaurant?.name}</IonCardTitle>
+          <p>Preferred Location: {preferredLocation ? preferredLocation.address : 'N/A'}</p>
+        </IonCardHeader>
+        <IonCardContent>
+          {isCreatedMenu ? (
+            <IonButton onClick={() => handleViewCreatedMenu(menu.restaurantName)}>
+              View Created Menu
+            </IonButton>
+          ) : (
+            <IonButton onClick={() => handleViewSavedMenu(menu.restaurantName)}>
+              View Saved Menu
+            </IonButton>
+          )}
+          <IonButton onClick={() => handleViewFullMenu(menu.restaurantName)}>
+            View Full Menu
+          </IonButton>
+        </IonCardContent>
+      </IonCard>
+    );
   };
 
   return (
@@ -221,71 +158,19 @@ const PersonalizedMenuPage: React.FC = () => {
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <div>
+          <IonList>
             <h2>Saved Menus</h2>
-            <IonList>
-              {savedMenus.map((menu, index) => (
-                <IonCard key={index}>
-                  <IonCardHeader>
-                    <IonCardTitle>{menu.restaurantName}</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    {renderMenuCategories(menu.dishes, menu.restaurantName, false)}
-                    <IonButton onClick={() => handleViewSavedMenu(menu.restaurantName)}>
-                      View Saved Menu
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              ))}
-            </IonList>
+            {savedMenus.map((menu) => renderMenuCard(menu, false))}
 
             <h2>Created Menus</h2>
-            <IonList>
-              {createdMenus.map((createdMenu, index) => (
-                <IonCard key={index}>
-                  <IonCardHeader>
-                    <IonCardTitle>{createdMenu.restaurantName}</IonCardTitle>
-                  </IonCardHeader>
-                  <IonCardContent>
-                    {renderMenuCategories(createdMenu.dishes, createdMenu.restaurantName, true)}
-                    <IonButton
-                      onClick={() => handleViewCreatedMenu(createdMenu.restaurantName)}
-                    >
-                      View Created Menu
-                    </IonButton>
-                    <IonButton
-                      onClick={() => {
-                        setCurrentRestaurantName(createdMenu.restaurantName);
-                        setEditingItem(null);
-                        setModalOpen(true);
-                      }}
-                    >
-                      Add Item
-                    </IonButton>
-                  </IonCardContent>
-                </IonCard>
-              ))}
-            </IonList>
-          </div>
+            {createdMenus.map((menu) => renderMenuCard(menu, true))}
+          </IonList>
         )}
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
           message={toastMessage}
           duration={2000}
-        />
-        <AddMenuItemModal
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          onAddMenuItem={handleAddMenuItem}
-          initialItem={editingItem || undefined}
-        />
-        <EditNotesModal
-          isOpen={noteModalOpen}
-          onClose={() => setNoteModalOpen(false)}
-          onSaveNotes={handleEditNote}
-          initialItem={editingNoteItem || undefined}
-          restaurantName={currentRestaurantName}
         />
       </IonContent>
     </IonPage>

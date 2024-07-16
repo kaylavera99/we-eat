@@ -51,3 +51,5 @@ export const setPreferredLocation = async (place: Place): Promise<void> => {
     throw new Error('No authenticated user');
   }
 };
+
+

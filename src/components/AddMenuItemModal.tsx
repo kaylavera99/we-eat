@@ -10,8 +10,10 @@ import {
   IonItem,
   IonLabel,
   IonTextarea,
+  IonImg
 } from '@ionic/react';
 import { MenuItem } from '../services/menuService';
+import { compressImage, uploadImage } from '../services/storageService';
 
 interface AddMenuItemModalProps {
   isOpen: boolean;
@@ -26,6 +28,8 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
   const [allergens, setAllergens] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [category, setCategory] = useState('');
+  const [imageUrl, setImageUrl] = useState(''); // State for imageUrl
+  const [imageFile, setImageFile] = useState<File | null>(null); // State for image file
 
   useEffect(() => {
     if (initialItem) {
@@ -34,17 +38,40 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
       setAllergens(initialItem.allergens);
       setNote(initialItem.note || '');
       setCategory(initialItem.category);
+      setImageUrl(initialItem.imageUrl || '');
     } else {
       setName('');
       setDescription('');
       setAllergens([]);
       setNote('');
       setCategory('');
+      setImageUrl('');
     }
   }, [initialItem]);
 
-  const handleSave = () => {
-    const newItem: MenuItem = { name, description, allergens, note, category };
+  const handleImageChange = async (e: any) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setImageFile(file);
+    }
+  };
+
+  const handleSave = async () => {
+    let imageDownloadUrl = imageUrl;
+    
+    if (imageFile) {
+      // Compress and upload the image
+      try {
+        const compressedFile = await compressImage(imageFile);
+        imageDownloadUrl = await uploadImage(compressedFile, 'menu_items');
+        setImageUrl(imageDownloadUrl);
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        // You might want to handle this error more gracefully in your UI
+      }
+    }
+
+    const newItem: MenuItem = { name, description, allergens, note, category, imageUrl: imageDownloadUrl };
     if (initialItem?.id) {
       newItem.id = initialItem.id; // Include id for editing
     }
@@ -79,6 +106,11 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
           <IonLabel position="stacked">Category</IonLabel>
           <IonInput value={category} onIonChange={e => setCategory(e.detail.value!)} />
         </IonItem>
+        <IonItem>
+          <IonLabel position="stacked">Image</IonLabel>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+        </IonItem>
+        {imageUrl && <IonImg src={imageUrl} />} {/* Display the uploaded image */}
         <IonButton expand="block" onClick={handleSave}>
           Save
         </IonButton>
