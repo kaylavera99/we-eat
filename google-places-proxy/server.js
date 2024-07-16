@@ -12,6 +12,7 @@ app.use(express.json()); // for parsing application/json
 const GOOGLE_PLACES_API_KEY = 'AIzaSyADCxV3t9rLih5de7GhP7R8OlZ5RA1Y_tk';
 const GOOGLE_PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
 const GOOGLE_PLACES_TEXT_SEARCH_API_URL = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
+const GOOGLE_PLACES_PHOTO_API_URL = 'https://maps.googleapis.com/maps/api/place/photo';
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
@@ -76,6 +77,27 @@ app.get('/textsearch', async (req, res) => {
   } catch (error) {
     console.error('Error fetching data from Google Places:', error);
     res.status(500).send('Error fetching data from Google Places');
+  }
+});
+
+// Proxy route for Google Places API Photo
+app.get('/photo', async (req, res) => {
+  const { photoreference, maxwidth } = req.query;
+
+  try {
+    const response = await axios.get(GOOGLE_PLACES_PHOTO_API_URL, {
+      params: {
+        photoreference,
+        maxwidth: maxwidth || 400,
+        key: GOOGLE_PLACES_API_KEY
+      },
+      responseType: 'stream'
+    });
+
+    response.data.pipe(res);
+  } catch (error) {
+    console.error('Error fetching photo from Google Places:', error);
+    res.status(500).send('Error fetching photo from Google Places');
   }
 });
 

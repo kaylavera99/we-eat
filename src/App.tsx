@@ -30,6 +30,7 @@ import SearchPage from './pages/SearchPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import SavedMenuPage from './pages/SavedMenuPage'; // New import
 import CreatedMenuPage from './pages/CreatedMenuPage'; // New import
+import RecommendationsPage from './pages/RecommendationsPage';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -83,6 +84,7 @@ const App: React.FC = () => {
               <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
               <PrivateRoute path="/home" component={HomePage} exact />
               <PrivateRoute path="/profile" component={UserProfilePage} exact />
+              <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
               <Redirect exact from="/" to="/personalized-menu" />
               <PrivateRoute path="/profile">
                 <ErrorBoundary>
@@ -103,6 +105,10 @@ const App: React.FC = () => {
             <IonTabButton tab="search" href="/search">
               <IonIcon aria-hidden="true" icon={triangle} />
               <IonLabel>Search</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="recommendations" href="/recommendations">
+              <IonIcon aria-hidden="true" icon={triangle} />
+              <IonLabel>Recommendations</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>
