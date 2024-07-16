@@ -18,7 +18,7 @@ import {signOut} from 'firebase/auth'
 
 
 const HomePage: React.FC = () => {
-  const [name, setName] = useState('');
+  const [firstName, setName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            setName(userData.name);
+            setName(userData.firstName);
           }
         }
         setIsLoading(false);
@@ -69,7 +69,7 @@ const HomePage: React.FC = () => {
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
           <div>
-            <h2>Welcome, {name}!</h2>
+            <h2>Welcome, {firstName}!</h2>
             <IonButton expand="block" onClick={goToSearchPage}>
               Search Restaurants
             </IonButton>

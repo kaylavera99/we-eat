@@ -15,6 +15,8 @@ import {
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonAvatar,
+  IonImg
 } from '@ionic/react';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
@@ -60,6 +62,7 @@ interface UserData {
   createdMenus: {
     [key: string]: CreatedMenu;
   };
+  profileImageUrl?: string;
 }
 
 const UserProfilePage: React.FC = () => {
@@ -87,11 +90,12 @@ const UserProfilePage: React.FC = () => {
           if (userDocSnap.exists()) {
             const userDocData = userDocSnap.data() || {};
             const userData: UserData = {
-              name: userDocData.name,
+              name: userDocData.firstName,
               email: userDocData.email,
               allergens: userDocData.allergens || {},
               preferredLocations: {},
               createdMenus: {},
+              profileImageUrl: userDocData.profileImageUrl || ''
             };
 
             console.log('User document data:', userDocData);
@@ -141,6 +145,13 @@ const UserProfilePage: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <h2>Welcome to your profile!</h2>
+        {userData && (
+          <div><IonAvatar>
+            <IonImg src={userData.profileImageUrl} alt="Profile Picture" /> {/* Add this line */}
+            </IonAvatar>
+            <h3>{userData.name}</h3> {/* Add this line */}
+          </div>
+        )}
         <IonButton expand="block" onClick={handleEditProfile}>
           Edit Profile
         </IonButton>

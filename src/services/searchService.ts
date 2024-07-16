@@ -56,6 +56,7 @@ export const searchRestaurants = async (location: string, radius: number, search
     radius: radius * 1609.34, // Convert miles to meters
     keyword: searchQuery,
     type: 'restaurant',
+    fields:'name,geometry,icon,photos,vicinity',
     key: GOOGLE_PLACES_API_KEY
   };
 
@@ -78,11 +79,17 @@ export const searchRestaurants = async (location: string, radius: number, search
     const distance = result.geometry && result.geometry.location
       ? haversineDistance(userLocation.lat, userLocation.lng, result.geometry.location.lat, result.geometry.location.lng)
       : NaN;
+    const photoReference = result.photos?.[0]?.photo_reference;
+    console.log("Photo reference: ", photoReference)
+    const photoUrl = photoReference ? `${PROXY_SERVER_URL}/photo?photoreference=${photoReference}&maxwidth=400` : '';
+    console.log("Photo url: ", photoUrl)
     return {
       name: result.name,
       vicinity,
       geometry: result.geometry,
-      distance
+      distance,
+      icon: result.icon,
+      photoUrl
     };
   }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // Added margin of error
 

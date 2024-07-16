@@ -11,15 +11,17 @@ import {
   IonCheckbox,
   IonButton,
   IonLoading,
-  IonToast
+  IonToast,
+  IonImg,
 } from '@ionic/react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
+import { uploadImage, compressImage } from '../services/storageService';
 
 interface AllergenState {
   eggs: boolean;
   wheat: boolean;
-  milk: boolean;
+  dairy: boolean;
   soy: boolean;
   tree_nuts: boolean;
   fish: boolean;
@@ -31,13 +33,15 @@ const EditProfilePage: React.FC = () => {
   const [allergens, setAllergens] = useState<AllergenState>({
     eggs: false,
     wheat: false,
-    milk: false,
+    dairy: false,
     soy: false,
     tree_nuts: false,
     fish: false,
     shellfish: false,
     peanuts: false,
   });
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -53,6 +57,7 @@ const EditProfilePage: React.FC = () => {
           if (docSnap.exists()) {
             const userData = docSnap.data();
             setAllergens(userData.allergens);
+            setProfileImageUrl(userData.profileImageUrl);
           }
         }
         setIsLoading(false);
@@ -73,13 +78,28 @@ const EditProfilePage: React.FC = () => {
     }));
   };
 
+  const handleImageChange = (e: any) => {
+    if (e.target.files.length > 0) {
+      setProfileImage(e.target.files[0]);
+    }
+  };
+
   const handleSave = async () => {
     setIsLoading(true);
     try {
       if (auth.currentUser) {
+        let updatedProfileImageUrl = profileImageUrl;
+
+        if (profileImage) {
+          const compressedImage = await compressImage(profileImage);
+          updatedProfileImageUrl = await uploadImage(compressedImage, auth.currentUser.uid);
+        }
+
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-          allergens
+          allergens,
+          profileImageUrl: updatedProfileImageUrl,
         });
+
         setIsLoading(false);
         setToastMessage('Profile updated successfully!');
         setShowToast(true);
@@ -101,6 +121,11 @@ const EditProfilePage: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <IonItem>
+          <IonLabel>Profile Picture</IonLabel>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+        </IonItem>
+        {profileImageUrl && <IonImg src={profileImageUrl} alt="Profile Picture" />}
+        <IonItem>
           <IonLabel>Eggs</IonLabel>
           <IonCheckbox
             checked={allergens.eggs}
@@ -115,10 +140,10 @@ const EditProfilePage: React.FC = () => {
           />
         </IonItem>
         <IonItem>
-          <IonLabel>Milk</IonLabel>
+          <IonLabel>Dairy</IonLabel>
           <IonCheckbox
-            checked={allergens.milk}
-            onIonChange={() => handleAllergenChange('milk')}
+            checked={allergens.dairy}
+            onIonChange={() => handleAllergenChange('dairy')}
           />
         </IonItem>
         <IonItem>

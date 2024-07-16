@@ -11,7 +11,8 @@ import {
   IonItem,
   IonLabel,
   IonToast,
-  IonSearchbar
+  IonSearchbar,
+  IonThumbnail
 } from '@ionic/react';
 import { searchRestaurants } from '../services/searchService';
 import { useHistory } from 'react-router-dom';
@@ -33,6 +34,8 @@ interface Place {
   address?: string;
   coordinates?: GeoPoint;
   distance: number;
+  icon: string;
+  photoUrl: string;
 }
 
 const SearchPage: React.FC = () => {
@@ -64,11 +67,9 @@ const SearchPage: React.FC = () => {
     navigator.geolocation.getCurrentPosition(async (position) => {
       const { latitude, longitude } = position.coords;
       const location = `${latitude},${longitude}`;
-      console.log('Location:', location); // Debugging info
 
       try {
         const allResults: Place[] = await searchRestaurants(location, radius, trimmedSearchQuery, { lat: latitude, lng: longitude });
-        console.log('Search results:', allResults); // Debugging info
         setResults(allResults);
       } catch (error) {
         setToastMessage('Error fetching data from Google Places');
@@ -184,11 +185,21 @@ const SearchPage: React.FC = () => {
         <IonList>
           {results.map((place, index) => (
             <IonItem key={index} button onClick={() => handleNavigateToRestaurantPage(place)}>
+              {place.icon && (
+                <IonThumbnail slot="start">
+                  <img src={place.photoUrl} alt={`${place.name}`} />
+                </IonThumbnail>
+              )}
               <IonLabel>
                 <h2>{place.name}</h2>
                 <p>{place.vicinity}</p>
                 <p>Distance: {place.distance.toFixed(2)} miles</p> {/* Display distance */}
               </IonLabel>
+              {place.icon && (
+                <IonThumbnail slot="end">
+                 
+                </IonThumbnail>
+              )}
             </IonItem>
           ))}
         </IonList>
