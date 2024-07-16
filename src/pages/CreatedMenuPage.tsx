@@ -10,10 +10,12 @@ import {
   IonLabel,
   IonButton,
   IonToast,
+  IonImg,
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import { fetchCreatedMenus, MenuItem, updateMenuItemInCreatedMenus, deleteMenuItemFromCreatedMenus } from '../services/menuService';
 import EditMenuItemModal from '../components/EditMenuItemModal';
+import '../styles/CreatedMenu..css'; // Import custom CSS for the page
 
 const CreatedMenuPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
@@ -74,6 +76,7 @@ const CreatedMenuPage: React.FC = () => {
         <IonList>
           {menuItems.map((item, index) => (
             <IonItem key={index}>
+              {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} className="menu-img" />} {/* Display the image */}
               <IonLabel>
                 <h2>{item.name}</h2>
                 <p>{item.description}</p>

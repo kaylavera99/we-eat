@@ -2,15 +2,14 @@ import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, writ
 import { db, auth } from '../firebaseConfig';
 import { MenuCategory } from './restaurantService';
 
-
 export interface MenuItem {
-  id?: string; // Add the id field here
+  id?: string;
   name: string;
   description: string;
   allergens: string[];
   note?: string;
   category: string;
-  photoUrl?:string;
+  imageUrl?: string;  // Add the imageUrl field
 }
 
 export interface SavedMenu {
@@ -35,6 +34,7 @@ const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
       allergens: dishData.allergens,
       note: dishData.note,
       category: dishData.category,
+      imageUrl: dishData.imageUrl  // Include imageUrl
     } as MenuItem;
   });
 };
@@ -90,8 +90,7 @@ const getAllMenuItemsByCategory = (menu: { [category: string]: { dishes: MenuIte
   }, []);
 };
 
-
-//GETTING MENU BY CATEGORY
+// GETTING MENU BY CATEGORY
 export const getMenuByCategory = async (category: string): Promise<SavedMenu[]> => {
   const menusRef = collection(db, 'restaurants');
   const snapshot = await getDocs(menusRef);
@@ -113,10 +112,7 @@ export const getMenuByCategory = async (category: string): Promise<SavedMenu[]> 
   return matchingMenus;
 };
 
-
-
-
-//GET RECOMENDARIONS
+// GET RECOMMENDATIONS
 export const getRecommendations = async (userId: string): Promise<SavedMenu[]> => {
   const { savedMenus, createdMenus } = await fetchMenuData();
   const userMenus = [...savedMenus, ...createdMenus];
@@ -127,7 +123,6 @@ export const getRecommendations = async (userId: string): Promise<SavedMenu[]> =
   console.log("User Menus: ", userMenus);
   console.log("Unique Categories: ", uniqueCategories);
 
-
   let recommendations: SavedMenu[] = [];
   for (const category of uniqueCategories) {
     const menus = await getMenuByCategory(category);
@@ -137,10 +132,7 @@ export const getRecommendations = async (userId: string): Promise<SavedMenu[]> =
   return recommendations;
 };
 
-
-
-
-//CREATED MENUS
+// CREATED MENUS
 export const addMenuToCreatedMenus = async (menu: SavedMenu) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
@@ -163,7 +155,7 @@ export const addMenuItemToCreatedMenus = async (item: MenuItem, restaurantName: 
   const createdMenusRef = collection(userDocRef, 'createdMenus');
   const menuSnapshot = await getDocs(createdMenusRef);
   
-  let menuDocRef = null;
+  let menuDocRef: any = null;
   menuSnapshot.forEach(doc => {
     if (doc.data().restaurantName === restaurantName) {
       menuDocRef = doc.ref;
@@ -185,13 +177,13 @@ export const updateMenuItemInCreatedMenus = async (item: MenuItem, restaurantNam
     throw new Error("No user is currently logged in.");
   }
 
-  console.log("In the updateMenuItemInCreated")
+  console.log("In the updateMenuItemInCreated");
 
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const createdMenusRef = collection(userDocRef, 'createdMenus');
   const q = query(createdMenusRef, where("restaurantName", "==", restaurantName));
   const querySnapshot = await getDocs(q);
-  console.log("Query", querySnapshot)
+  console.log("Query", querySnapshot);
 
   if (querySnapshot.empty) {
     throw new Error("Menu not found.");
@@ -202,7 +194,6 @@ export const updateMenuItemInCreatedMenus = async (item: MenuItem, restaurantNam
   await updateDoc(dishDocRef, { ...item });
 };
 
-
 export const updateNotesInCreatedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
@@ -212,7 +203,7 @@ export const updateNotesInCreatedMenus = async (itemId: string, newNotes: string
   const createdMenusRef = collection(userDocRef, 'createdMenus');
   const menuSnapshot = await getDocs(createdMenusRef);
 
-  let menuDocRef = null;
+  let menuDocRef: any = null;
   menuSnapshot.forEach(doc => {
     const data = doc.data();
     console.log('Checking menu:', data.restaurantName);
@@ -232,7 +223,6 @@ export const updateNotesInCreatedMenus = async (itemId: string, newNotes: string
   
   await updateDoc(dishDocRef, { note: newNotes });
 };
-
 
 export const deleteMenuItemFromCreatedMenus = async (itemId: string, restaurantName: string) => {
   if (!auth.currentUser) {
@@ -280,6 +270,7 @@ export const getCreatedMenusForRestaurant = async (restaurantName: string): Prom
         allergens: itemData.allergens,
         note: itemData.note,
         category: itemData.category,
+        imageUrl: itemData.imageUrl // Include imageUrl
       };
     });
 
@@ -313,9 +304,7 @@ export const fetchCreatedMenus = async (): Promise<SavedMenu[]> => {
   return createdMenus;
 };
 
-
-//SAVED MENUS
-
+// SAVED MENUS
 export const deleteMenuItemFromSavedMenus = async (itemId: string, restaurantName: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
@@ -368,7 +357,6 @@ export const updateNotesInSavedMenus = async (itemId: string, newNotes: string, 
   }
 };
 
-
 export const getSavedMenusForRestaurant = async (restaurantName: string): Promise<MenuCategory[]> => {
   if (!auth.currentUser) {
     return [];
@@ -394,13 +382,11 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
         allergens: itemData.allergens,
         note: itemData.note,
         category: itemData.category,
-        
+        imageUrl: itemData.imageUrl // Include imageUrl
       };
-
-      
     });
 
-    console.log("Items data: ", menuData)
+    console.log("Items data: ", menuData);
 
     categories.push({
       id: menuDoc.id,
@@ -411,6 +397,7 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
 
   return categories;
 };
+
 export const updateMenuItemInSavedMenus = async (item: MenuItem, restaurantName: string, itemId: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
@@ -430,7 +417,6 @@ export const updateMenuItemInSavedMenus = async (item: MenuItem, restaurantName:
   await updateDoc(dishDocRef, { ...item });
 };
 
-
 export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
@@ -441,7 +427,7 @@ export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: st
   const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
   const querySnapshot = await getDocs(q);
 
-  let menuDocRef = null;
+  let menuDocRef: any = null;
   if (!querySnapshot.empty) {
     menuDocRef = querySnapshot.docs[0].ref;
   } else {
@@ -449,10 +435,9 @@ export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: st
   }
 
   const dishesRef = collection(menuDocRef, 'dishes');
-  console.log(item)
+  console.log(item);
   await addDoc(dishesRef, { ...item });
 };
-
 
 export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
   const savedMenus: SavedMenu[] = [];
@@ -464,7 +449,7 @@ export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
     for (const menuDoc of savedMenusSnapshot.docs) {
       const menuData = menuDoc.data();
       const dishes = await fetchMenuItems(menuDoc.ref);
-      console.log("Saved menus from the menu service: ", savedMenus)
+      console.log("Saved menus from the menu service: ", savedMenus);
       savedMenus.push({
         restaurantName: menuData.restaurantName,
         dishes,
@@ -474,6 +459,4 @@ export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
 
   return savedMenus;
 };
-
-
 

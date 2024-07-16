@@ -9,11 +9,10 @@ import {
   IonItem,
   IonLabel,
   IonInput,
-  IonTextarea,
-  IonSelect,
-  IonSelectOption
+  IonTextarea
 } from '@ionic/react';
 import { MenuItem } from '../services/menuService';
+import { compressImage, uploadImage } from '../services/storageService'; // Import compression and upload functions
 
 interface EditMenuItemModalProps {
   isOpen: boolean;
@@ -29,12 +28,15 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({ isOpen, onClose, 
   const [allergens, setAllergens] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [category, setCategory] = useState('');
+  const [imageUrl, setImageUrl] = useState(''); // State for imageUrl
+  const [imageFile, setImageFile] = useState<File | null>(null); // State for image file
 
   const nameRef = useRef('');
   const descriptionRef = useRef('');
   const allergensRef = useRef<string[]>([]);
   const noteRef = useRef('');
   const categoryRef = useRef('');
+  const imageUrlRef = useRef('');
 
   useEffect(() => {
     if (initialItem) {
@@ -43,37 +45,64 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({ isOpen, onClose, 
       setAllergens(initialItem.allergens);
       setNote(initialItem.note || '');
       setCategory(initialItem.category);
+      setImageUrl(initialItem.imageUrl || '');
       
       nameRef.current = initialItem.name;
       descriptionRef.current = initialItem.description;
       allergensRef.current = initialItem.allergens;
       noteRef.current = initialItem.note || '';
       categoryRef.current = initialItem.category;
+      imageUrlRef.current = initialItem.imageUrl || '';
     } else {
       setName('');
       setDescription('');
       setAllergens([]);
       setNote('');
       setCategory('');
-      
+      setImageUrl('');
+
       nameRef.current = '';
       descriptionRef.current = '';
       allergensRef.current = [];
       noteRef.current = '';
       categoryRef.current = '';
+      imageUrlRef.current = '';
     }
   }, [initialItem]);
 
-  const handleSave = () => {
+  const handleImageChange = async (e: any) => {
+    if (e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setImageFile(file);
+    }
+  };
+
+  const handleSave = async () => {
+    let imageDownloadUrl = imageUrl;
+    
+    if (imageFile) {
+      // Compress and upload the image
+      try {
+        const compressedFile = await compressImage(imageFile);
+        imageDownloadUrl = await uploadImage(compressedFile, 'menu_items');
+        setImageUrl(imageDownloadUrl);
+        imageUrlRef.current = imageDownloadUrl;
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        // You might want to handle this error more gracefully in your UI
+      }
+    }
+
     const updatedItem = {
       ...initialItem,
       name: nameRef.current,
       description: descriptionRef.current,
       allergens: allergensRef.current,
       note: noteRef.current,
-      category: categoryRef.current
+      category: categoryRef.current,
+      imageUrl: imageUrlRef.current
     };
-    
+
     onSaveItem(updatedItem);
   };
 
@@ -140,13 +169,17 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({ isOpen, onClose, 
             }}
           />
         </IonItem>
+        <IonItem>
+          <IonLabel position="stacked">Image</IonLabel>
+          <input type="file" accept="image/*" onChange={handleImageChange} />
+        </IonItem>
+        {imageUrl && <img src={imageUrl} alt="Menu item" />} {/* Display the uploaded image */}
         <IonButton expand="block" onClick={handleSave}>
           Save
         </IonButton>
-        <IonButton expand="block" color="light" onClick={onClose}>
+        <IonButton expand="block" color="light" onClick={onClose}/>
           Cancel
-        </IonButton>
-      </IonContent>
+        </IonContent>
     </IonModal>
   );
 };

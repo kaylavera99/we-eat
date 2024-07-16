@@ -6,40 +6,20 @@ import {
   IonTitle,
   IonToolbar,
   IonList,
-  IonItem,
-  IonLabel,
-  IonLoading,
-  IonToast,
-  IonButton,
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
+  IonLoading,
+  IonToast,
+  IonButton,
   IonAvatar,
-  IonImg
+  IonImg,
 } from '@ionic/react';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
-
-interface MenuItem {
-  name: string;
-  description: string;
-  allergens: string[];
-  note?: string;
-}
-
-interface MenuCategory {
-  category: string;
-  items: { [key: string]: MenuItem };
-}
-
-interface CreatedMenu {
-  restaurantName: string;
-  items: {
-    [key: string]: MenuCategory;
-  };
-}
+import { searchRestaurants } from '../services/searchService';
 
 interface PreferredLocation {
   address: string;
@@ -48,6 +28,7 @@ interface PreferredLocation {
     longitude: number;
   };
   name: string;
+  photoUrl?: string;
 }
 
 interface UserData {
@@ -60,7 +41,7 @@ interface UserData {
     [key: string]: PreferredLocation;
   };
   createdMenus: {
-    [key: string]: CreatedMenu;
+    [key: string]: any; // Placeholder for created menus structure
   };
   profileImageUrl?: string;
 }
@@ -70,6 +51,7 @@ const UserProfilePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [restaurantPhotos, setRestaurantPhotos] = useState<{ [key: string]: string }>({});
   const history = useHistory();
 
   const handleEditProfile = () => {
@@ -102,14 +84,35 @@ const UserProfilePage: React.FC = () => {
 
             // Fetch Preferred Locations
             const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
-            preferredLocationsSnap.forEach((doc) => {
-              userData.preferredLocations[doc.id] = doc.data() as PreferredLocation;
+            const locations: { [key: string]: PreferredLocation } = {};
+            const locationPromises = preferredLocationsSnap.docs.map(async (doc) => {
+              const location = doc.data() as PreferredLocation;
+              locations[doc.id] = location;
+
+              // Fetch photo URL for the location
+              const results = await searchRestaurants(
+                `${location.coordinates.latitude},${location.coordinates.longitude}`,
+                5,
+                location.name,
+                { lat: location.coordinates.latitude, lng: location.coordinates.longitude }
+              );
+              if (results.length > 0) {
+                location.photoUrl = results[0].photoUrl;
+                setRestaurantPhotos((prevPhotos) => ({
+                  ...prevPhotos,
+                  [location.name]: results[0].photoUrl,
+                }));
+              }
             });
+
+            await Promise.all(locationPromises);
+
+            userData.preferredLocations = locations;
 
             // Fetch Created Menus
             const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
             createdMenusSnap.forEach((doc) => {
-              userData.createdMenus[doc.id] = doc.data() as CreatedMenu;
+              userData.createdMenus[doc.id] = doc.data();
             });
 
             console.log('Processed user data:', userData);
@@ -146,10 +149,11 @@ const UserProfilePage: React.FC = () => {
       <IonContent className="ion-padding">
         <h2>Welcome to your profile!</h2>
         {userData && (
-          <div><IonAvatar>
-            <IonImg src={userData.profileImageUrl} alt="Profile Picture" /> {/* Add this line */}
+          <div>
+            <IonAvatar>
+              <IonImg src={userData.profileImageUrl} alt="Profile Picture" />
             </IonAvatar>
-            <h3>{userData.name}</h3> {/* Add this line */}
+            <h3>{userData.name}</h3>
           </div>
         )}
         <IonButton expand="block" onClick={handleEditProfile}>
@@ -171,6 +175,7 @@ const UserProfilePage: React.FC = () => {
                       <IonCardTitle>{location.name}</IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
+                      {location.photoUrl && <IonImg src={location.photoUrl} alt={location.name} className="location-thumbnail" />}
                       <p>{location.address}</p>
                     </IonCardContent>
                   </IonCard>
