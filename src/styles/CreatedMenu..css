@@ -1,0 +1,7 @@
+.menu-img {
+    width: 100px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+    object-fit: cover; /* Ensure the image covers the area */
+    margin-right: 10px; /* Add some spacing between the image and the text */
+  }
+  
