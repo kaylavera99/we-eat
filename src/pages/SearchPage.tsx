@@ -149,6 +149,7 @@ const SearchPage: React.FC = () => {
           name: place.name,
           address: place.vicinity,
           coordinates: geoPoint,
+          photoUrl: place.photoUrl
         });
         setToastMessage(`Updated ${place.name} as preferred location`);
       } else {

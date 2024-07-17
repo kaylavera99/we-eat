@@ -1,6 +1,7 @@
-import { collection, doc, writeBatch, GeoPoint } from 'firebase/firestore';
+import {  collection, doc, writeBatch, GeoPoint, getDocs, query, where, setDoc, updateDoc} from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { fetchRestaurantsFromGooglePlaces, getCoordinatesFromAddress } from './googlePlacesService';
+import { searchRestaurants } from './searchService';
 
 export const addRestaurantsToFirestore = async (lat: number, lng: number, radius: number, keywords: string[]) => {
   try {
@@ -46,15 +47,51 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
 
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
-  const newLocationDocRef = doc(preferredLocationsRef);
+
+  // Search for the restaurant to get the photo URL
+  const results = await searchRestaurants(`${coordinates.lat},${coordinates.lng}`, 1, restaurantName, coordinates);
+  const photoUrl = results.length > 0 ? results[0].photoUrl : '';
 
   const geoPoint = new GeoPoint(coordinates.lat, coordinates.lng);
 
-  await writeBatch(db)
-    .set(newLocationDocRef, {
-      name: restaurantName,
-      address,
-      coordinates: geoPoint,
-    })
-    .commit();
+  // Query the restaurants collection to find the restaurant document
+  const restaurantQuery = query(collection(db, 'restaurants'), where('name', '==', restaurantName));
+  const restaurantDocs = await getDocs(restaurantQuery);
+
+  if (!restaurantDocs.empty) {
+    const restaurantDoc = restaurantDocs.docs[0];
+    const restaurantData = restaurantDoc.data();
+
+    // Update the restaurant document with the photo URL if it doesn't already exist
+    if (!restaurantData.photoUrl) {
+      await updateDoc(restaurantDoc.ref, {
+        photoUrl
+      });
+    }
+
+    // Query the preferredLocations collection to find the preferred location document by the restaurant document ID
+    const preferredLocationQuery = query(preferredLocationsRef, where('restaurantId', '==', restaurantDoc.id));
+    const preferredLocationDocs = await getDocs(preferredLocationQuery);
+
+    if (!preferredLocationDocs.empty) {
+      const docRef = preferredLocationDocs.docs[0].ref;
+      await updateDoc(docRef, {
+        address,
+        coordinates: geoPoint,
+        photoUrl: restaurantData.photoUrl || photoUrl, // Use existing photoUrl if available
+      });
+    } else {
+      const newLocationDocRef = doc(preferredLocationsRef);
+      await setDoc(newLocationDocRef, {
+        name: restaurantName,
+        restaurantId: restaurantDoc.id, // Store the restaurant document ID
+        address,
+        coordinates: geoPoint,
+        photoUrl: restaurantData.photoUrl || photoUrl // Use existing photoUrl if available
+      });
+    }
+  } else {
+    console.error(`No data found for restaurant: ${restaurantName}`);
+    return;
+  }
 };

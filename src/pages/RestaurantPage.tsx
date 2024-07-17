@@ -6,21 +6,21 @@ import {
   IonTitle,
   IonToolbar,
   IonList,
-  IonItem,
-  IonLabel,
-  IonLoading,
-  IonToast,
-  IonButton,
   IonCard,
   IonCardHeader,
   IonCardTitle,
   IonCardContent,
-  IonImg
+  IonLoading,
+  IonToast,
+  IonButton,
+  IonImg,
+  IonBadge
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import { fetchFullMenuFromRestaurants, MenuCategory, MenuItem } from '../services/restaurantService';
 import { addMenuItemToSavedMenus } from '../services/menuService';
-import '../styles/RestaurantPage.css'; // Import custom CSS for the page
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db, auth } from '../firebaseConfig';
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
@@ -28,6 +28,11 @@ const RestaurantPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [restaurantDetails, setRestaurantDetails] = useState<{
+    name: string;
+    thumbnailUrl: string;
+    preferredLocation: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -35,6 +40,42 @@ const RestaurantPage: React.FC = () => {
       try {
         const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
         setMenuCategories(fullMenu);
+
+        const userDocRef = doc(db, 'users', auth.currentUser?.uid!);
+        const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
+        let preferredLocation = '';
+
+        preferredLocationsSnap.forEach((doc) => {
+          if (doc.data().name === restaurantName) {
+            preferredLocation = doc.data().address;
+            console.log("Location", preferredLocation);
+            
+          }
+        });
+
+
+
+        const restaurantDocRef = doc(db, 'restaurants', "McDonald's");
+        console.log("rest name", restaurantName)
+        console.log("RestaurantDocRef: ", restaurantDocRef)
+        const restaurantDocSnap = await getDoc(restaurantDocRef);
+        console.log('Restaurant Doc Snap:', restaurantDocSnap);
+
+        if (restaurantDocSnap.exists()) {
+          const data = restaurantDocSnap.data();
+          setRestaurantDetails({
+            name: data.name,
+            thumbnailUrl: data.thumbnailUrl,
+            preferredLocation,
+          });
+          console.log('Restaurant Details:', {
+            name: data.name,
+            thumbnailUrl: data.thumbnailUrl,
+            preferredLocation,
+          });
+        } else {
+          console.log(`No data found for restaurant: ${restaurantName}`);
+        }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -63,7 +104,7 @@ const RestaurantPage: React.FC = () => {
           <IonCardTitle>{item.name}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
-          {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} className="menu-img" />} {/* Display the image */}
+          {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}
           <p>{item.description}</p>
           <p>Allergens: {item.allergens.join(', ')}</p>
           <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>
@@ -85,14 +126,24 @@ const RestaurantPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{restaurantName} Full Menu</IonTitle>
+          <IonTitle>{restaurantDetails?.name || restaurantName} Full Menu</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          renderMenuCategories(menuCategories)
+          <div>
+            {restaurantDetails && (
+              <div className="restaurant-banner">
+                <IonImg src={restaurantDetails.thumbnailUrl} alt={restaurantDetails.name} />
+                <h2>{restaurantDetails.name}</h2>
+                <p>Preferred Location: {restaurantDetails.preferredLocation}</p>
+                <IonBadge color="primary">Menu Items: {menuCategories.reduce((acc, category) => acc + category.items.length, 0)}</IonBadge>
+              </div>
+            )}
+            {renderMenuCategories(menuCategories)}
+          </div>
         )}
         <IonToast
           isOpen={showToast}
