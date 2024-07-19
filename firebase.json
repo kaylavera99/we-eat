@@ -11,6 +11,13 @@
         "source": "**",
         "destination": "/index.html"
       }
+    ],
+    "redirects" : [
+      {
+        "source": "/",
+        "destination": "https//we-eat.app",
+        "type": 301
+      }
     ]
   }
 }

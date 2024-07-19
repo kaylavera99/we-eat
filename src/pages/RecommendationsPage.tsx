@@ -10,7 +10,7 @@ const RecommendationsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
-  useEffect(() => {
+/*   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
       if (user) {
@@ -23,7 +23,7 @@ const RecommendationsPage: React.FC = () => {
 
     return () => unsubscribe();
   }, []);
-
+ */
   const fetchRecommendations = async (userId: string) => {
     console.log("Fetching recommendations for user ID: ", userId);
     const recs = await getRecommendations(userId);
@@ -39,20 +39,7 @@ const RecommendationsPage: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
-        <IonList>
-          {recommendations.map((menu, index) => (
-            <IonItem key={index}>
-              <IonLabel>{menu.restaurantName}</IonLabel>
-              <IonList>
-                {menu.dishes.map((dish, dishIndex) => (
-                  <IonItem key={dishIndex}>
-                    <IonLabel>{dish.name}</IonLabel>
-                  </IonItem>
-                ))}
-              </IonList>
-            </IonItem>
-          ))}
-        </IonList>
+        <IonLabel>Coming Soon</IonLabel>
       </IonContent>
     </IonPage>
   );
