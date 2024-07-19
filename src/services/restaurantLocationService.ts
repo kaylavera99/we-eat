@@ -95,3 +95,41 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
     return;
   }
 };
+
+export const addPreferredLocationForCreatedMenu = async (restaurantName: string, fullAddress: string): Promise<void> => {
+  if (!auth.currentUser) {
+    throw new Error('User not authenticated');
+  }
+
+  // Fetch coordinates
+  const coordinates = await getCoordinatesFromAddress(fullAddress);
+
+  if (!coordinates) {
+    throw new Error('Failed to fetch coordinates from the address');
+  }
+
+  const geoPoint = new GeoPoint(coordinates.lat, coordinates.lng);
+
+  const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
+
+  // Query to check if the location already exists
+  const q = query(preferredLocationsRef, where("name", "==", restaurantName));
+  const querySnapshot = await getDocs(q);
+
+  let preferredLocationDocRef;
+
+  if (!querySnapshot.empty) {
+    // Update existing document
+    preferredLocationDocRef = querySnapshot.docs[0].ref;
+  } else {
+    // Create new document
+    preferredLocationDocRef = doc(preferredLocationsRef);
+  }
+
+  await setDoc(preferredLocationDocRef, {
+    name: restaurantName,
+    address: fullAddress,
+    coordinates: geoPoint,
+  });
+};
