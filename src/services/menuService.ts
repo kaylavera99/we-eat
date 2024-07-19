@@ -15,6 +15,7 @@ export interface MenuItem {
 export interface SavedMenu {
   restaurantName: string;
   dishes: MenuItem[];
+  thumbnailUrl?: string;
 }
 
 export interface UserData {
@@ -134,16 +135,12 @@ export const getRecommendations = async (userId: string): Promise<SavedMenu[]> =
 
 // CREATED MENUS
 export const addMenuToCreatedMenus = async (menu: SavedMenu) => {
-  if (!auth.currentUser) {
-    throw new Error("No user is currently logged in.");
+  if (auth.currentUser) {
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const createdMenusRef = collection(userDocRef, 'createdMenus');
+    const newMenuDocRef = doc(createdMenusRef);
+    await setDoc(newMenuDocRef, menu);
   }
-
-  const userDocRef = doc(db, 'users', auth.currentUser.uid);
-  const createdMenusRef = collection(userDocRef, 'createdMenus');
-  await addDoc(createdMenusRef, {
-    restaurantName: menu.restaurantName,
-    dishes: menu.dishes
-  });
 };
 
 export const addMenuItemToCreatedMenus = async (item: MenuItem, restaurantName: string) => {

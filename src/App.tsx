@@ -31,6 +31,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import SavedMenuPage from './pages/SavedMenuPage'; // New import
 import CreatedMenuPage from './pages/CreatedMenuPage'; // New import
 import RecommendationsPage from './pages/RecommendationsPage';
+import AddDishesPage from './pages/AddDishesPage';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -77,6 +78,9 @@ const App: React.FC = () => {
               <Route path="/password-reset" component={PasswordResetPage} exact />
               <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
+              <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
+        <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
+        <Route exact path="/" render={() => <Redirect to="/create-menu" />} />
               <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
