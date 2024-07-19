@@ -12,9 +12,11 @@ import {
   IonToast,
   IonList,
 } from '@ionic/react';
-import { addMenuToCreatedMenus } from '../services/menuService';
-import { addPreferredLocation } from '../services/restaurantLocationService';
+import { addPreferredLocationForCreatedMenu } from '../services/restaurantLocationService';
 import { useHistory } from 'react-router-dom';
+import { uploadImage, compressImage } from '../services/storageService';
+import { auth, db } from '../firebaseConfig';
+import { doc, collection, setDoc } from 'firebase/firestore';
 
 const CreateMenuPage: React.FC = () => {
   const [restaurantName, setRestaurantName] = useState('');
@@ -22,33 +24,38 @@ const CreateMenuPage: React.FC = () => {
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [category, setCategory] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [allergens, setAllergens] = useState('');
-  const [note, setNote] = useState('');
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const history = useHistory();
-  const handleSubmit = async () => {
-    const allergensArray = allergens.split(',').map(a => a.trim());
-    const dish = {
-      category,
-      name,
-      description,
-      allergens: allergensArray,
-      note,
-    };
 
-    const fullAddress = `${streetAddress}, ${city}, ${state} ${zipCode}`;
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setThumbnail(event.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    const fullAddress = `${streetAddress}, ${city}`;
 
     try {
-      await addMenuToCreatedMenus({ restaurantName, dishes: [dish] });
-      await addPreferredLocation(restaurantName, fullAddress);
+      let thumbnailUrl = '';
+      if (thumbnail && auth.currentUser) {
+        const compressedImage = await compressImage(thumbnail);
+        thumbnailUrl = await uploadImage(compressedImage, `profilePictures/${auth.currentUser.uid}/createdMenus/${restaurantName}`);
+      }
 
-      setShowToast(true);
-      setToastMessage('Menu and preferred location added successfully!');
-      history.push('/personalized-menu');
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const createdMenusRef = collection(userDocRef, 'createdMenus');
+        const newMenuDocRef = doc(createdMenusRef);
+        await setDoc(newMenuDocRef, { restaurantName, thumbnailUrl });
+
+        await addPreferredLocationForCreatedMenu(restaurantName, fullAddress);
+        setShowToast(true);
+        setToastMessage('Restaurant details added successfully!');
+        history.push(`/add-dishes/${newMenuDocRef.id}`); // Pass the new menu document ID
+      }
     } catch (error) {
       setShowToast(true);
       setToastMessage(`Error: ${(error as Error).message}`);
@@ -85,24 +92,8 @@ const CreateMenuPage: React.FC = () => {
             <IonInput value={zipCode} onIonChange={e => setZipCode(e.detail.value!)} />
           </IonItem>
           <IonItem>
-            <IonLabel position="stacked">Category</IonLabel>
-            <IonInput value={category} onIonChange={e => setCategory(e.detail.value!)} />
-          </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Name</IonLabel>
-            <IonInput value={name} onIonChange={e => setName(e.detail.value!)} />
-          </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Description</IonLabel>
-            <IonInput value={description} onIonChange={e => setDescription(e.detail.value!)} />
-          </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Allergens</IonLabel>
-            <IonInput value={allergens} onIonChange={e => setAllergens(e.detail.value!)} />
-          </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Notes</IonLabel>
-            <IonInput value={note} onIonChange={e => setNote(e.detail.value!)} />
+            <IonLabel position="stacked">Thumbnail</IonLabel>
+            <input type="file" accept="image/*" onChange={handleFileChange} />
           </IonItem>
         </IonList>
         <IonButton expand="block" onClick={handleSubmit}>
