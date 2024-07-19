@@ -16,30 +16,27 @@ import {
   IonImg,
 } from '@ionic/react';
 import { useHistory } from 'react-router-dom';
-import {
-  fetchMenuData,
-  SavedMenu,
-} from '../services/menuService';
-import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
+import { doc, getDocs, collection, query, where } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import '../styles/PersonalizedMenu.css'; // Import custom CSS for the page
-
-interface Restaurant {
-  name: string;
-  thumbnailUrl: string;
-  address: string;
-}
+import '../styles/PersonalizedMenu.css';
 
 interface PreferredLocation {
   name: string;
   address: string;
   coordinates: any;
+  photoUrl?: string;
+}
+
+interface Menu {
+  restaurantName: string;
+  dishes: any[];
+  isCreated: boolean;
+  photoUrl?: string;
+  thumbnailUrl?: string;
 }
 
 const PersonalizedMenuPage: React.FC = () => {
-  const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
-  const [createdMenus, setCreatedMenus] = useState<SavedMenu[]>([]);
-  const [restaurantDetails, setRestaurantDetails] = useState<{ [key: string]: Restaurant }>({});
+  const [menus, setMenus] = useState<Menu[]>([]);
   const [preferredLocations, setPreferredLocations] = useState<{ [key: string]: PreferredLocation }>({});
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
@@ -50,47 +47,56 @@ const PersonalizedMenuPage: React.FC = () => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const { savedMenus, createdMenus } = await fetchMenuData();
-        setSavedMenus(savedMenus);
-        setCreatedMenus(createdMenus);
-
-        const restaurantNames = new Set(savedMenus.map(menu => menu.restaurantName).concat(createdMenus.map(menu => menu.restaurantName)));
-        const restaurantDetails: { [key: string]: Restaurant } = {};
-
-        for (const name of restaurantNames) {
-          const q = query(collection(db, 'restaurants'), where("name", "==", name));
-          const querySnapshot = await getDocs(q);
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            restaurantDetails[name] = {
-              name,
-              thumbnailUrl: data.thumbnailUrl || '',
-              address: data.address || '',
-            };
-          });
-
-          if (!restaurantDetails[name]) {
-            console.log(`No data found for restaurant: ${name}`);
+        const userId = auth.currentUser?.uid;
+        if (userId) {
+          const userDocRef = doc(db, 'users', userId);
+  
+          // Fetch saved menus
+          const savedMenusSnap = await getDocs(collection(userDocRef, 'savedMenus'));
+          const savedMenus: Menu[] = [];
+          for (const doc of savedMenusSnap.docs) {
+            const data = doc.data() as Menu;
+            const q = query(collection(db, 'restaurants'), where("name", "==", data.restaurantName));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+              const restaurantData = doc.data();
+              savedMenus.push({
+                ...data,
+                isCreated: false,
+                photoUrl: restaurantData.thumbnailUrl || restaurantData.thumbnail,
+              });
+            });
           }
-        }
-
-        setRestaurantDetails(restaurantDetails);
-
-        if (auth.currentUser) {
-          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+  
+          // Fetch created menus
+          const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
+          const createdMenus: Menu[] = [];
+          createdMenusSnap.forEach((doc) => {
+            const data = doc.data() as Menu;
+            createdMenus.push({
+              ...data,
+              isCreated: true,
+              photoUrl: data.thumbnailUrl, // Ensure the thumbnailUrl is used
+            });
+          });
+  
+          setMenus([...savedMenus, ...createdMenus]);
+  
+          // Fetch preferred locations
           const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
           const preferredLocations: { [key: string]: PreferredLocation } = {};
-
           preferredLocationsSnap.forEach((doc) => {
             const data = doc.data();
-            preferredLocations[doc.id] = {
+            preferredLocations[data.name] = { // Key by restaurant name
               name: data.name,
               address: data.address,
               coordinates: data.coordinates,
+              photoUrl: data.photoUrl,
             };
           });
-
           setPreferredLocations(preferredLocations);
+  
+          console.log("Fetched Preferred Locations:", preferredLocations);
         }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
@@ -101,51 +107,49 @@ const PersonalizedMenuPage: React.FC = () => {
     };
     fetchData();
   }, []);
-
-  const handleViewSavedMenu = (restaurantName: string) => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`);
+  
+  const handleViewMenu = (restaurantName: string, isCreatedMenu: boolean) => {
+    const path = isCreatedMenu ? `/restaurant/${encodeURIComponent(restaurantName)}/created` : `/restaurant/${encodeURIComponent(restaurantName)}/saved`;
+    history.push(path);
   };
 
-  const handleViewCreatedMenu = (restaurantName: string) => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`);
+  const handleGetDirections = (address: string) => {
+    const encodedAddress = encodeURIComponent(address);
+    const url = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    window.open(url, '_blank');
   };
 
-  const handleViewFullMenu = (restaurantName: string) => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
+  const handleCreateMenu = () => {
+    history.push('/create-menu');
   };
 
-  const renderMenuCard = (menu: SavedMenu, isCreatedMenu: boolean) => {
-    const restaurant = restaurantDetails[menu.restaurantName];
-    const preferredLocation = Object.values(preferredLocations).find(
-      (location) => location.name === menu.restaurantName
-    );
-
+  const renderMenuCard = (menu: Menu) => {
+    const restaurant = preferredLocations[menu.restaurantName];
+    console.log(restaurant);
+  
     return (
       <IonCard key={menu.restaurantName}>
         <IonCardHeader>
-          {restaurant?.thumbnailUrl && (
-            <IonImg src={restaurant.thumbnailUrl} alt={restaurant.name} className="restaurant-thumbnail" />
+          {menu.photoUrl && (
+            <IonImg src={menu.photoUrl} alt={menu.restaurantName} className="restaurant-thumbnail" />
           )}
-          <IonCardTitle>{restaurant?.name}</IonCardTitle>
-          <p>Preferred Location: {preferredLocation ? preferredLocation.address : 'N/A'}</p>
+          <IonCardTitle>{menu.restaurantName}</IonCardTitle>
+          <p>Preferred Location: {restaurant ? restaurant.address : 'N/A'}</p>
         </IonCardHeader>
         <IonCardContent>
-          {isCreatedMenu ? (
-            <IonButton onClick={() => handleViewCreatedMenu(menu.restaurantName)}>
-              View Created Menu
-            </IonButton>
-          ) : (
-            <IonButton onClick={() => handleViewSavedMenu(menu.restaurantName)}>
-              View Saved Menu
+          <IonButton onClick={() => handleViewMenu(menu.restaurantName, menu.isCreated)}>
+            View Menu
+          </IonButton>
+          {restaurant && (
+            <IonButton onClick={() => handleGetDirections(restaurant.address)}>
+              Directions
             </IonButton>
           )}
-          <IonButton onClick={() => handleViewFullMenu(menu.restaurantName)}>
-            View Full Menu
-          </IonButton>
         </IonCardContent>
       </IonCard>
     );
   };
+  
 
   return (
     <IonPage>
@@ -158,13 +162,15 @@ const PersonalizedMenuPage: React.FC = () => {
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <IonList>
-            <h2>Saved Menus</h2>
-            {savedMenus.map((menu) => renderMenuCard(menu, false))}
-
-            <h2>Created Menus</h2>
-            {createdMenus.map((menu) => renderMenuCard(menu, true))}
-          </IonList>
+          <>
+            <IonButton expand="block" onClick={handleCreateMenu} style={{ marginBottom: '20px' }}>
+              Create a Menu
+            </IonButton>
+            <IonList>
+              <h2>Menus</h2>
+              {menus.map((menu) => renderMenuCard(menu))}
+            </IonList>
+          </>
         )}
         <IonToast
           isOpen={showToast}
