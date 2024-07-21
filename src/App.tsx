@@ -10,13 +10,16 @@ import {
   IonTabs,
   setupIonicReact,
   IonLoading,
+  IonMenuButton,
+  IonTitle,
+  IonHeader,
+  IonToolbar
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, homeSharp, person, personCircle, personCircleSharp, searchCircle, searchCircleSharp, square, triangle } from 'ionicons/icons';
-import 'ionicons/icons';
+import { homeSharp, person, searchOutline, thumbsUp } from 'ionicons/icons';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
-
+import SlideMenu from './components/SlideMenu';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccount';
 import HomePage from './pages/HomePage';
@@ -29,12 +32,11 @@ import PrivateRoute from './components/PrivateRoute';
 import CreateMenuPage from './pages/CreateMenuPage';
 import SearchPage from './pages/SearchPage';
 import ErrorBoundary from './components/ErrorBoundary';
-import SavedMenuPage from './pages/SavedMenuPage'; // New import
-import CreatedMenuPage from './pages/CreatedMenuPage'; // New import
+import SavedMenuPage from './pages/SavedMenuPage';
+import CreatedMenuPage from './pages/CreatedMenuPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import AddDishesPage from './pages/AddDishesPage';
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome CSS
-import { homeOutline, searchOutline, personCircleOutline, settingsOutline, thumbsUp } from 'ionicons/icons';
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -46,7 +48,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import './theme/variables.css';
-import 'ionicons/icons';
+
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -72,8 +74,15 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
+        <SlideMenu />
+        <IonHeader>
+          <IonToolbar>
+            <IonMenuButton slot="start" />
+            <IonTitle>WeEat</IonTitle>
+          </IonToolbar>
+        </IonHeader>
         <IonTabs>
-          <IonRouterOutlet>
+          <IonRouterOutlet id="main-content">
             <Switch>
               <Route path="/login" component={LoginPage} exact />
               <Route path="/create-account" component={CreateAccountPage} exact />
@@ -81,8 +90,8 @@ const App: React.FC = () => {
               <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
               <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
-        <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
-        <Route exact path="/" render={() => <Redirect to="/create-menu" />} />
+              <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
+              <Route exact path="/" render={() => <Redirect to="/create-menu" />} />
               <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
@@ -102,15 +111,15 @@ const App: React.FC = () => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">
-            <IonIcon icon={homeSharp} />
+              <IonIcon icon={homeSharp} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
             <IonTabButton tab="profile" href="/profile">
-            <IonIcon icon={person} />
+              <IonIcon icon={person} />
               <IonLabel>Profile</IonLabel>
             </IonTabButton>
             <IonTabButton tab="search" href="/search">
-            <IonIcon icon={searchOutline} />
+              <IonIcon icon={searchOutline} />
               <IonLabel>Search</IonLabel>
             </IonTabButton>
             <IonTabButton tab="recommendations" href="/recommendations">
