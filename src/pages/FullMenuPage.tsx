@@ -1,5 +1,3 @@
-// src/pages/FullMenuPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import {
   IonContent,
@@ -35,14 +33,34 @@ interface Restaurant {
   menu: MenuCategory[];
 }
 
+interface UserData {
+  allergens: { [key: string]: boolean };
+}
+
 const FullMenuPage: React.FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [userAllergens, setUserAllergens] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchUserAllergens = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data() as UserData;
+          const allergens = Object.keys(userData.allergens)
+            .filter(allergen => userData.allergens[allergen])
+            .map(allergen => allergen.toLowerCase().trim());
+          setUserAllergens(allergens);
+          console.log("ALLERGENS")
+        }
+      }
+    };
+
     const fetchRestaurantMenu = async () => {
       setIsLoading(true);
       try {
@@ -72,6 +90,7 @@ const FullMenuPage: React.FC = () => {
       }
     };
 
+    fetchUserAllergens();
     fetchRestaurantMenu();
   }, [restaurantId]);
 
@@ -107,6 +126,11 @@ const FullMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        {userAllergens.length > 0 && (
+          <p style={{ color: 'red' }}>
+            Menu items with allergens marked in red contain your allergens.
+          </p>
+        )}
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : restaurant ? (
@@ -120,7 +144,20 @@ const FullMenuPage: React.FC = () => {
                       <IonLabel>
                         <h2>{item.name}</h2>
                         <p>{item.description}</p>
-                        <p>Allergens: {item.allergens.join(', ')}</p>
+                        <p>
+                          Allergens:{' '}
+                          {item.allergens.map((allergen, index) => {
+                            const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
+                            return (
+                              <span
+                                key={index}
+                                style={{ color: isUserAllergen ? 'red' : 'black' }}
+                              >
+                                {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
+                              </span>
+                            );
+                          })}
+                        </p>
                       </IonLabel>
                       <IonButton
                         onClick={() => handleAddToPersonalizedMenu(item, menuCategory.category)}

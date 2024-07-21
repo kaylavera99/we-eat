@@ -19,8 +19,12 @@ import {
 import { useParams } from 'react-router-dom';
 import { fetchFullMenuFromRestaurants, MenuCategory, MenuItem } from '../services/restaurantService';
 import { addMenuItemToSavedMenus } from '../services/menuService';
-import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
+
+interface UserData {
+  allergens: { [key: string]: boolean };
+}
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
@@ -31,51 +35,49 @@ const RestaurantPage: React.FC = () => {
   const [restaurantDetails, setRestaurantDetails] = useState<{
     name: string;
     thumbnailUrl: string;
-    preferredLocation: string;
   } | null>(null);
+  const [userAllergens, setUserAllergens] = useState<string[]>([]);
 
   useEffect(() => {
+    const fetchUserAllergens = async () => {
+      if (auth.currentUser) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data() as UserData;
+          const allergens = Object.keys(userData.allergens)
+            .filter(allergen => userData.allergens[allergen])
+            .map(allergen => allergen.toLowerCase().trim());
+          setUserAllergens(allergens);
+        }
+      }
+    };
+
+    const fetchRestaurantDetails = async (restaurantName: string) => {
+      const q = query(collection(db, 'restaurants'), where('name', '==', restaurantName));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const restaurantDoc = querySnapshot.docs[0];
+        return restaurantDoc.data();
+      } else {
+        throw new Error(`No data found for restaurant: ${restaurantName}`);
+      }
+    };
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
+        await fetchUserAllergens();
+
         const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
         setMenuCategories(fullMenu);
 
-        const userDocRef = doc(db, 'users', auth.currentUser?.uid!);
-        const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
-        let preferredLocation = '';
-
-        preferredLocationsSnap.forEach((doc) => {
-          if (doc.data().name === restaurantName) {
-            preferredLocation = doc.data().address;
-            console.log("Location", preferredLocation);
-            
-          }
+        const restaurantData = await fetchRestaurantDetails(restaurantName);
+        setRestaurantDetails({
+          name: restaurantData.name,
+          thumbnailUrl: restaurantData.thumbnailUrl,
         });
 
-
-
-        const restaurantDocRef = doc(db, 'restaurants', "McDonald's");
-        console.log("rest name", restaurantName)
-        console.log("RestaurantDocRef: ", restaurantDocRef)
-        const restaurantDocSnap = await getDoc(restaurantDocRef);
-        console.log('Restaurant Doc Snap:', restaurantDocSnap);
-
-        if (restaurantDocSnap.exists()) {
-          const data = restaurantDocSnap.data();
-          setRestaurantDetails({
-            name: data.name,
-            thumbnailUrl: data.thumbnailUrl,
-            preferredLocation,
-          });
-          console.log('Restaurant Details:', {
-            name: data.name,
-            thumbnailUrl: data.thumbnailUrl,
-            preferredLocation,
-          });
-        } else {
-          console.log(`No data found for restaurant: ${restaurantName}`);
-        }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -83,6 +85,7 @@ const RestaurantPage: React.FC = () => {
         setIsLoading(false);
       }
     };
+
     fetchData();
   }, [restaurantName]);
 
@@ -106,7 +109,20 @@ const RestaurantPage: React.FC = () => {
         <IonCardContent>
           {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}
           <p>{item.description}</p>
-          <p>Allergens: {item.allergens.join(', ')}</p>
+          <p>
+            Allergens:{' '}
+            {item.allergens.map((allergen, index) => {
+              const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
+              return (
+                <span
+                  key={index}
+                  style={{ color: isUserAllergen ? 'red' : 'black' }}
+                >
+                  {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
+                </span>
+              );
+            })}
+          </p>
           <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>
         </IonCardContent>
       </IonCard>
@@ -130,6 +146,11 @@ const RestaurantPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        {userAllergens.length > 0 && (
+          <p style={{ color: 'red' }}>
+            Menu items with allergens marked in red contain your allergens.
+          </p>
+        )}
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
@@ -138,8 +159,9 @@ const RestaurantPage: React.FC = () => {
               <div className="restaurant-banner">
                 <IonImg src={restaurantDetails.thumbnailUrl} alt={restaurantDetails.name} />
                 <h2>{restaurantDetails.name}</h2>
-                <p>Preferred Location: {restaurantDetails.preferredLocation}</p>
-                <IonBadge color="primary">Menu Items: {menuCategories.reduce((acc, category) => acc + category.items.length, 0)}</IonBadge>
+                <IonBadge color="primary">
+                  Menu Items: {menuCategories.reduce((acc, category) => acc + category.items.length, 0)}
+                </IonBadge>
               </div>
             )}
             {renderMenuCategories(menuCategories)}

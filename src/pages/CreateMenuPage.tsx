@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -13,13 +13,16 @@ import {
   IonList,
 } from '@ionic/react';
 import { addPreferredLocationForCreatedMenu } from '../services/restaurantLocationService';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { uploadImage, compressImage } from '../services/storageService';
 import { auth, db } from '../firebaseConfig';
 import { doc, collection, setDoc } from 'firebase/firestore';
 
 const CreateMenuPage: React.FC = () => {
-  const [restaurantName, setRestaurantName] = useState('');
+  const location = useLocation<{ place: any }>();
+  const place = location.state?.place;
+  
+  const [restaurantName, setRestaurantName] = useState(place?.name || '');
   const [streetAddress, setStreetAddress] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
@@ -29,6 +32,21 @@ const CreateMenuPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const history = useHistory();
 
+  useEffect(() => {
+    if (place) {
+      setRestaurantName(place.name);
+      parseAddress(place.vicinity);
+    }
+  }, [place]);
+
+  const parseAddress = (vicinity: string) => {
+    const addressParts = vicinity.split(', ');
+    if (addressParts.length === 2) {
+      setStreetAddress(addressParts[0]);
+      setCity(addressParts[1]);
+    }
+  };
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setThumbnail(event.target.files[0]);
@@ -36,13 +54,15 @@ const CreateMenuPage: React.FC = () => {
   };
 
   const handleSubmit = async () => {
-    const fullAddress = `${streetAddress}, ${city}`;
+    const fullAddress = `${streetAddress}, ${city}, ${state}, ${zipCode}`;
 
     try {
       let thumbnailUrl = '';
       if (thumbnail && auth.currentUser) {
         const compressedImage = await compressImage(thumbnail);
         thumbnailUrl = await uploadImage(compressedImage, `profilePictures/${auth.currentUser.uid}/createdMenus/${restaurantName}`);
+      } else if (!thumbnail && place?.photoUrl) {
+        thumbnailUrl = place.photoUrl;
       }
 
       if (auth.currentUser) {

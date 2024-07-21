@@ -96,7 +96,11 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
   }
 };
 
-export const addPreferredLocationForCreatedMenu = async (restaurantName: string, fullAddress: string): Promise<void> => {
+export const addPreferredLocationForCreatedMenu = async (
+  restaurantName: string,
+  fullAddress: string,
+  thumbnailUrl?: string
+): Promise<void> => {
   if (!auth.currentUser) {
     throw new Error('User not authenticated');
   }
@@ -131,5 +135,6 @@ export const addPreferredLocationForCreatedMenu = async (restaurantName: string,
     name: restaurantName,
     address: fullAddress,
     coordinates: geoPoint,
+    photoUrl: thumbnailUrl || ''
   });
 };
