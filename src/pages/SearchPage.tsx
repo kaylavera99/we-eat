@@ -12,7 +12,8 @@ import {
   IonLabel,
   IonToast,
   IonSearchbar,
-  IonThumbnail
+  IonThumbnail,
+  IonAlert
 } from '@ionic/react';
 import { searchRestaurants } from '../services/searchService';
 import { useHistory } from 'react-router-dom';
@@ -21,6 +22,7 @@ import { doc, getDocs, collection, query, where, setDoc } from 'firebase/firesto
 import { db, auth } from '../firebaseConfig';
 import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
 import { fetchSavedMenus, fetchCreatedMenus } from '../services/menuService';
+import { getCoordinatesFromAddress } from '../services/googlePlacesService';
 
 interface Place {
   name: string;
@@ -45,6 +47,8 @@ const SearchPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const history = useHistory();
 
   const handleSearch = useCallback(async () => {
@@ -94,6 +98,24 @@ const SearchPage: React.FC = () => {
     }
   }, [searchQuery, radius, isSearching, handleSearch]);
 
+  const handleAlertConfirm = async () => {
+    if (selectedPlace) {
+      const fullAddress = selectedPlace.vicinity;
+      const coordinates = await getCoordinatesFromAddress(fullAddress);
+
+      const placeWithAddress = {
+        ...selectedPlace,
+        coordinates,
+        address: fullAddress,
+      };
+
+      history.push({
+        pathname: `/restaurant/${encodeURIComponent(selectedPlace.name)}/create`,
+        state: { place: placeWithAddress }
+      });
+    }
+  };
+
   const handleNavigateToRestaurantPage = async (place: Place) => {
     const restaurantName = place.name;
 
@@ -119,10 +141,9 @@ const SearchPage: React.FC = () => {
         return;
       }
 
-      // If no menu is found, navigate to the create menu page
-      setToastMessage(`No menu available for ${restaurantName}. You can create one.`);
-      setShowToast(true);
-      history.push(`/restaurant/${encodeURIComponent(restaurantName)}/create`, { place });
+      // If no menu is found, show alert to create a new menu
+      setSelectedPlace(place);
+      setShowAlert(true);
     } catch (error) {
       setToastMessage(`Error navigating to ${place.name}: ${(error as Error).message}`);
       setShowToast(true);
@@ -248,6 +269,23 @@ const SearchPage: React.FC = () => {
           onDidDismiss={() => setShowToast(false)}
           message={toastMessage}
           duration={2000}
+        />
+        <IonAlert
+          isOpen={showAlert}
+          onDidDismiss={() => setShowAlert(false)}
+          header={'Create Menu'}
+          message={`There is no menu on WeEat for ${selectedPlace?.name}. Do you want to create one?`}
+          buttons={[
+            {
+              text: 'No',
+              role: 'cancel',
+              handler: () => setShowAlert(false)
+            },
+            {
+              text: 'Yes',
+              handler: handleAlertConfirm
+            }
+          ]}
         />
       </IonContent>
     </IonPage>

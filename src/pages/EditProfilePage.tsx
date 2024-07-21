@@ -56,7 +56,17 @@ const EditProfilePage: React.FC = () => {
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            setAllergens(userData.allergens);
+            const allergenData = userData.allergens || {};
+            setAllergens({
+              eggs: Boolean(allergenData.eggs),
+              wheat: Boolean(allergenData.wheat),
+              dairy: Boolean(allergenData.dairy),
+              soy: Boolean(allergenData.soy),
+              tree_nuts: Boolean(allergenData.tree_nuts),
+              fish: Boolean(allergenData.fish),
+              shellfish: Boolean(allergenData.shellfish),
+              peanuts: Boolean(allergenData.peanuts),
+            });
             setProfileImageUrl(userData.profileImageUrl);
           }
         }
@@ -95,8 +105,19 @@ const EditProfilePage: React.FC = () => {
           updatedProfileImageUrl = await uploadImage(compressedImage, auth.currentUser.uid);
         }
 
+        const updatedAllergens = {
+          eggs: Boolean(allergens.eggs),
+          wheat: Boolean(allergens.wheat),
+          dairy: Boolean(allergens.dairy),
+          soy: Boolean(allergens.soy),
+          tree_nuts: Boolean(allergens.tree_nuts),
+          fish: Boolean(allergens.fish),
+          shellfish: Boolean(allergens.shellfish),
+          peanuts: Boolean(allergens.peanuts),
+        };
+
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
-          allergens,
+          allergens: updatedAllergens,
           profileImageUrl: updatedProfileImageUrl,
         });
 

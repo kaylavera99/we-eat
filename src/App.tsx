@@ -9,10 +9,11 @@ import {
   IonTabButton,
   IonTabs,
   setupIonicReact,
-  IonLoading
+  IonLoading,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
+import { ellipse, homeSharp, person, personCircle, personCircleSharp, searchCircle, searchCircleSharp, square, triangle } from 'ionicons/icons';
+import 'ionicons/icons';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 
@@ -32,7 +33,8 @@ import SavedMenuPage from './pages/SavedMenuPage'; // New import
 import CreatedMenuPage from './pages/CreatedMenuPage'; // New import
 import RecommendationsPage from './pages/RecommendationsPage';
 import AddDishesPage from './pages/AddDishesPage';
-
+import '@fortawesome/fontawesome-free/css/all.min.css'; // Import Font Awesome CSS
+import { homeOutline, searchOutline, personCircleOutline, settingsOutline, thumbsUp } from 'ionicons/icons';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -44,7 +46,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import './theme/variables.css';
-
+import 'ionicons/icons';
 setupIonicReact();
 
 const App: React.FC = () => {
@@ -85,6 +87,7 @@ const App: React.FC = () => {
               <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
               <PrivateRoute path="/search" component={SearchPage} exact />
+              <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
               <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
               <PrivateRoute path="/home" component={HomePage} exact />
               <PrivateRoute path="/profile" component={UserProfilePage} exact />
@@ -99,19 +102,19 @@ const App: React.FC = () => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">
-              <IonIcon aria-hidden="true" icon={triangle} />
+            <IonIcon icon={homeSharp} />
               <IonLabel>Home</IonLabel>
             </IonTabButton>
             <IonTabButton tab="profile" href="/profile">
-              <IonIcon aria-hidden="true" icon={ellipse} />
+            <IonIcon icon={person} />
               <IonLabel>Profile</IonLabel>
             </IonTabButton>
             <IonTabButton tab="search" href="/search">
-              <IonIcon aria-hidden="true" icon={triangle} />
+            <IonIcon icon={searchOutline} />
               <IonLabel>Search</IonLabel>
             </IonTabButton>
             <IonTabButton tab="recommendations" href="/recommendations">
-              <IonIcon aria-hidden="true" icon={triangle} />
+              <IonIcon aria-hidden="true" icon={thumbsUp} />
               <IonLabel>Recommendations</IonLabel>
             </IonTabButton>
           </IonTabBar>
