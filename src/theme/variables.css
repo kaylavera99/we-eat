@@ -1,12 +1,16 @@
 /* For information on how to create your own theme, please see:
 http://ionicframework.com/docs/theming/ */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Urbanist:ital,wght@0,100..900&display=swap" rel="stylesheet');
+
 :root {
 	--ion-color-primary: #2D5949;
 	--ion-color-primary-rgb: 45,89,73;
 	--ion-color-primary-contrast: #ffffff;
 	--ion-color-primary-contrast-rgb: 255,255,255;
 	--ion-color-primary-shade: #284e40;
-	--ion-color-primary-tint: #426a5b;
+	--ion-color-primary-tint: #308C6A;
 
 	--ion-color-secondary: #29A678;
 	--ion-color-secondary-rgb: 41,166,120;
@@ -63,5 +67,24 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-dark-contrast-rgb: 255,255,255;
 	--ion-color-dark-shade: #292929;
 	--ion-color-dark-tint: #444444;
+    --font-family-primary: 'Urbanist', sans-serif!important;
+    --font-family-secondary: 'Nunito Sans', sans-serif!important;
+    --ion-toolbar-background: #2D5949; /* Check the variable name */
 
 }
+
+
+h1, h2, h3, h4, .IonTitle, .IonHeader, .button {
+    font-family: var(--font-family-primary);
+
+}
+
+.button {
+    font-weight: 600;
+    text-transform: capitalize!important;
+}
+
+h2 {
+    font-size: 24px!important;
+}
+
