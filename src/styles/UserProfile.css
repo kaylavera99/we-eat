@@ -1,7 +1,85 @@
 .location-thumbnail {
-    width: 100%;
+    width: 50%;
     height: auto;
     object-fit: cover;
     margin-bottom: 10px;
   }
   
+
+  .page-header {
+    display:flex!important;
+    align-items: center!important;
+    justify-content:space-between!important;
+    flex-direction:row!important;
+    margin-bottom: 16px!important; /* Space below header if needed */
+  }
+
+  .button-block {
+    display:flex!important;
+  }
+
+  .page-title {
+    margin:0!important;
+  }
+
+  .container {
+    display: flex!important;
+    flex-direction: column!important;
+    justify-content:space-between!important;
+  
+    gap: 16px; /* Space between buttons */
+  }
+
+  #IonButton {
+    margin-left: 16px!important; /* Optional: Add space between title and button */
+    width: auto!important; /* Allow the button to size according to its content */
+    max-width: 400px!important; /* Optional: Limit the maximum width */
+  }
+
+  .profile-banner {
+    display: flex;
+    flex-direction: row;
+    justify-content:space-around;
+    align-items: center; /* Ensure alignment */
+    width:75%!important;
+  }
+
+  .user-info {
+
+  }
+  
+  .profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px!important; /* Set rounded corners */
+    overflow: hidden; /* Hide overflow to clip the image */
+    display: flex;
+    align-items: center;
+    float:left;
+    position: relative; /* Ensure proper positioning of the image */
+  }
+  
+  .profile-avatar ion-img {
+    width: 100%; /* Make the image fit the container */
+    height: 100%; /* Ensure it covers the container */
+    object-fit: cover; /* Maintain aspect ratio and cover the area */
+    border-radius: 10px; /* Apply border radius to image */
+  }
+  
+
+  .button-row {
+
+    border-top:2px solid '--ion-color-primary'!important;
+    display:flex;
+    flex-direction:row;
+    justify-content: space-around;
+  }
+
+  .styled-hr {
+    border: 0!important; /* Remove default border */
+    height: 4px!important; /* Set the thickness */
+    width:50%!important;
+    background-color:var(--ion-color-primary-tint); /* Set the color */
+    margin: 20px auto!important; /* Adjust spacing around the hr */
+    border-radius: 10px; /* Adjust the radius to your liking */
+  }

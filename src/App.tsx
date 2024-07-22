@@ -76,7 +76,7 @@ const App: React.FC = () => {
       <IonReactRouter>
         <SlideMenu />
         <IonHeader>
-          <IonToolbar>
+          <IonToolbar style={{ backgroundColor: '#2D5949' }}>
             <IonMenuButton slot="start" />
             <IonTitle>WeEat</IonTitle>
           </IonToolbar>

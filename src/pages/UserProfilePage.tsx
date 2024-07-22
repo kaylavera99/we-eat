@@ -15,11 +15,15 @@ import {
   IonButton,
   IonAvatar,
   IonImg,
+  IonIcon
 } from '@ionic/react';
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { searchRestaurants } from '../services/searchService';
+import '../styles/UserProfile.css';
+import 'ionicons/icons';
+import { locationOutline } from 'ionicons/icons';
 
 interface PreferredLocation {
   address: string;
@@ -33,6 +37,7 @@ interface PreferredLocation {
 
 interface UserData {
   name: string;
+  lastName: string;
   email: string;
   allergens: {
     [key: string]: boolean;
@@ -44,6 +49,7 @@ interface UserData {
     [key: string]: any; // Placeholder for created menus structure
   };
   profileImageUrl?: string;
+  address: string;
 }
 
 const UserProfilePage: React.FC = () => {
@@ -62,6 +68,14 @@ const UserProfilePage: React.FC = () => {
     history.push('/personalized-menu');
   };
 
+  const handleNavigateCreate = () => {
+    history.push('/create');
+  };
+  const capitalize = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+
   useEffect(() => {
     const fetchUserProfile = async () => {
       setIsLoading(true);
@@ -71,16 +85,23 @@ const UserProfilePage: React.FC = () => {
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userDocData = userDocSnap.data() || {};
+
+            const allergens = userDocData.allergens || {};
+
+            console.log(allergens);
             const userData: UserData = {
               name: userDocData.firstName,
               email: userDocData.email,
               allergens: userDocData.allergens || {},
               preferredLocations: {},
               createdMenus: {},
-              profileImageUrl: userDocData.profileImageUrl || ''
+              profileImageUrl: userDocData.profileImageUrl || '',
+              address: userDocData.address,
+              lastName: userDocData.lastName
             };
 
             console.log('User document data:', userDocData);
+            console.log(userData.allergens)
 
             // Fetch Preferred Locations
             const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
@@ -139,6 +160,27 @@ const UserProfilePage: React.FC = () => {
     fetchUserProfile();
   }, []);
 
+  const renderAllergens = () => {
+    if (userData && userData.allergens) {
+      console.log(userData.allergens);
+      return Object.entries(userData.allergens)
+        .filter(([key, value]) => value) // Only include allergens with true values
+        .map(([key]) => capitalize(key)) // Get the allergen names
+        .join(', '); // Join them into a comma-separated list
+        
+    }
+
+    
+    return 'None';
+  };
+
+  const renderFullName = () => {
+    if (userData && userData.name && userData.lastName) {
+      return `${userData.name} ${userData.lastName}`;
+    }
+    return 'No name available';
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -146,22 +188,44 @@ const UserProfilePage: React.FC = () => {
           <IonTitle>User Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <h2>Welcome to your profile!</h2>
-        {userData && (
-          <div>
-            <IonAvatar>
-              <IonImg src={userData.profileImageUrl} alt="Profile Picture" />
-            </IonAvatar>
-            <h3>{userData.name}</h3>
-          </div>
+      <IonContent className="ion-padding">          
+            <div className = "page-header" >
+              <h2 className = "page-title">Your Profile</h2>              
+              <IonButton className="button" onClick={handleEditProfile}>
+                Edit Profile
+              </IonButton>
+            </div>
+     
+          {userData && (
+            <div className="profile-banner">
+              <IonAvatar className = "profile-avatar">
+                <IonImg src={userData.profileImageUrl} alt="Profile Picture" />
+              </IonAvatar>
+              <div className = "user-info">
+              <h3>{renderFullName()}</h3>
+              <h4><IonIcon icon={locationOutline}/>{userData.address}</h4>
+              <h4><strong>Allergens: </strong>{renderAllergens()}</h4>
+              </div>
+              
+            </div>
+            
+            
         )}
-        <IonButton expand="block" onClick={handleEditProfile}>
-          Edit Profile
-        </IonButton>
-        <IonButton expand="block" onClick={handleViewPersonalizedMenus}>
-          View Personalized Menus
-        </IonButton>
+        <div className = 'hr-container'><hr className = "styled-hr"/></div>
+        <div className="button-row">
+          
+          <div className="button-col">
+        <IonButton className="button"onClick={handleViewPersonalizedMenus}>
+          Your Menus
+        </IonButton></div>
+        <div className="button-col">
+        <IonButton className="button"onClick={handleNavigateCreate}>
+          Create Menu
+        </IonButton></div>
+
+        </div>
+
+
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : userData ? (
