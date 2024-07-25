@@ -119,3 +119,24 @@ ion-content {
     font-size: 16px !important;
   }
 
+  .app-logo {
+    height: 55px;
+    margin-left: 16px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .ion-menu-button {
+    font-size: 1.5em;
+    color: #fff; /* Ensure the color is set for the icon */
+  }
+  
+  @media (max-width: 768px) {
+    .app-logo {
+      height: 45px; /* Adjust size for smaller screens */
+    }
+    .ion-menu-button {
+      font-size: 1.2em; /* Adjust size for smaller screens */
+    }
+  }
+  
