@@ -49,6 +49,12 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 import './theme/variables.css';
+import './styles/UserProfile.css';
+import './styles/HomePage.css';
+import './styles/PersonalizedMenu.css';
+import './styles/RestaurantPage.css';
+import './styles/CreatedMenu..css';
+import './styles/SlideMenu.css'
 
 setupIonicReact();
 
@@ -59,13 +65,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
+      setIsAuthenticated(!user);
       setIsLoading(false);
-      if (!user) {
-        history.push('/login');
+      if (user) {
+        history.push('/home');
       }
       else {
-        history.push('/home');
+        history.push('/login');
       }
     });
     return () => unsubscribe();
@@ -87,7 +93,7 @@ const App: React.FC = () => {
         <SlideMenu />
         
         <IonHeader>
-          <IonToolbar style={{ backgroundColor: '#2D5949' }}>
+          <IonToolbar style={{ backgroundColor: '#2D5949', color: '#FFFFFF' }}>
             <IonMenuButton slot="start" />
             <IonTitle>WeEat</IonTitle>
           </IonToolbar>
@@ -100,11 +106,11 @@ const App: React.FC = () => {
               <Route path="/login" component={LoginPage} exact />
               <Route path="/create-account" component={CreateAccountPage} exact />
               <Route path="/password-reset" component={PasswordResetPage} exact />
+              <PrivateRoute path="/home" component={HomePage} exact />
               <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
               <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
               <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
               <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
-              <Route exact path="/" render={() => <Redirect to="/login" />} />
               <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
