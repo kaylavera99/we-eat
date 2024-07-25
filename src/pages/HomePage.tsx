@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
                   Search Restaurants
                 </IonButton>
                 <IonButton expand="block" onClick={goToPersonalizedMenuPage}>
-                  Personalized Menu
+                  Your Menus
                 </IonButton>
               </div>
             </div>
@@ -191,11 +191,11 @@ const HomePage: React.FC = () => {
               {restaurants.map(restaurant => (
                 <div
                   className="card m-2"
-                  style={{ width: '10rem', cursor: 'pointer' }}
+                  style={{ width: '8rem', cursor: 'pointer' , gap: '10px'}}
                   key={restaurant.id}
                   onClick={() => handleRestaurantClick(restaurant.name)}
                 >
-                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} />
+                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} style ={{maxHeight:'100px', objectFit:'cover'}}/>
                   <div className="card-body">
                     <h4 className="card-title">{restaurant.name}</h4>
                   </div>
@@ -208,11 +208,11 @@ const HomePage: React.FC = () => {
               {restaurants.map(restaurant => (
                 <div
                   className="card m-2"
-                  style={{ width: '10rem', cursor: 'pointer' }}
+                  style={{ width: '8rem', cursor: 'pointer' }}
                   key={restaurant.id}
                   onClick={() => handleRestaurantClick(restaurant.name)}
                 >
-                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} />
+                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} style ={{maxHeight:'100px', objectFit:'cover'}}/>
                   <div className="card-body">
                     <h4 className="card-title">{restaurant.name}</h4>
                   </div>

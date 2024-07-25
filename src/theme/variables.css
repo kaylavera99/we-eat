@@ -121,22 +121,45 @@ ion-content {
 
   .app-logo {
     height: 55px;
-    margin-left: 16px;
     margin-top: 20px;
     margin-bottom: 20px;
+    margin-right: calc(1.5em + 16px);
+  }
+
+  .toolbar-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
   
   .ion-menu-button {
     font-size: 1.5em;
-    color: #fff; /* Ensure the color is set for the icon */
+    color: #fff!important; /* Ensure the color is set for the icon */
   }
   
   @media (max-width: 768px) {
     .app-logo {
       height: 45px; /* Adjust size for smaller screens */
+      margin-right: calc(1.2em + 16px);
     }
     .ion-menu-button {
       font-size: 1.2em; /* Adjust size for smaller screens */
     }
   }
   
+
+  @media (prefers-color-scheme: dark) {
+    .app-logo {
+      filter: brightness(0) invert(1); /* Ensure the logo is visible in dark mode */
+    }
+  
+    .ion-menu-button {
+      color: #fff!important; /* Ensure the menu button is visible in dark mode */
+    }
+  
+    /* Additional styles for dark mode */
+    .toolbar-container {
+      background-color: #02382E; /* Ensure toolbar background is consistent */
+    }
+  }
