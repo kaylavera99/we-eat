@@ -65,21 +65,40 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!user);
-      setIsLoading(false);
+      console.log('User state changed:', user);
+
+      setIsAuthenticated(!!user);
+      setIsLoading(false);  // Ensure this is set to false after checking auth state
       if (user) {
-        history.push('/home');
+        console.log('Redirecting to /home');
+        if (history) {
+          history.push('/home');
+        } else {
+          console.error('History is undefined');
+        }
+      } else {
+        console.log('Redirecting to /login');
+        if (history) {
+          history.push('/login');
+        } else {
+          console.error('History is undefined');
+        }
       }
-      else {
-        history.push('/login');
-      }
+    
     });
-    return () => unsubscribe();
+    return () => {
+      console.log('Cleaning up auth state change listener');
+  
+      unsubscribe();}
   }, [history]);
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
-      history.push('/login');
+      if (history) {
+        history.push('/login');
+      } else {
+        console.error('History is undefined');
+      }
     });
   };
 
