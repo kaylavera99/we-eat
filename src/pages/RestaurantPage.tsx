@@ -90,11 +90,17 @@ const RestaurantPage: React.FC = () => {
   }, [restaurantName]);
 
   const handleAddToSavedMenu = async (item: MenuItem) => {
+    if (!item.name || !item.description || !item.allergens || !item.category) {
+      setToastMessage('Error: Menu item must have a name, description, allergens, and category');
+      setShowToast(true);
+      return;
+    }
     try {
       await addMenuItemToSavedMenus(item, restaurantName);
       setToastMessage('Menu item added to saved menu successfully!');
       setShowToast(true);
     } catch (error) {
+      console.log(error);
       setToastMessage(`Error adding menu item: ${(error as Error).message}`);
       setShowToast(true);
     }
@@ -102,7 +108,7 @@ const RestaurantPage: React.FC = () => {
 
   const renderMenuItems = (items: MenuItem[]) => {
     return items.map((item, index) => (
-      <IonCard key={index}>
+      <IonCard key={index} className = "menu-cards">
         <IonCardHeader>
           <IonCardTitle>{item.name}</IonCardTitle>
         </IonCardHeader>
@@ -131,9 +137,9 @@ const RestaurantPage: React.FC = () => {
 
   const renderMenuCategories = (categories: MenuCategory[]) => {
     return categories.map((category, index) => (
-      <div key={index}>
+      <div key={index} className = "list-container">
         <h5>{category.category}</h5>
-        <IonList>{renderMenuItems(category.items)}</IonList>
+        <IonList className = "menu-list">{renderMenuItems(category.items)}</IonList>
       </div>
     ));
   };
@@ -146,11 +152,6 @@ const RestaurantPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        {userAllergens.length > 0 && (
-          <p style={{ color: 'red' }}>
-            Menu items with allergens marked in red contain your allergens.
-          </p>
-        )}
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
@@ -159,6 +160,11 @@ const RestaurantPage: React.FC = () => {
               <div className="restaurant-banner">
                 <IonImg src={restaurantDetails.thumbnailUrl} alt={restaurantDetails.name} />
                 <h2>{restaurantDetails.name}</h2>
+                {userAllergens.length > 0 && (
+          <p style={{ color: 'red' }}>
+            Menu items with allergens marked in red contain your allergens.
+          </p>
+        )}
                 <IonBadge color="primary">
                   Menu Items: {menuCategories.reduce((acc, category) => acc + category.items.length, 0)}
                 </IonBadge>
