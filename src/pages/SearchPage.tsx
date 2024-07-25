@@ -16,7 +16,7 @@ import {
   IonAlert
 } from '@ionic/react';
 import { searchRestaurants } from '../services/searchService';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import { GeoPoint } from 'firebase/firestore';
 import { doc, getDocs, collection, query, where, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
@@ -49,6 +49,7 @@ const SearchPage: React.FC = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const location = useLocation<{ query?: string }>();
   const history = useHistory();
 
   const handleSearch = useCallback(async () => {
@@ -87,8 +88,16 @@ const SearchPage: React.FC = () => {
       setIsSearching(false);
     });
   }, [searchQuery, radius]);
+  useEffect(() => {
+    const initialQuery = location.state?.query;
+    if (initialQuery) {
+      setSearchQuery(initialQuery);
+      setIsSearching(true);
+    }
+  }, [location.state]);
 
   useEffect(() => {
+
     if (isSearching) {
       const timeoutId = setTimeout(() => {
         handleSearch();
@@ -120,26 +129,29 @@ const SearchPage: React.FC = () => {
     const restaurantName = place.name;
 
     try {
-      // Check if the full menu exists in the restaurant database
-      const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
-      if (fullMenu.length > 0) {
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
-        return;
-      }
-
-      // Check if the user has a saved menu for this restaurant
-      const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
-      if (userHasSavedMenu) {
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
-        return;
-      }
-
-      // Check if the user has a created menu for this restaurant
-      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
-      if (userHasCreatedMenu) {
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
-        return;
-      }
+        // Check if the user has a saved menu for this restaurant
+        const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
+        if (userHasSavedMenu) {
+          console.log("User has saved Menu");
+          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
+          return;
+        }
+    
+        // Check if the user has a created menu for this restaurant
+        const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
+        if (userHasCreatedMenu) {
+          console.log("User has created Menu");
+          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
+          return;
+        }
+    
+        // Check if the full menu exists in the restaurant database
+        const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
+        if (fullMenu.length > 0) {
+          console.log("Full menu exists");
+          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
+          return;
+        }
 
       // If no menu is found, show alert to create a new menu
       setSelectedPlace(place);

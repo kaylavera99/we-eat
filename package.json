@@ -25,6 +25,7 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.2",
+    "bootstrap": "^5.3.3",
     "browser-image-compression": "^2.0.2",
     "express": "^4.19.2",
     "firebase": "^10.12.2",
@@ -35,7 +36,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router": "^5.3.4",
-    "react-router-dom": "^5.3.4"
+    "react-router-dom": "^5.3.4",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@capacitor/cli": "6.1.0",
@@ -46,6 +49,7 @@
     "@types/node": "^20.14.9",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
+    "@types/react-slick": "^0.23.13",
     "@vitejs/plugin-legacy": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.1",
     "cypress": "^13.5.0",
