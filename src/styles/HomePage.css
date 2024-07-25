@@ -1,0 +1,123 @@
+.fcta-banner {
+    background-color: #29A678!important;
+    border-radius: 15px!important;
+    padding: 20px!important;
+    margin-left: 5%;
+    margin-right: 5%;
+    align-items:center;
+    align-self: center!important;
+}
+
+
+.car-header {
+    display:flex;
+    flex-direction:row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.rounded-icon-button {
+    --border-radius: 50%;
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    --background: var(--ion-color-secondary)!important; 
+  }
+  
+  .rounded-icon-button ion-icon {
+    font-size: 20px;
+    color:white!important;
+  }
+
+  .search-box .button{
+    background-color:white;
+  }
+
+  .search-icon {
+    --background:none!important;
+    color:grey!important;
+    background-color:white!important;
+  }
+ .header {
+    background-color: var(--ion-color-light)!important;
+    padding:20px!important;
+    margin-left:-20px;
+    margin-right: -20px;
+    margin-top: -20px;
+
+}
+
+.header h1 {
+    margin:0!important;
+    font-weight:700;
+    font-size:30px;
+}
+
+
+
+
+  .header-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+
+
+  .fcta-banner .col {
+    display:flex;
+    align-items:center;
+  }
+
+
+  .search-bar {
+    border-radius:10px!important;
+  }
+
+  /* Center the placeholder text vertically */
+input::placeholder {
+    line-height: normal;
+    margin: auto;
+}
+
+/* Adjust the IonItem to align content */
+ion-item .item-native {
+    align-items: center;
+}
+
+/* Center the IonInput text vertically */
+ion-input .native-input {
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+/* Optional: Add padding to the IonInput for better spacing */
+ion-input {
+    padding: 10px 0;
+}
+
+label {
+    margin-bottom:0!important;
+}
+
+
+/* Customize the search icon color and background */
+.custom-search-button {
+    --background: transparent;
+    --color: grey;
+    border:none;
+    --box-shadow: none;  /* Remove the box shadow */
+    box-shadow: none;    /* Ensure no box shadow */
+}
+
+/* Remove default button styles */
+.custom-search-button ion-icon {
+    background: transparent;
+    color: grey;
+    border:none;
+}

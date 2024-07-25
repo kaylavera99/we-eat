@@ -188,7 +188,7 @@ const UserProfilePage: React.FC = () => {
           <IonTitle>User Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">          
+      <IonContent className="ion-padding" style={{ '--background': 'var(--ion-background-color)' }}>          
             <div className = "page-header" >
               <h2 className = "page-title">Your Profile</h2>              
               <IonButton className="button" onClick={handleEditProfile}>

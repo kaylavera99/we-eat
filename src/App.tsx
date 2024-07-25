@@ -14,7 +14,8 @@ import {
   IonTitle,
   IonHeader,
   IonToolbar, 
-  IonButton
+  IonButton,
+  IonButtons
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { homeSharp, person, searchOutline, thumbsUp } from 'ionicons/icons';
@@ -37,6 +38,7 @@ import SavedMenuPage from './pages/SavedMenuPage';
 import CreatedMenuPage from './pages/CreatedMenuPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import AddDishesPage from './pages/AddDishesPage';
+import AllRestaurantsPage from './pages/AllRestaurantsPage';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -112,9 +114,13 @@ const App: React.FC = () => {
         <SlideMenu />
         
         <IonHeader>
-          <IonToolbar style={{ backgroundColor: '#2D5949', color: '#FFFFFF' }}>
-            <IonMenuButton slot="start" />
-            <IonTitle>WeEat</IonTitle>
+          <IonToolbar style={{ backgroundColor: '#02382E', color:'#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
+              <IonMenuButton style={{ fontSize: '1.5em' }} />
+            </IonButtons>        
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>   
+            <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" style={{ height: '55px', marginLeft: '16px', marginTop:'20px', marginBottom:'20px', bottom:0}} />
+            </div>
           </IonToolbar>
         </IonHeader>
         <IonButton onClick={handleSignOut} color="danger">Sign Out</IonButton>
@@ -134,6 +140,8 @@ const App: React.FC = () => {
               <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
               <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
               <PrivateRoute path="/search" component={SearchPage} exact />
+              <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
+
               <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
               <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
               <PrivateRoute path="/home" component={HomePage} exact />
@@ -148,22 +156,22 @@ const App: React.FC = () => {
               </PrivateRoute>
             </Switch>
           </IonRouterOutlet>
-          <IonTabBar slot="bottom">
+          <IonTabBar slot="bottom" style={{ '--background': 'var(--ion-tab-bar-background-color)', '--color': 'var(--ion-tab-bar-color)', '--color-selected': 'var(--ion-tab-bar-selected-color)'}}>
             <IonTabButton tab="home" href="/home">
               <IonIcon icon={homeSharp} />
-              <IonLabel>Home</IonLabel>
+              <IonLabel className="tab-bar-label">Home</IonLabel>
             </IonTabButton>
             <IonTabButton tab="profile" href="/profile">
               <IonIcon icon={person} />
-              <IonLabel>Profile</IonLabel>
+              <IonLabel className="tab-bar-label">Profile</IonLabel>
             </IonTabButton>
             <IonTabButton tab="search" href="/search">
               <IonIcon icon={searchOutline} />
-              <IonLabel>Search</IonLabel>
+              <IonLabel className="tab-bar-label">Search</IonLabel>
             </IonTabButton>
             <IonTabButton tab="recommendations" href="/recommendations">
               <IonIcon aria-hidden="true" icon={thumbsUp} />
-              <IonLabel>Recommendations</IonLabel>
+              <IonLabel className="tab-bar-label">Recommendations</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

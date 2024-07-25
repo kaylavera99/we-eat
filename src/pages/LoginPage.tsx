@@ -26,19 +26,22 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     setIsLoading(true);
+    console.log('Attempting to log in with email:', email);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();  // Get the ID token
       localStorage.setItem('authToken', token);  // Store the token in local storage
-      console.log(token)
+      console.log('Login successful, token:', token);
       setIsLoading(false);
       history.push('/home');
     } catch (error: any) {
+      console.error('Login failed:', error.message);
       setIsLoading(false);
       setToastMessage(error.message);
       setShowToast(true);
     }
   };
+
   return (
     <IonPage>
       <IonHeader>
@@ -46,7 +49,7 @@ const LoginPage: React.FC = () => {
           <IonTitle>Login</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
+      <IonContent fullscreen>
         <IonItem>
           <IonLabel position="floating">Email</IonLabel>
           <IonInput
