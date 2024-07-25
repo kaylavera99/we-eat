@@ -102,6 +102,8 @@ const App: React.FC = () => {
               <PrivateRoute path="/profile" component={UserProfilePage} exact />
               <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
               <Redirect exact from="/" to="/personalized-menu" />
+              <Redirect exact from="/" to="/login" />
+
               <PrivateRoute path="/profile">
                 <ErrorBoundary>
                   <UserProfilePage />

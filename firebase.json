@@ -14,7 +14,7 @@
     ],
     "redirects" : [
       {
-        "source": "/",
+        "source": "**",
         "destination": "https//we-eat.app",
         "type": 301
       }
