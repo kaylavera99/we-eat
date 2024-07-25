@@ -150,9 +150,7 @@ ion-content {
   
 
   @media (prefers-color-scheme: dark) {
-    .app-logo {
-      filter: brightness(0) invert(1); /* Ensure the logo is visible in dark mode */
-    }
+
   
     .ion-menu-button {
       color: #fff!important; /* Ensure the menu button is visible in dark mode */
