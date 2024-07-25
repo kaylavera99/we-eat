@@ -419,6 +419,10 @@ export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: st
     throw new Error("No user is currently logged in.");
   }
 
+  if (!item.category) {
+    throw new Error("Menu item must have a category");
+  }
+
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const savedMenusRef = collection(userDocRef, 'savedMenus');
   const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));

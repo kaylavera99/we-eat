@@ -1,8 +1,8 @@
 .menu-img {
-    width: 100px; /* Adjust the width as needed */
-    height: auto; /* Maintain aspect ratio */
-    object-fit: cover; /* Ensure the image covers the area */
-    margin-right: 10px; /* Add some spacing between the image and the text */
+    width: 100px; 
+    height: auto;
+    object-fit: cover;
+    margin-right: 10px;
   }
   .location-thumbnail {
     width: 100%;
@@ -31,3 +31,14 @@
     font-size: 1.2em;
   }
   
+.list-container {
+  display:flex!important;
+  flex-direction:row!important;
+
+}
+
+
+.menu-list {
+  display:flex!important;
+  flex-direction: column;
+}
