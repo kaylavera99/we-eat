@@ -6,6 +6,8 @@
     margin-right: 5%;
     align-items:center;
     align-self: center!important;
+    margin-top:5%!important;
+    margin-bottom:3%!important;
 }
 
 
@@ -78,25 +80,21 @@
     border-radius:10px!important;
   }
 
-  /* Center the placeholder text vertically */
 input::placeholder {
     line-height: normal;
     margin: auto;
 }
 
-/* Adjust the IonItem to align content */
 ion-item .item-native {
     align-items: center;
 }
 
-/* Center the IonInput text vertically */
 ion-input .native-input {
     height: 100%;
     display: flex;
     align-items: center;
 }
 
-/* Optional: Add padding to the IonInput for better spacing */
 ion-input {
     padding: 10px 0;
 }
@@ -106,18 +104,36 @@ label {
 }
 
 
-/* Customize the search icon color and background */
+.fcta-banner h3 {
+    font-weight:700!important;
+    color:white!important;
+}
+
 .custom-search-button {
     --background: transparent;
     --color: grey;
     border:none;
-    --box-shadow: none;  /* Remove the box shadow */
-    box-shadow: none;    /* Ensure no box shadow */
+    --box-shadow: none; 
+    box-shadow: none;  
 }
 
-/* Remove default button styles */
 .custom-search-button ion-icon {
     background: transparent;
     color: grey;
     border:none;
+}
+
+.card {
+    width:80%!important;
+    margin:10px!important;
+}
+
+.card-title {
+    margin-top:0!important;
+    margin-bottom:0!important;
+    padding-top:0!important;
+    padding-bottom:0!important;
+    font-size:1.0rem!important;
+    font-weight:700!important;
+    
 }

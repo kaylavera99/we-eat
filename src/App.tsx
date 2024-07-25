@@ -118,8 +118,8 @@ const App: React.FC = () => {
           <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
               <IonMenuButton style={{ fontSize: '1.5em' }} />
             </IonButtons>        
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>   
-            <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" className = 'app-logo' style={{ height: '55px', marginLeft: '16px', marginTop:'20px', marginBottom:'20px', bottom:0}} />
+            <div className='toolbar-content' style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>   
+            <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" className = 'app-logo' style={{ height: '55px', marginTop:'20px', marginBottom:'20px', bottom:0}} />
             </div>
           </IonToolbar>
         </IonHeader>
