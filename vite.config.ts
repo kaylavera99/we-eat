@@ -11,8 +11,14 @@ export default defineConfig({
     legacy()
   ],
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    rollupOptions: {
+      input: './index.html'
+    }
 
+  },
+  server: {
+    port: 8100,
   },
   test: {
     globals: true,
