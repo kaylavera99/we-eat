@@ -1,0 +1,16 @@
+.ion-item .item-inner{
+    display:flex!important;
+    flex-direction:column!important;
+}
+
+
+.flex-column {
+    display: flex;
+    flex-direction: column!important;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+  
+  .flex-column ion-label {
+    margin-bottom: 0.5rem;
+  }

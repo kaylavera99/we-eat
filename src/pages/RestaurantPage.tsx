@@ -110,7 +110,7 @@ const RestaurantPage: React.FC = () => {
     return items.map((item, index) => (
       <IonCard key={index} className = "menu-cards">
         <IonCardHeader>
-          <IonCardTitle>{item.name}</IonCardTitle>
+          <IonCardTitle className = 'item-name'>{item.name}</IonCardTitle>
         </IonCardHeader>
         <IonCardContent>
           {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}

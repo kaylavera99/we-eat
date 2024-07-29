@@ -177,6 +177,7 @@ const HomePage: React.FC = () => {
             <div className = "car-header">
             <h2>
               All Restaurants</h2>
+              
               <IonButton
                 className="rounded-icon-button"
                 size="small"
@@ -186,29 +187,30 @@ const HomePage: React.FC = () => {
                 <IonIcon className="rounded-icon" icon={arrowForward} />
               </IonButton>
             
-            </div>
+            </div><p>Explore all the menus we have to offer</p>
             <Slider {...settings}>
               {restaurants.map(restaurant => (
                 <div
                   className="card m-2"
-                  style={{ width: '8rem', cursor: 'pointer' , gap: '10px'}}
+                  style={{}}
                   key={restaurant.id}
                   onClick={() => handleRestaurantClick(restaurant.name)}
                 >
-                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} style ={{maxHeight:'100px', objectFit:'cover'}}/>
+                  <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} style ={{}}/>
                   <div className="card-body">
                     <h4 className="card-title">{restaurant.name}</h4>
                   </div>
                 </div>
               ))}
             </Slider>
-            <h2>Recommended Menus</h2>
+            <h2>Explore Menus</h2>
+            <p>Menu's we think you'd like</p>
             {/* Implement logic to display recommended menus here */}
             <Slider {...settings}>
               {restaurants.map(restaurant => (
                 <div
                   className="card m-2"
-                  style={{ width: '8rem', cursor: 'pointer' }}
+                  style={{ cursor: 'pointer' }}
                   key={restaurant.id}
                   onClick={() => handleRestaurantClick(restaurant.name)}
                 >

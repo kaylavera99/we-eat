@@ -80,12 +80,13 @@ http://ionicframework.com/docs/theming/ */
   --ion-tab-bar-color: #FFFFFF; /* Use your contrast color for the icons */
   --ion-tab-bar-selected-color: var(--ion-color-secondary); /* Use your contrast color for selected icons */
   --ion-background-color: #fbfbfb!important;
+  --ion-page-background: #f2efef;
     
 
 }
 
 
-h1, h2, h3, h4, .IonTitle, .IonHeader, .button, .IonLabel {
+h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel {
     font-family: var(--font-family-primary)!important;
 
 }
@@ -106,12 +107,12 @@ h2 {
 
 ion-content {
     --padding-top: var(--ion-toolbar-height)!important; /*  content starting below the toolbar */
-    background-color: #000!important;
+    --background: var(--ion-page-background);
   }
   
   .inner-scroll {
     padding-top: var(--ion-toolbar-height)!important; 
-    background-color: #FBFBFB!important;
+    --background: var(--ion-page-background);
   }
 
   .tab-bar-label {
@@ -138,6 +139,9 @@ ion-content {
     color: #fff!important; /* Ensure the color is set for the icon */
   }
   
+  #background-content {
+    --background:var(--ion-page-background)!important;
+  }
   @media (max-width: 768px) {
     .app-logo {
       height: 45px; /* Adjust size for smaller screens */
@@ -175,6 +179,3 @@ ion-content {
     hyphens: auto;
   }
   
-.card-img-top {
-    
-}

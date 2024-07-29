@@ -9,10 +9,12 @@ import {
   IonToolbar,
   IonLoading,
   IonToast,
+  IonButton
 } from '@ionic/react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
+import '../styles/AllRestaurantsPage.css';
 
 interface Restaurant {
   id: string;
@@ -56,24 +58,24 @@ const AllRestaurantsPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>All Restaurants</IonTitle>
+          <h1>All Restaurants</h1>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <div className="d-flex flex-wrap">
+          <div className="restaurant-list">
+                      <h1>All Restaurants</h1>
+
             {restaurants.map(restaurant => (
-              <div
-                className="card m-2"
-                style={{ width: '10rem' }}
-                key={restaurant.id}
-                onClick={() => handleRestaurantClick(restaurant.name)}
-              >
-                <img src={restaurant.thumbnailUrl} className="card-img-top" alt={restaurant.name} />
-                <div className="card-body">
-                  <h5 className="card-title">{restaurant.name}</h5>
+              <div className="restaurant-item" key={restaurant.id}>
+                <img src={restaurant.thumbnailUrl} alt={restaurant.name} className="restaurant-thumbnail" />
+                <div className="restaurant-details">
+                  <h5 className="restaurant-name">{restaurant.name}</h5>
+                  <IonButton onClick={() => handleRestaurantClick(restaurant.name)} size="small">
+                    View Menu
+                  </IonButton>
                 </div>
               </div>
             ))}

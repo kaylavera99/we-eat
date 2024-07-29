@@ -38,7 +38,7 @@
 
   .profile-banner {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content:space-around;
     align-items: center; /* Ensure alignment */
     width:100%!important;
@@ -53,7 +53,7 @@
     overflow: hidden; /* Hide overflow to clip the image */
     display: flex;
     align-items: center;
-    float:left;
+    /*float:left;
     position: relative; /* Ensure proper positioning of the image */
   }
   
@@ -82,4 +82,6 @@
     border-radius: 10px; /* Adjust the radius to your liking */
   }
 
-
+.user-info {
+  text-align:center;
+}
