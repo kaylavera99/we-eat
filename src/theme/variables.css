@@ -158,6 +158,23 @@ ion-content {
   
     /* Additional styles for dark mode */
     .toolbar-container {
-      background-color: #02382E; /* Ensure toolbar background is consistent */
+      background-color: #02382E; 
     }
   }
+
+
+.card-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    font-size: 1.2em;
+    line-height: 1.2;
+    hyphens: auto;
+  }
+  
+.card-img-top {
+    
+}
