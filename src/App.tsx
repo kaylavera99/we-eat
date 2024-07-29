@@ -171,7 +171,7 @@ const App: React.FC = () => {
             </IonTabButton>
             <IonTabButton tab="recommendations" href="/recommendations">
               <IonIcon aria-hidden="true" icon={thumbsUp} />
-              <IonLabel className="tab-bar-label">Recommendations</IonLabel>
+              <IonLabel className="tab-bar-label">Explore</IonLabel>
             </IonTabButton>
           </IonTabBar>
         </IonTabs>

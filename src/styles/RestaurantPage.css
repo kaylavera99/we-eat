@@ -33,12 +33,28 @@
   
 .list-container {
   display:flex!important;
-  flex-direction:row!important;
+  flex-direction:column!important;
 
 }
+
+.list-container h5 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
 
 
 .menu-list {
   display:flex!important;
   flex-direction: column;
+  background-color:transparent!important;
+}
+
+
+.ion-inherit-color {
+  font-size: 1.0rem!important;
+}
+
+.menu-cards {
+  background-color:white!important;
 }

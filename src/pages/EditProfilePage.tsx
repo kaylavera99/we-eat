@@ -13,10 +13,12 @@ import {
   IonLoading,
   IonToast,
   IonImg,
+  IonInput,
 } from '@ionic/react';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { uploadImage, compressImage } from '../services/storageService';
+import '../styles/EditProfilePage.css'
 
 interface AllergenState {
   eggs: boolean;
@@ -42,6 +44,9 @@ const EditProfilePage: React.FC = () => {
   });
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -68,6 +73,9 @@ const EditProfilePage: React.FC = () => {
               peanuts: Boolean(allergenData.peanuts),
             });
             setProfileImageUrl(userData.profileImageUrl);
+            setFirstName(userData.firstName || '');
+            setLastName(userData.lastName || '');
+            setAddress(userData.address || '');
           }
         }
         setIsLoading(false);
@@ -117,6 +125,9 @@ const EditProfilePage: React.FC = () => {
         };
 
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+          firstName,
+          lastName,
+          address,
           allergens: updatedAllergens,
           profileImageUrl: updatedProfileImageUrl,
         });
@@ -141,11 +152,26 @@ const EditProfilePage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel>Profile Picture</IonLabel>
+        <IonItem className = "flex-column">
+          <IonLabel position='stacked'>First Name</IonLabel>
+          <IonInput value={firstName} onIonChange={(e) => setFirstName(e.detail.value!)} />
+        </IonItem>
+        <IonItem className = "flex-column">
+          <IonLabel position='stacked'>Last Name</IonLabel>
+          <IonInput value={lastName} onIonChange={(e) => setLastName(e.detail.value!)} />
+        </IonItem>
+        <IonItem className = "flex-column">
+          <IonLabel position='stacked'>Location</IonLabel>
+          <IonInput value={address} onIonChange={(e) => setAddress(e.detail.value!)} />
+        </IonItem>
+        <IonItem className = "flex-column" style={{display:'flex', flexDirection:'column'
+        }}>
+          <IonLabel position='stacked'>Profile Picture</IonLabel>
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </IonItem>
         {profileImageUrl && <IonImg src={profileImageUrl} alt="Profile Picture" />}
+        <h3>Allergens</h3>
+
         <IonItem>
           <IonLabel>Eggs</IonLabel>
           <IonCheckbox
