@@ -42,4 +42,13 @@
   .ion-padding h4 {
     margin: 10px 0;
   }
+
+  .ion-item[slot="header"] {
+    display: flex;
+    align-items: center;
+  }
+  
+  .ion-item[slot="header"] ion-img {
+    margin-right: 10px;
+  }
   

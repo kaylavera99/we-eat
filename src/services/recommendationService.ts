@@ -163,3 +163,14 @@ export const getRecommendedMenus = async (): Promise<{ id: string; name: string,
   
   return filterAndRankRestaurants(allRestaurants, menus, userAllergens, userMenuItems.flatMap(menu => menu.dishes));
 };
+
+export const filterMenuItemsByAllergens = (
+  items: MenuItem[],
+  userAllergens: string[]
+): MenuItem[] => {
+  return items.filter(item =>
+    item.allergens.every(allergen =>
+      !userAllergens.includes(allergen.toLowerCase().trim())
+    )
+  );
+};
