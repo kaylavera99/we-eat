@@ -14,3 +14,36 @@
   .flex-column ion-label {
     margin-bottom: 0.5rem;
   }
+
+  .image-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .image-wrapper ion-avatar {
+    width: 150px!important;
+    height: 150px!important;
+
+  }
+
+
+
+  .upload-wrapper {
+
+    margin-top: 1rem;
+    align-self:center!important;
+
+  }
+  
+  .custom-upload-btn {
+    --background: #3880ff;
+    --color: white;
+    --padding: 10px 20px;
+    --border-radius: 5px;
+  }
+  
+  .input-btn {
+    display: none; /* Hide the default file input */
+  }

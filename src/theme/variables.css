@@ -86,7 +86,7 @@ http://ionicframework.com/docs/theming/ */
 }
 
 
-h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel {
+h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel, .input-field, .native-input, .input-btn {
     font-family: var(--font-family-primary)!important;
 
 }
@@ -94,6 +94,8 @@ h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel {
 .button {
     font-weight: 600;
     text-transform: capitalize!important;
+
+
 }
 
 h2 {
@@ -133,6 +135,7 @@ ion-content {
     justify-content: center;
     align-items: center;
   }
+
   
   .ion-menu-button {
     font-size: 1.5em;
@@ -142,6 +145,10 @@ ion-content {
   #background-content {
     --background:var(--ion-page-background)!important;
   }
+
+.button {
+    color:white!important;
+}
   @media (max-width: 768px) {
     .app-logo {
       height: 45px; /* Adjust size for smaller screens */
