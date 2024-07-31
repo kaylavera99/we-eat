@@ -24,7 +24,7 @@ import {
   IonText
 } from '@ionic/react';
 import { addMenuItemToSavedMenus, MenuItem, fetchSavedMenus } from '../services/menuService';
-import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, Restaurant } from '../services/recommendationService';
+import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, filterMenuItemsByAllergens, Restaurant } from '../services/recommendationService';
 import '../styles/RecommendationsPage.css';
 
 interface MenuCategory {
@@ -134,6 +134,10 @@ const RecommendationsPage: React.FC = () => {
     return filteredItems;
   };
 
+  const filterItemsByAllergens = (items: MenuItem[]): MenuItem[] => {
+    return filterMenuItemsByAllergens(items, userAllergens);
+  };
+
   const truncateDescription = (description: string, maxLength: number) => {
     if (description.length <= maxLength) return description;
     return description.substring(0, maxLength) + '...';
@@ -147,11 +151,8 @@ const RecommendationsPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        {userAllergens.length > 0 && (
-          <p style={{ color: 'red' }}>
-            Menu items with allergens marked in red contain your allergens.
-          </p>
-        )}
+        <h2>Explore Menus</h2>
+        <p>Discover menu items that don't contain your allergens.</p>
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
@@ -171,7 +172,7 @@ const RecommendationsPage: React.FC = () => {
                           <h3>{menuCategory.category}</h3>
                         </IonItemDivider>
                         <IonList>
-                          {filterUserMenuItems(restaurant.id, menuCategory.items).map((item: MenuItem, itemIndex: number) => (
+                        {filterItemsByAllergens(filterUserMenuItems(restaurant.id, menuCategory.items)).map((item: MenuItem, itemIndex: number) => (
                             <IonItem className='menu-list' key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}>
                               <div className="menu-item-container">
                                 <IonImg src={item.imageUrl} alt={item.name} style={{ width: '100px', height: '100px' }} />
