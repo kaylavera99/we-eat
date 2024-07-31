@@ -1,83 +1,165 @@
-import { getDocs, collection, doc } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import { MenuItem, SavedMenu } from './menuService';
+import { fetchSavedMenus, addMenuItemToSavedMenus, MenuItem, SavedMenu } from './menuService';
 
 export interface MenuCategory {
+  id: string;
   category: string;
   items: MenuItem[];
 }
 
-interface Restaurant {
+export interface Restaurant {
   id: string;
   name: string;
   menu: MenuCategory[];
+  thumbnailUrl: string;
 }
 
-export const fetchUserSavedMenuItems = async (): Promise<MenuItem[]> => {
-  const menuItems: MenuItem[] = [];
+interface UserData {
+  allergens: { [key: string]: boolean };
+}
+
+export const fetchUserData = async (): Promise<string[]> => {
+  const allergens: string[] = [];
   if (auth.currentUser) {
     const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    const userDocSnap = await getDoc(userDocRef);
+    if (userDocSnap.exists()) {
+      const userData = userDocSnap.data() as UserData;
+      const userAllergens = Object.keys(userData.allergens)
+        .filter(allergen => userData.allergens[allergen])
+        .map(allergen => allergen.toLowerCase().trim());
+      allergens.push(...userAllergens);
+      console.log("Allergens:", allergens);
+    }
+  }
+  return allergens;
+};
 
-    // Fetch saved menu items
-    const savedMenusSnap = await getDocs(collection(userDocRef, 'savedMenus'));
-    for (const menuDoc of savedMenusSnap.docs) {
-      const dishesSnap = await getDocs(collection(menuDoc.ref, 'dishes'));
-      dishesSnap.forEach(dishDoc => {
-        const dishData = dishDoc.data();
-        menuItems.push(dishData as MenuItem);
+export const fetchAllRestaurants = async (): Promise<{ id: string; name: string; thumbnailUrl:string; }[]> => {
+  const restaurants: { id: string; name: string; thumbnailUrl:string; }[] = [];
+  const querySnapshot = await getDocs(collection(db, 'restaurants'));
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    restaurants.push({
+      id: doc.id,
+      name: data.name,
+      thumbnailUrl: data.thumbnailUrl
+    });
+  });
+  return restaurants;
+};
+
+export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Promise<MenuCategory[]> => {
+  const categories: MenuCategory[] = [];
+  console.log("Fetching full menu for restaurant ID:", restaurantId);
+  const restaurantDocRef = doc(db, 'restaurants', restaurantId);
+  const menuCollectionRef = collection(restaurantDocRef, 'menu');
+  const menuSnapshot = await getDocs(menuCollectionRef);
+
+  if (!menuSnapshot.empty) {
+    for (const categoryDoc of menuSnapshot.docs) {
+      const categoryData = categoryDoc.data();
+      const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+      const itemsSnapshot = await getDocs(itemsCollectionRef);
+
+      const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+        const itemData = itemDoc.data();
+        return {
+          id: itemDoc.id,
+          name: itemData.name,
+          description: itemData.description,
+          allergens: itemData.allergens,
+          note: itemData.note,
+          category: categoryData.category,
+          imageUrl: itemData.imageUrl  // Include imageUrl
+        };
+      });
+
+      categories.push({
+        id: categoryDoc.id,
+        category: categoryData.category,
+        items,
       });
     }
-
+    console.log("Fetched categories:", categories);
+  } else {
+    console.log("No menu found for restaurant:", restaurantId);
   }
-  //console.log("Fetched User Saved Menu Items:", menuItems);
-  return menuItems;
+
+  return categories;
 };
 
-export const fetchRestaurantMenu = async (restaurantId: string): Promise<MenuCategory[]> => {
-  const menuCategories: MenuCategory[] = [];
-  const menuSnap = await getDocs(collection(db, 'restaurants', restaurantId, 'menu'));
-  for (const menuDoc of menuSnap.docs) {
-    const itemsSnap = await getDocs(collection(menuDoc.ref, 'items'));
-    const items: MenuItem[] = itemsSnap.docs.map(itemDoc => {
-      const itemData = itemDoc.data();
-      itemData.id = itemDoc.id; // Ensure the ID is included
-      return itemData as MenuItem;
-    });
-    const menuData = menuDoc.data();
-    menuCategories.push({ category: menuData.category, items });
-  }
-  //console.log(`Fetched Menu for Restaurant ID ${restaurantId}:`, menuCategories);
-  return menuCategories;
-};
+export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [key: string]: Restaurant }> => {
+  const menus: { [key: string]: Restaurant } = {};
+  for (const id of restaurantIds) {
+    const categories: MenuCategory[] = [];
+    console.log("Fetching full menu for restaurant ID:", id);
 
-export const getRecommendedMenus = async (): Promise<{ id: string, name: string }[]> => {
-  const userMenuItems = await fetchUserSavedMenuItems();
-  const recommendedRestaurants = await fetchRecommendedRestaurants(userMenuItems);
-  return recommendedRestaurants;
-};
+    const restaurantDocRef = doc(db, 'restaurants', id);
+    const menuCollectionRef = collection(restaurantDocRef, 'menu');
+    const menuSnapshot = await getDocs(menuCollectionRef);
 
-const fetchRecommendedRestaurants = async (userMenuItems: MenuItem[]): Promise<{ id: string, name: string }[]> => {
-  const recommendedRestaurants = new Map<string, string>();
-  const userCategories = userMenuItems.map(item => item.category);
-  //console.log("User Categories:", userCategories);
+    if (!menuSnapshot.empty) {
+      for (const categoryDoc of menuSnapshot.docs) {
+        const categoryData = categoryDoc.data();
+        const itemsCollectionRef = collection(categoryDoc.ref, 'items');
+        const itemsSnapshot = await getDocs(itemsCollectionRef);
 
-  const restaurantsSnap = await getDocs(collection(db, 'restaurants'));
-  for (const restaurantDoc of restaurantsSnap.docs) {
-    const restaurantData = restaurantDoc.data();
-  //  console.log("Restaurant Data:", restaurantData);
+        const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
+          const itemData = itemDoc.data();
+          return {
+            id: itemDoc.id,
+            name: itemData.name,
+            description: itemData.description,
+            allergens: itemData.allergens,
+            note: itemData.note,
+            category: categoryData.category,
+            imageUrl: itemData.imageUrl  // Include imageUrl
+          };
+        });
 
-    const menuSnap = await getDocs(collection(restaurantDoc.ref, 'menu'));
-    for (const menuDoc of menuSnap.docs) {
-      const menuData = menuDoc.data();
-      //console.log("Menu Data:", menuData);
-
-      if (userCategories.includes(menuData.category)) {
-        recommendedRestaurants.set(restaurantDoc.id, restaurantData.name);
-       // console.log(`Matched Category: ${menuData.category} in ${restaurantData.name}`);
+        categories.push({
+          id: categoryDoc.id,
+          category: categoryData.category,
+          items,
+        });
       }
+      console.log("Fetched categories for restaurant ID:", id, categories);
+    } else {
+      console.log("No menu found for restaurant:", id);
     }
-  }
 
-  console.log("Recommended Restaurants:", Array.from(recommendedRestaurants.entries()));
-  return Array.from(recommendedRestaurants.entries()).map(([id, name]) => ({ id, name }));
+    menus[id] = { id, name: '', menu: categories, thumbnailUrl: '' };
+  }
+  return menus;
+};
+
+export const filterAndRankRestaurants = (
+  restaurants: { id: string; name: string; thumbnailUrl: string;}[],
+  menus: { [key: string]: Restaurant },
+  userAllergens: string[],
+  userMenuItems: MenuItem[]
+): { id: string; name: string; thumbnailUrl: string; }[] => {
+  return restaurants.filter((restaurant) => {
+    const menu = menus[restaurant.id]?.menu || [];
+    const hasSafeItems = menu.some(category =>
+      category.items.some(item =>
+        item.allergens.every(allergen =>
+          !userAllergens.includes(allergen.toLowerCase().trim())
+        )
+      )
+    );
+    return hasSafeItems;
+  });
+};
+
+export const getRecommendedMenus = async (): Promise<{ id: string; name: string, thumbnailUrl: string;}[]> => {
+  const userAllergens = await fetchUserData();
+  const allRestaurants = await fetchAllRestaurants();
+  const restaurantIds = allRestaurants.map(r => r.id);
+  const menus = await fetchRestaurantMenus(restaurantIds);
+  const userMenuItems = await fetchSavedMenus();
+  
+  return filterAndRankRestaurants(allRestaurants, menus, userAllergens, userMenuItems.flatMap(menu => menu.dishes));
 };

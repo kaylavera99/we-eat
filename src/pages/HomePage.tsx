@@ -134,8 +134,8 @@ const HomePage: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonTitle>Dashboard</IonTitle>
-          <IonFab vertical="center" horizontal="end" slot="fixed">
-            <IonFabButton onClick={goToProfilePage}>
+          <IonFab vertical="center" horizontal="end" slot="fixed" className='fab-btn'>
+            <IonFabButton className='fab-btn' onClick={goToProfilePage}>
               <IonIcon icon={add} />
             </IonFabButton>
           </IonFab>
@@ -166,10 +166,10 @@ const HomePage: React.FC = () => {
                 </IonButton>
               </IonItem>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-around', marginTop: '10px' }}>
-                <IonButton expand="block" onClick={handleSearchQuery}>
+                <IonButton expand="block" className = 'banner-btn' onClick={handleSearchQuery}>
                   Search Restaurants
                 </IonButton>
-                <IonButton expand="block" onClick={goToPersonalizedMenuPage}>
+                <IonButton expand="block" className = 'banner-btn' onClick={goToPersonalizedMenuPage}>
                   Your Menus
                 </IonButton>
               </div>

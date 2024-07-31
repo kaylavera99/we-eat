@@ -49,7 +49,6 @@
     padding:20px!important;
     margin-left:-20px;
     margin-right: -20px;
-    margin-top: -20px;
 
 }
 
@@ -158,4 +157,17 @@ label {
     max-height:100px!important;
     border:0!important;
     
+}
+
+.ion-fab-button {
+    box-shadow: 5px 5px 10px #8080803b!important;
+}
+
+
+
+
+.banner-btn {
+    width:150px;
+    font-size: 14px!important;
+    height:30px!important;
 }

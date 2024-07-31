@@ -1,0 +1,45 @@
+
+
+.input-wrapper {
+    flex-direction: column!important;
+}
+
+.col {
+    flex-direction:row!important;
+}
+
+
+.menu-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menu-item-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .menu-item-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 10px;
+  }
+  
+  .menu-item-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: 10px;
+  }
+  
+  .menu-item-buttons ion-button {
+    margin-right: 10px;
+  }
+  
+  .ion-padding h4 {
+    margin: 10px 0;
+  }
+  
