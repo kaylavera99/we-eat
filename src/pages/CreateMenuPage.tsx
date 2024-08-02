@@ -10,6 +10,7 @@ import {
   IonLabel,
   IonItem,
   IonToast,
+  IonIcon,
   IonList,
 } from '@ionic/react';
 import { addPreferredLocationForCreatedMenu } from '../services/restaurantLocationService';
@@ -17,6 +18,9 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { uploadImage, compressImage } from '../services/storageService';
 import { auth, db } from '../firebaseConfig';
 import { doc, collection, setDoc } from 'firebase/firestore';
+import { createOutline } from 'ionicons/icons';
+import '../styles/CreateMenu.css'
+
 
 const CreateMenuPage: React.FC = () => {
   const location = useLocation<{ place: any }>();
@@ -90,32 +94,38 @@ const CreateMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+      <div className='page-banner-row'>
+      <IonIcon slot="end" icon={createOutline} style={{color:'black' }} /><h2> Create a Menu</h2></div>
+      <p>First, let's add some information about the restaurant you're creating a menu for:</p>
+      <div className='create-menu-container'>
         <IonList>
-          <IonItem>
-            <IonLabel position="stacked">Restaurant Name</IonLabel>
+        <IonLabel position="stacked">Restaurant Name</IonLabel>
+        <IonItem>
             <IonInput value={restaurantName} onIonChange={e => setRestaurantName(e.detail.value!)} />
           </IonItem>
+          <IonLabel position="stacked">Street Address</IonLabel>
           <IonItem>
-            <IonLabel position="stacked">Street Address</IonLabel>
             <IonInput value={streetAddress} onIonChange={e => setStreetAddress(e.detail.value!)} />
           </IonItem>
+          <IonLabel position="stacked">City</IonLabel>
           <IonItem>
-            <IonLabel position="stacked">City</IonLabel>
             <IonInput value={city} onIonChange={e => setCity(e.detail.value!)} />
           </IonItem>
+          <IonLabel position="stacked">State</IonLabel>
+
           <IonItem>
-            <IonLabel position="stacked">State</IonLabel>
             <IonInput value={state} onIonChange={e => setState(e.detail.value!)} />
           </IonItem>
+          <IonLabel position="stacked">Zip Code</IonLabel>
           <IonItem>
-            <IonLabel position="stacked">Zip Code</IonLabel>
             <IonInput value={zipCode} onIonChange={e => setZipCode(e.detail.value!)} />
           </IonItem>
+          <IonLabel position="stacked">Thumbnail</IonLabel>
+
           <IonItem>
-            <IonLabel position="stacked">Thumbnail</IonLabel>
             <input type="file" accept="image/*" onChange={handleFileChange} />
           </IonItem>
-        </IonList>
+        </IonList></div>
         <IonButton expand="block" onClick={handleSubmit}>
           Submit
         </IonButton>

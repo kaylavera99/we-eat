@@ -1,4 +1,60 @@
-.menu-content {
-    --background: #f8f8f8;
-  }
-  
+
+
+
+.custom-content {
+  --background: #f2efef; 
+  color: #FFFFFF; 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow:hidden!important;
+}
+
+.menu-list {
+  flex:1;
+  overflow-y:hidden!important;
+}
+.slide-item {
+  --background: #f2efef;
+  font-family: 'Urbanist', sans-serif;
+}
+
+.slide-item.active {
+  --background: #29A678; 
+  --color: #FFFFFF;
+}
+
+.slide-item:hover {
+  --background: #308C6A; 
+}
+
+.slide-item ion-icon {
+  margin-right: 10px;
+}
+
+ion-label {
+  font-weight: 600; 
+}
+
+.custom-footer {
+  --background: #02382E; 
+  color: #FFFFFF; 
+  margin-top:auto;
+  flex-shrink:0!important;
+}
+
+.logout-btn {
+  --background:#02382E;
+  color:white;
+  text-align:right;
+}
+
+
+.logout-footer {
+  padding:0;
+}
+
+.logout-btn::part(detail-icon) {
+  display: none !important;
+}
+

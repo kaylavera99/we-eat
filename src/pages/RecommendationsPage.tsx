@@ -21,11 +21,15 @@ import {
   IonAccordion,
   IonAccordionGroup,
   IonItemDivider,
-  IonText
+  IonText,
+  IonCol,
+  IonIcon,
+  IonRow
 } from '@ionic/react';
 import { addMenuItemToSavedMenus, MenuItem, fetchSavedMenus } from '../services/menuService';
 import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, filterMenuItemsByAllergens, Restaurant } from '../services/recommendationService';
 import '../styles/RecommendationsPage.css';
+import {compassOutline} from 'ionicons/icons';
 
 interface MenuCategory {
   category: string;
@@ -151,8 +155,9 @@ const RecommendationsPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <h2>Explore Menus</h2>
-        <p>Discover menu items that don't contain your allergens.</p>
+        <div className='page-banner-row'>       
+        <IonIcon slot="end" icon={compassOutline} style={{color:'black' }} /><h2> Explore Menus</h2></div>
+        <p className = 'page-intro'>Discover menu items that don't contain your allergens.</p>
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (

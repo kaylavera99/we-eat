@@ -25,6 +25,8 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-tertiary-contrast-rgb: 0,0,0;
 	--ion-color-tertiary-shade: #2a7b5d;
 	--ion-color-tertiary-tint: #459879;
+    --ion-color-tertiary-tint2: #66be9e;
+
 
 	--ion-color-success: #2dd55b;
 	--ion-color-success-rgb: 45,213,91;
@@ -86,14 +88,21 @@ http://ionicframework.com/docs/theming/ */
 }
 
 
-h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel, .input-field, .native-input, .input-btn {
+h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel, .input-field, .native-input, .input-btn, ion-label, .IonText, ion-text {
     font-family: var(--font-family-primary)!important;
+
+}
+
+p {
+    font-family: var(--font-family-secondary)!important;
 
 }
 
 .button {
     font-weight: 600;
     text-transform: capitalize!important;
+    margin-top:10px;
+    margin-bottom:10px;
 
 
 }
@@ -143,7 +152,7 @@ ion-content {
   }
   
   #background-content {
-    --background:var(--ion-page-background)!important;
+    --background:var(--ion-page-background);
   }
 
 .button {

@@ -1,0 +1,52 @@
+.login-item {
+    --background: #f2efef;
+    margin-bottom:10px;
+    border-radius:10px;
+
+}
+
+
+
+.login-item .item-inner {
+    height:55px!important;
+}
+
+
+
+
+.secondary-button {
+    --background: var(--ion-color-secondary);
+}
+
+
+h2 {
+    font-weight:700!important;
+}
+
+.header-md {
+    box-shadow:none!important;
+}
+
+
+
+
+.login-lbl {
+    font-weight:600;
+    font-size:16px!important;
+    color:white;
+}
+
+.login-logo {
+    height:100px!important;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+
+.forgot-password-link {
+    color:white!important;
+    text-decoration: underline;
+    justify-content:flex-end!important;
+    font-weight:500;
+    font-size:12px;
+}
