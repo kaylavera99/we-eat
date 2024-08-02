@@ -18,9 +18,10 @@ import {
   IonButtons
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeSharp, person, searchOutline, thumbsUp } from 'ionicons/icons';
+import { homeSharp, person, searchOutline, thumbsUp, compassOutline } from 'ionicons/icons';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebaseConfig';
+import { AuthProvider, useAuth } from './contexts/authContext';
 import SlideMenu from './components/SlideMenu';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccount';
@@ -60,47 +61,33 @@ import './styles/SlideMenu.css'
 
 setupIonicReact();
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const history = useHistory();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('User state changed:', user);
 
-      setIsAuthenticated(!!user);
       setIsLoading(false);  // Ensure this is set to false after checking auth state
       if (user) {
         console.log('Redirecting to /home');
-        if (history) {
-          history.push('/home');
-        } else {
-          console.error('History is undefined');
-        }
+        history.push('/home');
       } else {
         console.log('Redirecting to /login');
-        if (history) {
-          history.push('/login');
-        } else {
-          console.error('History is undefined');
-        }
+        history.push('/');
       }
-    
     });
     return () => {
       console.log('Cleaning up auth state change listener');
-  
-      unsubscribe();}
+      unsubscribe();
+    }
   }, [history]);
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
-      if (history) {
-        history.push('/login');
-      } else {
-        console.error('History is undefined');
-      }
+      history.push('/');
     });
   };
 
@@ -109,73 +96,84 @@ const App: React.FC = () => {
   }
 
   return (
-    <IonApp>
-      <IonReactRouter>
-        <SlideMenu />
-        
+    <>
+      {currentUser && <SlideMenu />}
+      {currentUser && (
         <IonHeader>
           <IonToolbar style={{ backgroundColor: '#02382E', color:'#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
-              <IonMenuButton style={{ fontSize: '1.5em' }} />
-            </IonButtons>        
-            <div className='toolbar-content' style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>   
-            <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" className = 'app-logo' style={{ height: '55px', marginTop:'20px', marginBottom:'20px', bottom:0}} />
+              <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
+                <IonMenuButton style={{ fontSize: '1.5em' }} />
+              </IonButtons>
+            <div className='toolbar-content' style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" className='app-logo' style={{ height: '55px', marginTop:'20px', marginBottom:'20px', bottom:0 }} />
             </div>
           </IonToolbar>
         </IonHeader>
-        <IonButton onClick={handleSignOut} color="danger">Sign Out</IonButton>
+      )}
+      {currentUser && <IonButton onClick={handleSignOut} color="danger">Sign Out</IonButton>}
 
-        <IonTabs>
-          <IonRouterOutlet id="main-content">
-            <Switch>
-              <Route path="/login" component={LoginPage} exact />
-              <Route path="/create-account" component={CreateAccountPage} exact />
-              <Route path="/password-reset" component={PasswordResetPage} exact />
-              <PrivateRoute path="/home" component={HomePage} exact />
-              <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
-              <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
-              <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
-              <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
-              <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
-              <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
-              <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
-              <PrivateRoute path="/search" component={SearchPage} exact />
-              <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
+      <IonTabs>
+        <IonRouterOutlet id="main-content">
+          <Switch>
+            <Route path="/" component={LoginPage} exact />
+            <Route path="/create-account" component={CreateAccountPage} exact />
+            <Route path="/password-reset" component={PasswordResetPage} exact />
+            <PrivateRoute path="/home" component={HomePage} exact />
+            <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
+            <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
+            <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
+            <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
+            <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
+            <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
+            <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
+            <PrivateRoute path="/search" component={SearchPage} exact />
+            <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
 
-              <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
-              <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
-              <PrivateRoute path="/home" component={HomePage} exact />
-              <PrivateRoute path="/profile" component={UserProfilePage} exact />
-              <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
-              <Redirect exact from="/" to="/login" />
+            <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
+            <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
+            <PrivateRoute path="/home" component={HomePage} exact />
+            <PrivateRoute path="/profile" component={UserProfilePage} exact />
+            <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
+            <Redirect exact from="/" to="/" />
 
-              <PrivateRoute path="/profile">
-                <ErrorBoundary>
-                  <UserProfilePage />
-                </ErrorBoundary>
-              </PrivateRoute>
-            </Switch>
-          </IonRouterOutlet>
-          <IonTabBar slot="bottom" style={{ '--background': 'var(--ion-tab-bar-background-color)', '--color': 'var(--ion-tab-bar-color)', '--color-selected': 'var(--ion-tab-bar-selected-color)'}}>
-            <IonTabButton tab="home" href="/home">
-              <IonIcon icon={homeSharp} />
-              <IonLabel className="tab-bar-label">Home</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="profile" href="/profile">
-              <IonIcon icon={person} />
-              <IonLabel className="tab-bar-label">Profile</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="search" href="/search">
-              <IonIcon icon={searchOutline} />
-              <IonLabel className="tab-bar-label">Search</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="recommendations" href="/recommendations">
-              <IonIcon aria-hidden="true" icon={thumbsUp} />
-              <IonLabel className="tab-bar-label">Explore</IonLabel>
-            </IonTabButton>
-          </IonTabBar>
-        </IonTabs>
-      </IonReactRouter>
+            <PrivateRoute path="/profile">
+              <ErrorBoundary>
+                <UserProfilePage />
+              </ErrorBoundary>
+            </PrivateRoute>
+          </Switch>
+        </IonRouterOutlet>
+        <IonTabBar slot="bottom" style={{ display: currentUser ? 'flex' : 'none', '--background': 'var(--ion-tab-bar-background-color)', '--color': 'var(--ion-tab-bar-color)', '--color-selected': 'var(--ion-tab-bar-selected-color)' }}>
+          <IonTabButton tab="home" href="/home">
+            <IonIcon icon={homeSharp} />
+            <IonLabel className="tab-bar-label">Home</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="profile" href="/profile">
+            <IonIcon icon={person} />
+            <IonLabel className="tab-bar-label">Profile</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="search" href="/search">
+            <IonIcon icon={searchOutline} />
+            <IonLabel className="tab-bar-label">Search</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="recommendations" href="/recommendations">
+            <IonIcon aria-hidden="true" icon={compassOutline} />
+            <IonLabel className="tab-bar-label">Explore</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      </IonTabs>
+    </>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <IonApp>
+      <AuthProvider>
+        <IonReactRouter>
+          <AppContent />
+        </IonReactRouter>
+      </AuthProvider>
     </IonApp>
   );
 };

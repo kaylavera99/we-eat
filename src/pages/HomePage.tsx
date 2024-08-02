@@ -22,7 +22,7 @@ import { signOut } from 'firebase/auth';
 import { add, person } from 'ionicons/icons';
 import { profile } from 'console';
 import 'ionicons';
-import { personCircle, arrowForward, search } from 'ionicons/icons'; // Import arrowForward icon
+import { personCircle, arrowForward, search, compassOutline } from 'ionicons/icons'; // Import arrowForward icon
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -166,8 +166,8 @@ const HomePage: React.FC = () => {
                 </IonButton>
               </IonItem>
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-around', marginTop: '10px' }}>
-                <IonButton expand="block" className = 'banner-btn' onClick={handleSearchQuery}>
-                  Search Restaurants
+                <IonButton expand="block" className = 'banner-btn' onClick={goToCreateMenuPage}>
+                  Create Menu
                 </IonButton>
                 <IonButton expand="block" className = 'banner-btn' onClick={goToPersonalizedMenuPage}>
                   Your Menus

@@ -52,3 +52,23 @@
     margin-right: 10px;
   }
   
+
+  .page-banner-row {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .page-banner-row ion-icon {
+    width: 35px;
+    height: 35px;
+    margin-right:10px;
+    margin-top:8px;
+    align-self: center!important;
+  }
+
+  .page-intro {
+    margin-left:10px;
+  }
+
+
