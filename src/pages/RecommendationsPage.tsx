@@ -21,15 +21,12 @@ import {
   IonAccordion,
   IonAccordionGroup,
   IonItemDivider,
-  IonText,
-  IonCol,
-  IonIcon,
-  IonRow
+  IonIcon
 } from '@ionic/react';
 import { addMenuItemToSavedMenus, MenuItem, fetchSavedMenus } from '../services/menuService';
 import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, filterMenuItemsByAllergens, Restaurant } from '../services/recommendationService';
 import '../styles/RecommendationsPage.css';
-import {compassOutline} from 'ionicons/icons';
+import { compassOutline } from 'ionicons/icons';
 
 interface MenuCategory {
   category: string;
@@ -41,7 +38,7 @@ interface UserData {
 }
 
 const RecommendationsPage: React.FC = () => {
-  const [recommendedRestaurants, setRecommendedRestaurants] = useState<{ id: string, name: string,  thumbnailUrl: string }[]>([]);
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState<{ id: string, name: string, thumbnailUrl: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
@@ -61,6 +58,7 @@ const RecommendationsPage: React.FC = () => {
 
         const allRestaurants = await fetchAllRestaurants();
         const restaurantIds = allRestaurants.map((r: { id: string }) => r.id);
+
         const menus = await fetchRestaurantMenus(restaurantIds);
 
         const fetchedUserMenuItems = await fetchSavedMenus();
@@ -75,6 +73,7 @@ const RecommendationsPage: React.FC = () => {
             thumbnailUrl: foundRestaurant ? foundRestaurant.thumbnailUrl : ''
           };
         });
+
         setRecommendedRestaurants(recommendationsWithThumbnails);
         setRestaurantMenus(menus);
       } catch (error) {
@@ -93,7 +92,6 @@ const RecommendationsPage: React.FC = () => {
     try {
       await addMenuItemToSavedMenus(item, restaurantName);
 
-      // Refresh user menu items after adding
       const updatedUserMenuItems = await fetchSavedMenus();
       setUserMenuItems(updatedUserMenuItems.flatMap(menu => menu.dishes));
 
@@ -116,13 +114,12 @@ const RecommendationsPage: React.FC = () => {
       try {
         await addMenuItemToSavedMenus(selectedMenuItem, selectedRestaurantName);
 
-        // Refresh user menu items after adding
         const updatedUserMenuItems = await fetchSavedMenus();
         setUserMenuItems(updatedUserMenuItems.flatMap(menu => menu.dishes));
 
         setToastMessage('Item added to personalized menu');
         setShowToast(true);
-        setShowModal(false);  // Close the modal after adding
+        setShowModal(false);
       } catch (error: any) {
         setToastMessage(error.message);
         setShowToast(true);
@@ -131,11 +128,7 @@ const RecommendationsPage: React.FC = () => {
   };
 
   const filterUserMenuItems = (restaurantId: string, items: MenuItem[]): MenuItem[] => {
-    const filteredItems = items.filter(item => {
-      const isInUserMenu = userMenuItems.some(userMenuItem => userMenuItem.name === item.name);
-      return !isInUserMenu;
-    });
-    return filteredItems;
+    return items.filter(item => !userMenuItems.some(userMenuItem => userMenuItem.name === item.name));
   };
 
   const filterItemsByAllergens = (items: MenuItem[]): MenuItem[] => {
@@ -157,7 +150,7 @@ const RecommendationsPage: React.FC = () => {
       <IonContent className="ion-padding">
         <div className='page-banner-row'>       
         <IonIcon slot="end" icon={compassOutline} style={{color:'black' }} /><h2> Explore Menus</h2></div>
-        <p className = 'page-intro'>Discover menu items that don't contain your allergens.</p>
+        <p className='page-intro'>Discover menu items that don't contain your allergens.</p>
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (

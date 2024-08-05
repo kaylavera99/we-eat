@@ -56,7 +56,7 @@ const PersonalizedMenuPage: React.FC = () => {
           const savedMenus: Menu[] = [];
           for (const doc of savedMenusSnap.docs) {
             const data = doc.data() as Menu;
-            const q = query(collection(db, 'restaurants'), where("name", "==", data.restaurantName));
+            const q = query(collection(db, 'restaurants'), where("name", "==", decodeURIComponent(data.restaurantName)));
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
               const restaurantData = doc.data();
@@ -87,8 +87,8 @@ const PersonalizedMenuPage: React.FC = () => {
           const preferredLocations: { [key: string]: PreferredLocation } = {};
           preferredLocationsSnap.forEach((doc) => {
             const data = doc.data();
-            preferredLocations[data.name] = { // Key by restaurant name
-              name: data.name,
+            preferredLocations[decodeURIComponent(data.name)] = { // Key by restaurant name
+              name: decodeURIComponent(data.name),
               address: data.address,
               coordinates: data.coordinates,
               photoUrl: data.photoUrl,
@@ -124,7 +124,7 @@ const PersonalizedMenuPage: React.FC = () => {
   };
 
   const renderMenuCard = (menu: Menu) => {
-    const restaurant = preferredLocations[menu.restaurantName];
+    const restaurant = preferredLocations[decodeURIComponent(menu.restaurantName)];
     console.log(restaurant);
   
     return (

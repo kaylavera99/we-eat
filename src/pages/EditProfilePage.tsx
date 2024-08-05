@@ -30,6 +30,7 @@ interface AllergenState {
   fish: boolean;
   shellfish: boolean;
   peanuts: boolean;
+  gluten: boolean;
 }
 
 const EditProfilePage: React.FC = () => {
@@ -42,6 +43,7 @@ const EditProfilePage: React.FC = () => {
     fish: false,
     shellfish: false,
     peanuts: false,
+    gluten: false
   });
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
@@ -72,6 +74,7 @@ const EditProfilePage: React.FC = () => {
               fish: Boolean(allergenData.fish),
               shellfish: Boolean(allergenData.shellfish),
               peanuts: Boolean(allergenData.peanuts),
+              gluten: Boolean(allergenData.gluten),
             });
             setProfileImageUrl(userData.profileImageUrl);
             setFirstName(userData.firstName || '');
@@ -129,6 +132,7 @@ const EditProfilePage: React.FC = () => {
           fish: Boolean(allergens.fish),
           shellfish: Boolean(allergens.shellfish),
           peanuts: Boolean(allergens.peanuts),
+          gluten: Boolean(allergens.gluten)
         };
 
         await updateDoc(doc(db, 'users', auth.currentUser.uid), {
@@ -205,6 +209,13 @@ const EditProfilePage: React.FC = () => {
           <IonCheckbox
             checked={allergens.eggs}
             onIonChange={() => handleAllergenChange('eggs')}
+          />
+        </IonItem>
+        <IonItem>
+          <IonLabel className='input-field'>Gluten</IonLabel>
+          <IonCheckbox
+            checked={allergens.gluten}
+            onIonChange={() => handleAllergenChange('gluten')}
           />
         </IonItem>
         <IonItem>
