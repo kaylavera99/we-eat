@@ -32,7 +32,8 @@ interface PreferredLocation {
 }
 
 const SavedMenuPage: React.FC = () => {
-  const { restaurantName } = useParams<{ restaurantName: string }>();
+  const { restaurantName: encodedRestaurantName } = useParams<{ restaurantName: string }>();
+  const restaurantName = decodeURIComponent(encodedRestaurantName);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);

@@ -452,7 +452,7 @@ export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
       const dishes = await fetchMenuItems(menuDoc.ref);
       console.log("Saved menus from the menu service: ", savedMenus);
       savedMenus.push({
-        restaurantName: menuData.restaurantName,
+        restaurantName: decodeURIComponent(menuData.restaurantName),
         dishes,
       });
     }

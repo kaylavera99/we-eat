@@ -13,7 +13,8 @@ import {
   IonToast,
   IonSearchbar,
   IonThumbnail,
-  IonAlert
+  IonAlert,
+  IonIcon
 } from '@ionic/react';
 import { searchRestaurants } from '../services/searchService';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -23,6 +24,7 @@ import { db, auth } from '../firebaseConfig';
 import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
 import { fetchSavedMenus, fetchCreatedMenus } from '../services/menuService';
 import { getCoordinatesFromAddress } from '../services/googlePlacesService';
+import { searchOutline } from 'ionicons/icons';
 
 interface Place {
   name: string;
@@ -88,6 +90,7 @@ const SearchPage: React.FC = () => {
       setIsSearching(false);
     });
   }, [searchQuery, radius]);
+
   useEffect(() => {
     const initialQuery = location.state?.query;
     if (initialQuery) {
@@ -97,7 +100,6 @@ const SearchPage: React.FC = () => {
   }, [location.state]);
 
   useEffect(() => {
-
     if (isSearching) {
       const timeoutId = setTimeout(() => {
         handleSearch();
@@ -129,29 +131,29 @@ const SearchPage: React.FC = () => {
     const restaurantName = place.name;
 
     try {
-        // Check if the user has a saved menu for this restaurant
-        const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
-        if (userHasSavedMenu) {
-          console.log("User has saved Menu");
-          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
-          return;
-        }
-    
-        // Check if the user has a created menu for this restaurant
-        const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
-        if (userHasCreatedMenu) {
-          console.log("User has created Menu");
-          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
-          return;
-        }
-    
-        // Check if the full menu exists in the restaurant database
-        const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
-        if (fullMenu.length > 0) {
-          console.log("Full menu exists");
-          history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
-          return;
-        }
+      // Check if the user has a saved menu for this restaurant
+      const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
+      if (userHasSavedMenu) {
+        console.log("User has saved Menu");
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
+        return;
+      }
+
+      // Check if the user has a created menu for this restaurant
+      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
+      if (userHasCreatedMenu) {
+        console.log("User has created Menu");
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
+        return;
+      }
+
+      // Check if the full menu exists in the restaurant database
+      const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
+      if (fullMenu.length > 0) {
+        console.log("Full menu exists");
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
+        return;
+      }
 
       // If no menu is found, show alert to create a new menu
       setSelectedPlace(place);
@@ -192,6 +194,7 @@ const SearchPage: React.FC = () => {
           name: place.name,
           address: place.vicinity,
           coordinates: geoPoint,
+          photoUrl: place.photoUrl
         });
         setToastMessage(`Set ${place.name} as preferred location`);
       }
@@ -233,6 +236,9 @@ const SearchPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <div className='page-banner-row'>
+          <IonIcon slot="end" icon={searchOutline} style={{ color: 'black' }} /><h2> Search Menus</h2>
+        </div>
         <IonItem>
           <IonLabel position="stacked">Enter radius in miles</IonLabel>
           <IonInput

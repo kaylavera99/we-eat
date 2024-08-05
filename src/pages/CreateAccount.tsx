@@ -138,6 +138,10 @@ const CreateAccountPage: React.FC = () => {
             <IonLabel>Peanuts</IonLabel>
             <IonCheckbox name="peanuts" checked={allergens.peanuts || false} onIonChange={handleAllergenChange} />
           </IonItem>
+          <IonItem lines="none">
+            <IonLabel>Gluten</IonLabel>
+            <IonCheckbox name="gluten" checked={allergens.gluten || false} onIonChange={handleAllergenChange} />
+          </IonItem>
         </IonItem>
         <IonItem>
           <IonLabel>Profile Image</IonLabel>

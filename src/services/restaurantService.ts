@@ -18,7 +18,8 @@ export interface MenuCategory {
   items: MenuItem[];
 }
 
-export const fetchFullMenuFromRestaurants = async (restaurantName: string): Promise<MenuCategory[]> => {
+export const fetchFullMenuFromRestaurants = async (encodedRestaurantName: string): Promise<MenuCategory[]> => {
+  const restaurantName = decodeURIComponent(encodedRestaurantName);
   const categories: MenuCategory[] = [];
   console.log("Fetching full menu for restaurant:", restaurantName);
   const restaurantsRef = collection(db, 'restaurants');
@@ -61,4 +62,3 @@ export const fetchFullMenuFromRestaurants = async (restaurantName: string): Prom
 
   return categories;
 };
-

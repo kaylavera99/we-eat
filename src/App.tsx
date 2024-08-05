@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Redirect, Route, Switch, useHistory } from 'react-router-dom';
+import { Redirect, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
@@ -57,37 +57,44 @@ import './styles/HomePage.css';
 import './styles/PersonalizedMenu.css';
 import './styles/RestaurantPage.css';
 import './styles/CreatedMenu..css';
-import './styles/SlideMenu.css'
+import './styles/SlideMenu.css';
 
 setupIonicReact();
 
 const AppContent: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const history = useHistory();
+  const location = useLocation();
   const { currentUser } = useAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('User state changed:', user);
 
-      setIsLoading(false);  // Ensure this is set to false after checking auth state
+      setIsLoading(false); // Ensure this is set to false after checking auth state
       if (user) {
-        console.log('Redirecting to /home');
-        history.push('/home');
+        // Check if current path is login and redirect to home
+        if (location.pathname === '/login') {
+          history.push('/home');
+        }
       } else {
-        console.log('Redirecting to /login');
-        history.push('/');
+        // Save current path before redirecting to login
+        const currentPath = window.location.pathname;
+        sessionStorage.setItem('redirectPath', currentPath);
+        history.push('/login');
       }
     });
+
     return () => {
       console.log('Cleaning up auth state change listener');
       unsubscribe();
-    }
-  }, [history]);
+    };
+  }, [history, location.pathname]);
 
   const handleSignOut = () => {
     signOut(auth).then(() => {
-      history.push('/');
+      sessionStorage.setItem('redirectPath', '/login');
+      history.push('/login');
     });
   };
 
@@ -100,22 +107,47 @@ const AppContent: React.FC = () => {
       {currentUser && <SlideMenu />}
       {currentUser && (
         <IonHeader>
-          <IonToolbar style={{ backgroundColor: '#02382E', color:'#FFFFFF', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-              <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
-                <IonMenuButton style={{ fontSize: '1.5em' }} />
-              </IonButtons>
-            <div className='toolbar-content' style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <img src="/assets/WeEat_logo_transparent.png" alt="WeEat Logo" className='app-logo' style={{ height: '55px', marginTop:'20px', marginBottom:'20px', bottom:0 }} />
+          <IonToolbar
+            style={{
+              backgroundColor: '#02382E',
+              color: '#FFFFFF',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <IonButtons slot="start" style={{ fontSize: '1.5em' }}>
+              <IonMenuButton style={{ fontSize: '1.5em' }} />
+            </IonButtons>
+            <div
+              className="toolbar-content"
+              style={{
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <img
+                src="/assets/WeEat_logo_transparent.png"
+                alt="WeEat Logo"
+                className="app-logo"
+                style={{ height: '55px', marginTop: '20px', marginBottom: '20px', bottom: 0 }}
+              />
             </div>
           </IonToolbar>
         </IonHeader>
       )}
-      {currentUser && <IonButton onClick={handleSignOut} color="danger">Sign Out</IonButton>}
+      {currentUser && (
+        <IonButton onClick={handleSignOut} color="danger">
+          Sign Out
+        </IonButton>
+      )}
 
       <IonTabs>
         <IonRouterOutlet id="main-content">
           <Switch>
-            <Route path="/" component={LoginPage} exact />
+            <Route path="/login" component={LoginPage} exact />
             <Route path="/create-account" component={CreateAccountPage} exact />
             <Route path="/password-reset" component={PasswordResetPage} exact />
             <PrivateRoute path="/home" component={HomePage} exact />
@@ -128,14 +160,11 @@ const AppContent: React.FC = () => {
             <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
             <PrivateRoute path="/search" component={SearchPage} exact />
             <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
-
             <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
             <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
-            <PrivateRoute path="/home" component={HomePage} exact />
             <PrivateRoute path="/profile" component={UserProfilePage} exact />
             <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
-            <Redirect exact from="/" to="/" />
-
+            <Redirect exact from="/" to="/login" />
             <PrivateRoute path="/profile">
               <ErrorBoundary>
                 <UserProfilePage />
@@ -143,7 +172,15 @@ const AppContent: React.FC = () => {
             </PrivateRoute>
           </Switch>
         </IonRouterOutlet>
-        <IonTabBar slot="bottom" style={{ display: currentUser ? 'flex' : 'none', '--background': 'var(--ion-tab-bar-background-color)', '--color': 'var(--ion-tab-bar-color)', '--color-selected': 'var(--ion-tab-bar-selected-color)' }}>
+        <IonTabBar
+          slot="bottom"
+          style={{
+            display: currentUser ? 'flex' : 'none',
+            '--background': 'var(--ion-tab-bar-background-color)',
+            '--color': 'var(--ion-tab-bar-color)',
+            '--color-selected': 'var(--ion-tab-bar-selected-color)',
+          }}
+        >
           <IonTabButton tab="home" href="/home">
             <IonIcon icon={homeSharp} />
             <IonLabel className="tab-bar-label">Home</IonLabel>
