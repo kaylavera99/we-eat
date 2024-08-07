@@ -115,7 +115,7 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
             allergens: itemData.allergens,
             note: itemData.note,
             category: categoryData.category,
-            imageUrl: itemData.imageUrl  // Include imageUrl
+            imageUrl: itemData.imageUrl  
           };
         });
 
@@ -150,6 +150,7 @@ export const filterAndRankRestaurants = (
         )
       )
     );
+    console.log("Has safe items", hasSafeItems)
     return hasSafeItems;
   });
 };
@@ -169,7 +170,7 @@ export const filterMenuItemsByAllergens = (
   userAllergens: string[]
 ): MenuItem[] => {
   return items.filter(item =>
-    item.allergens.every(allergen =>
+    Array.isArray(item.allergens) && item.allergens.every(allergen =>
       !userAllergens.includes(allergen.toLowerCase().trim())
     )
   );
