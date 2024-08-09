@@ -74,14 +74,16 @@ const AppContent: React.FC = () => {
       setIsLoading(false); // Ensure this is set to false after checking auth state
       if (user) {
         // Check if current path is login and redirect to home
-        if (location.pathname === '/login') {
+        if (location.pathname === '/login' || location.pathname==='/create-account') {
           history.push('/home');
         }
       } else {
         // Save current path before redirecting to login
         const currentPath = window.location.pathname;
-        sessionStorage.setItem('redirectPath', currentPath);
-        history.push('/login');
+        if (currentPath !== '/login' && currentPath !== '/create-account') {
+          sessionStorage.setItem('redirectPath', currentPath);
+          history.push('/login');
+        }
       }
     });
 

@@ -107,7 +107,10 @@ const LoginPage: React.FC = () => {
               expand="block"
               style={{ "--background": "var(--ion-color-light" }}
               fill="default"
-              onClick={() => history.push("/create-account")}
+              onClick={() =>{
+                console.log("Create account button clicked");
+                history.push("/create-account")
+              }}
             >
               Create Account
             </IonButton>
