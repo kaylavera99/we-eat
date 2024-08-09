@@ -48,13 +48,11 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
 
-  // Search for the restaurant to get the photo URL
   const results = await searchRestaurants(`${coordinates.lat},${coordinates.lng}`, 1, restaurantName, coordinates);
   const photoUrl = results.length > 0 ? results[0].photoUrl : '';
 
   const geoPoint = new GeoPoint(coordinates.lat, coordinates.lng);
 
-  // Query the restaurants collection to find the restaurant document
   const restaurantQuery = query(collection(db, 'restaurants'), where('name', '==', restaurantName));
   const restaurantDocs = await getDocs(restaurantQuery);
 
@@ -62,14 +60,12 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
     const restaurantDoc = restaurantDocs.docs[0];
     const restaurantData = restaurantDoc.data();
 
-    // Update the restaurant document with the photo URL if it doesn't already exist
     if (!restaurantData.photoUrl) {
       await updateDoc(restaurantDoc.ref, {
         photoUrl
       });
     }
 
-    // Query the preferredLocations collection to find the preferred location document by the restaurant document ID
     const preferredLocationQuery = query(preferredLocationsRef, where('restaurantId', '==', restaurantDoc.id));
     const preferredLocationDocs = await getDocs(preferredLocationQuery);
 
@@ -78,16 +74,16 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
       await updateDoc(docRef, {
         address,
         coordinates: geoPoint,
-        photoUrl: restaurantData.photoUrl || photoUrl, // Use existing photoUrl if available
+        photoUrl: restaurantData.photoUrl || photoUrl, 
       });
     } else {
       const newLocationDocRef = doc(preferredLocationsRef);
       await setDoc(newLocationDocRef, {
         name: restaurantName,
-        restaurantId: restaurantDoc.id, // Store the restaurant document ID
+        restaurantId: restaurantDoc.id, 
         address,
         coordinates: geoPoint,
-        photoUrl: restaurantData.photoUrl || photoUrl // Use existing photoUrl if available
+        photoUrl: restaurantData.photoUrl || photoUrl 
       });
     }
   } else {
@@ -105,7 +101,6 @@ export const addPreferredLocationForCreatedMenu = async (
     throw new Error('User not authenticated');
   }
 
-  // Fetch coordinates
   const coordinates = await getCoordinatesFromAddress(fullAddress);
 
   if (!coordinates) {
@@ -117,17 +112,14 @@ export const addPreferredLocationForCreatedMenu = async (
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
   const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
 
-  // Query to check if the location already exists
   const q = query(preferredLocationsRef, where("name", "==", restaurantName));
   const querySnapshot = await getDocs(q);
 
   let preferredLocationDocRef;
 
   if (!querySnapshot.empty) {
-    // Update existing document
     preferredLocationDocRef = querySnapshot.docs[0].ref;
   } else {
-    // Create new document
     preferredLocationDocRef = doc(preferredLocationsRef);
   }
 

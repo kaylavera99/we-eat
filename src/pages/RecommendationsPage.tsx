@@ -35,9 +35,7 @@ interface MenuCategory {
   items: MenuItem[];
 }
 
-interface UserData {
-  allergens: { [key: string]: boolean };
-}
+
 
 const RecommendationsPage: React.FC = () => {
   const [recommendedRestaurants, setRecommendedRestaurants] = useState<{ id: string, name: string, thumbnailUrl: string }[]>([]);

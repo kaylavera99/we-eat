@@ -90,13 +90,13 @@ const RestaurantPage: React.FC = () => {
   }, [restaurantName]);
 
   const handleAddToSavedMenu = async (item: MenuItem) => {
-    if (!item.name || !item.description || !item.allergens || !item.category) {
-      setToastMessage('Error: Menu item must have a name, description, allergens, and category');
-      setShowToast(true);
-      return;
-    }
+    const convertedItem: import("../services/menuService").MenuItem = {
+      ...item,
+      allergens: Array.isArray(item.allergens) ? item.allergens : [item.allergens],
+    };
+  
     try {
-      await addMenuItemToSavedMenus(item, restaurantName);
+      await addMenuItemToSavedMenus(convertedItem, restaurantName);
       setToastMessage('Menu item added to saved menu successfully!');
       setShowToast(true);
     } catch (error) {
@@ -105,35 +105,47 @@ const RestaurantPage: React.FC = () => {
       setShowToast(true);
     }
   };
+  
 
   const renderMenuItems = (items: MenuItem[]) => {
-    return items.map((item, index) => (
-      <IonCard key={index} className = "menu-cards">
-        <IonCardHeader>
-          <IonCardTitle className = 'item-name'>{item.name}</IonCardTitle>
-        </IonCardHeader>
-        <IonCardContent>
-          {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}
-          <p>{item.description}</p>
-          <p>
-            Allergens:{' '}
-            {item.allergens.map((allergen, index) => {
-              const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
-              return (
-                <span
-                  key={index}
-                  style={{ color: isUserAllergen ? 'red' : 'black' }}
-                >
-                  {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
-                </span>
-              );
-            })}
-          </p>
-          <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>
-        </IonCardContent>
-      </IonCard>
-    ));
+    return items.map((item, index) => {
+      const allergensArray: string[] = Array.isArray(item.allergens)
+        ? item.allergens
+        : typeof item.allergens === 'string'
+        ? (item.allergens as string).split(',').map((a: string) => a.trim())
+        : [];
+  
+      return (
+        <IonCard key={index} className="menu-cards">
+          <IonCardHeader>
+            <IonCardTitle className='item-name'>{item.name}</IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent>
+            {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}
+            <p>{item.description}</p>
+            <p>
+              Allergens:{' '}
+              {allergensArray.map((allergen: string, index: number) => {
+                const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
+                return (
+                  <span
+                    key={index}
+                    style={{ color: isUserAllergen ? 'red' : 'black' }}
+                  >
+                    {allergen}{index < allergensArray.length - 1 ? ', ' : ''}
+                  </span>
+                );
+              })}
+            </p>
+            <IonButton onClick={() => handleAddToSavedMenu(item)}>Add to Saved Menu</IonButton>
+          </IonCardContent>
+        </IonCard>
+      );
+    });
   };
+  
+  
+
 
   const renderMenuCategories = (categories: MenuCategory[]) => {
     return categories.map((category, index) => (

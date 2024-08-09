@@ -1,4 +1,4 @@
-import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, writeBatch, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, addDoc, deleteDoc, query, where, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { MenuCategory } from './restaurantService';
 
@@ -35,7 +35,7 @@ const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
       allergens: dishData.allergens,
       note: dishData.note,
       category: dishData.category,
-      imageUrl: dishData.imageUrl  // Include imageUrl
+      imageUrl: dishData.imageUrl  
     } as MenuItem;
   });
 };
@@ -114,7 +114,7 @@ export const getMenuByCategory = async (category: string): Promise<SavedMenu[]> 
 };
 
 // GET RECOMMENDATIONS
-export const getRecommendations = async (userId: string): Promise<SavedMenu[]> => {
+export const getRecommendations = async (): Promise<SavedMenu[]> => {
   const { savedMenus, createdMenus } = await fetchMenuData();
   const userMenus = [...savedMenus, ...createdMenus];
 
@@ -267,7 +267,7 @@ export const getCreatedMenusForRestaurant = async (restaurantName: string): Prom
         allergens: itemData.allergens,
         note: itemData.note,
         category: itemData.category,
-        imageUrl: itemData.imageUrl // Include imageUrl
+        imageUrl: itemData.imageUrl 
       };
     });
 
@@ -367,7 +367,7 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
   const categories: MenuCategory[] = [];
   for (const menuDoc of savedMenusSnapshot.docs) {
     const menuData = menuDoc.data();
-    const itemsCollectionRef = collection(menuDoc.ref, 'dishes'); // Ensure you use the correct collection name
+    const itemsCollectionRef = collection(menuDoc.ref, 'dishes'); 
     const itemsSnapshot = await getDocs(itemsCollectionRef);
 
     const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
@@ -379,7 +379,7 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
         allergens: itemData.allergens,
         note: itemData.note,
         category: itemData.category,
-        imageUrl: itemData.imageUrl // Include imageUrl
+        imageUrl: itemData.imageUrl 
       };
     });
 
@@ -461,4 +461,3 @@ export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
   return savedMenus;
 };
 
-//NEW RECOMMENDATIONS SERVICE

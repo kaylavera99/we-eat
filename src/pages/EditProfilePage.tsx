@@ -4,7 +4,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonItem,
   IonLabel,
@@ -105,7 +104,6 @@ const EditProfilePage: React.FC = () => {
       const file = e.target.files[0];
       setProfileImage(file);
   
-      // Create a local URL for the image to show immediately
       const localImageUrl = URL.createObjectURL(file);
       setProfileImageUrl(localImageUrl);
     }
@@ -146,7 +144,7 @@ const EditProfilePage: React.FC = () => {
         setIsLoading(false);
         setToastMessage('Profile updated successfully!');
         setShowToast(true);
-        history.push('/profile'); // Redirect to profile page
+        history.push('/profile'); 
       }
     } catch (error: any) {
       setIsLoading(false);

@@ -1,6 +1,6 @@
-import { collection, doc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import { fetchSavedMenus, addMenuItemToSavedMenus, MenuItem, SavedMenu } from './menuService';
+import { fetchSavedMenus,  MenuItem } from './menuService';
 
 export interface MenuCategory {
   id: string;
@@ -72,7 +72,7 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
           allergens: itemData.allergens,
           note: itemData.note,
           category: categoryData.category,
-          imageUrl: itemData.imageUrl  // Include imageUrl
+          imageUrl: itemData.imageUrl  
         };
       });
 

@@ -1,6 +1,6 @@
 // src/services/googlePlacesService.ts
 
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
 
 const GOOGLE_API_KEY = 'AIzaSyADCxV3t9rLih5de7GhP7R8OlZ5RA1Y_tk';

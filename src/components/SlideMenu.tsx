@@ -5,9 +5,6 @@ import {
   IonItem,
   IonLabel,
   IonMenu,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
   IonMenuToggle,
   IonFooter,
   IonIcon
@@ -15,7 +12,7 @@ import {
 import { useHistory, useLocation } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
-import { documentOutline, homeSharp, logOutOutline, person, restaurantOutline, searchOutline, thumbsUp, compassOutline, createOutline } from 'ionicons/icons';
+import { homeSharp, logOutOutline, person, restaurantOutline, searchOutline, compassOutline, createOutline } from 'ionicons/icons';
 import '../styles/SlideMenu.css';
 import useDisableScroll from '../hooks/useDisableScroll';
 

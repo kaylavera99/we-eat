@@ -20,7 +20,7 @@ import AddMenuItemModal from '../components/AddMenuItemModal';
 import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { searchRestaurants } from '../services/searchService';
-import '../styles/CreatedMenu..css'; // Import custom CSS for the page
+import '../styles/CreatedMenu..css'; 
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -109,7 +109,7 @@ const CreatedMenuPage: React.FC = () => {
       setMenuItems(menuItems.map(item => (item.id === updatedItem.id ? updatedItem : item)));
       setToastMessage('Item updated successfully!');
       setShowToast(true);
-      setEditingItem(null); // Close modal
+      setEditingItem(null); 
     } catch (error) {
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
@@ -128,9 +128,7 @@ const CreatedMenuPage: React.FC = () => {
     }
   };
 
-  const handleViewFullMenu = () => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
-  };
+
 
   const handleAddMenuItem = async (newItem: MenuItem) => {
     try {
@@ -138,7 +136,7 @@ const CreatedMenuPage: React.FC = () => {
       setMenuItems([...menuItems, newItem]);
       setToastMessage('Item added successfully!');
       setShowToast(true);
-      setShowAddMenuItemModal(false); // Close modal
+      setShowAddMenuItemModal(false); 
     } catch (error) {
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
@@ -172,7 +170,7 @@ const CreatedMenuPage: React.FC = () => {
         <IonList>
           {menuItems.map((item, index) => (
             <IonItem key={index}>
-              {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} className="menu-img" />} {/* Display the image */}
+              {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} className="menu-img" />} 
               <IonLabel>
                 <h2>{item.name}</h2>
                 <p>{item.description}</p>

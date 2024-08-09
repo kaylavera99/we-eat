@@ -20,9 +20,8 @@ import { auth, db } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { add, person } from 'ionicons/icons';
-import { profile } from 'console';
 import 'ionicons';
-import { personCircle, arrowForward, search, compassOutline } from 'ionicons/icons'; // Import arrowForward icon
+import {arrowForward, search } from 'ionicons/icons'; 
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -73,12 +72,7 @@ const HomePage: React.FC = () => {
     fetchUserData();
   }, []);
 
-  const goToSearchPage = (query?: string) => {
-    history.push({
-      pathname: '/search',
-      state: { query },
-    });
-  };
+ 
 
 
 
@@ -95,7 +89,7 @@ const HomePage: React.FC = () => {
   };
 
   const goToAllRestaurantsPage = () => {
-    history.push('/all-restaurants'); // Create a route to display all restaurants
+    history.push('/all-restaurants');
   };
 
   const handleRestaurantClick = (restaurantName: string) => {
@@ -116,9 +110,7 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleSearchQuery = () => {
-    history.push('/search');
-  };
+ 
 
 
   const settings = {
@@ -205,7 +197,7 @@ const HomePage: React.FC = () => {
             </Slider>
             <h2>Explore Menus</h2>
             <p>Menu's we think you'd like</p>
-            {/* Implement logic to display recommended menus here */}
+
             <Slider {...settings}>
               {restaurants.map(restaurant => (
                 <div

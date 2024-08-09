@@ -16,28 +16,27 @@ interface EditNotesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveNotes: (updatedItem: MenuItem) => void;
-  initialItem?: MenuItem & { id?: string }; // Include id for editing
+  initialItem?: MenuItem & { id?: string }; 
   restaurantName?: string;
-  isCreatedMenu?: boolean; // Indicate if it's a created menu
+  isCreatedMenu?: boolean; 
 }
 
 const EditNotesModal: React.FC<EditNotesModalProps> = ({ isOpen, onClose, onSaveNotes, initialItem, restaurantName, isCreatedMenu = false }) => {
   const [note, setNote] = useState('');
-  const noteRef = useRef(''); // Create a ref to store the note value
-
+  const noteRef = useRef(''); 
   useEffect(() => {
     if (initialItem) {
       setNote(initialItem.note || '');
-      noteRef.current = initialItem.note || ''; // Initialize the ref with the initial note value
+      noteRef.current = initialItem.note || ''; 
     } else {
       setNote('');
-      noteRef.current = ''; // Reset the ref if there's no initial item
+      noteRef.current = ''; 
     }
   }, [initialItem]);
 
   const handleSave = async () => {
-    const updatedNote = noteRef.current; // Use the ref value to get the latest note
-    console.log("Current note before save:", updatedNote); // Log current note before saving
+    const updatedNote = noteRef.current; 
+    console.log("Current note before save:", updatedNote); 
 
     if (initialItem && initialItem.id && restaurantName) {
       const updatedItem = { ...initialItem, note: updatedNote };

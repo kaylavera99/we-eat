@@ -1,74 +1,73 @@
-
-
 .input-wrapper {
-    flex-direction: column!important;
+  display: flex;
+  flex-direction: column !important;
 }
 
 .col {
-    flex-direction:row!important;
+  display: flex;
+  flex-direction: row !important;
 }
 
-
 .menu-list {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .menu-item-container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .menu-item-details {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    margin-left: 10px;
-  }
-  
-  .menu-item-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    margin-top: 10px;
-  }
-  
-  .menu-item-buttons ion-button {
-    margin-right: 10px;
-  }
-  
-  .ion-padding h4 {
-    margin: 10px 0;
-  }
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
 
-  .ion-item[slot="header"] {
-    display: flex;
-    align-items: center;
-  }
-  
-  .ion-item[slot="header"] ion-img {
-    margin-right: 10px;
-  }
-  
+.menu-item-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
 
-  .page-banner-row {
-    display:flex;
-    flex-direction: row;
-    align-items: center;
-  }
+.menu-item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 10px;
+}
 
-  .page-banner-row ion-icon {
-    width: 35px;
-    height: 35px;
-    margin-right:10px;
-    margin-top:8px;
-    align-self: center!important;
-  }
+.menu-item-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
 
-  .page-intro {
-    margin-left:10px;
-  }
+.menu-item-buttons ion-button {
+  margin-right: 10px;
+}
 
+.ion-padding h4 {
+  margin: 10px 0;
+}
 
+.ion-item[slot="header"] {
+  display: flex;
+  align-items: center;
+}
+
+.ion-item[slot="header"] ion-img {
+  margin-right: 10px;
+}
+
+.page-banner-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.page-banner-row ion-icon {
+  width: 35px;
+  height: 35px;
+  margin-right: 10px;
+  margin-top: 8px;
+}
+
+.page-intro {
+  margin-left: 10px;
+  margin-bottom: 20px;
+}

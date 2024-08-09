@@ -51,7 +51,7 @@ const PersonalizedMenuPage: React.FC = () => {
         if (userId) {
           const userDocRef = doc(db, 'users', userId);
   
-          // Fetch saved menus
+         
           const savedMenusSnap = await getDocs(collection(userDocRef, 'savedMenus'));
           const savedMenus: Menu[] = [];
           for (const doc of savedMenusSnap.docs) {
@@ -68,7 +68,7 @@ const PersonalizedMenuPage: React.FC = () => {
             });
           }
   
-          // Fetch created menus
+          
           const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
           const createdMenus: Menu[] = [];
           createdMenusSnap.forEach((doc) => {
@@ -76,7 +76,7 @@ const PersonalizedMenuPage: React.FC = () => {
             createdMenus.push({
               ...data,
               isCreated: true,
-              photoUrl: data.thumbnailUrl, // Ensure the thumbnailUrl is used
+              photoUrl: data.thumbnailUrl, 
             });
           });
   

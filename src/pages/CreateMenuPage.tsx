@@ -78,7 +78,7 @@ const CreateMenuPage: React.FC = () => {
         await addPreferredLocationForCreatedMenu(restaurantName, fullAddress);
         setShowToast(true);
         setToastMessage('Restaurant details added successfully!');
-        history.push(`/add-dishes/${newMenuDocRef.id}`); // Pass the new menu document ID
+        history.push(`/add-dishes/${newMenuDocRef.id}`); 
       }
     } catch (error) {
       setShowToast(true);

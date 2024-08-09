@@ -22,7 +22,6 @@ import { GeoPoint } from 'firebase/firestore';
 import { doc, getDocs, collection, query, where, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
-import { fetchSavedMenus, fetchCreatedMenus } from '../services/menuService';
 import { getCoordinatesFromAddress } from '../services/googlePlacesService';
 import { searchOutline } from 'ionicons/icons';
 
@@ -44,7 +43,7 @@ interface Place {
 
 const SearchPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [radius, setRadius] = useState<number>(5); // Default to 5 miles
+  const [radius, setRadius] = useState<number>(5);
   const [results, setResults] = useState<Place[]>([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');

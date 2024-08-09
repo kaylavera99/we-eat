@@ -6,9 +6,9 @@ const PROXY_SERVER_URL = 'https://proxy-server-we-eat-e24e32c11d10.herokuapp.com
 const GOOGLE_PLACES_API_KEY = 'YOUR_GOOGLE_PLACES_API_KEY';
 
 
-//Calculating distance from user
+//Calculating distance from users location
 const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  const R = 3958.8; // Earth's radius in miles
+  const R = 3958.8; // earth's radius in miles
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
   const a = 
@@ -53,7 +53,7 @@ export const searchRestaurants = async (location: string, radius: number, search
 
   const params = {
     location,
-    radius: radius * 1609.34, // Convert miles to meters
+    radius: radius * 1609.34, 
     keyword: searchQuery,
     type: 'restaurant',
     fields:'name,geometry,icon,photos,vicinity',
@@ -91,7 +91,7 @@ export const searchRestaurants = async (location: string, radius: number, search
       icon: result.icon,
       photoUrl
     };
-  }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // Added margin of error
+  }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // Margin of error
 
   formattedResults.sort((a, b) => a.distance - b.distance);
 
