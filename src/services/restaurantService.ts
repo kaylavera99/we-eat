@@ -5,10 +5,10 @@ export interface MenuItem {
   id?: string;
   name: string;
   description: string;
-  allergens: string[];
+  allergens: string[] | string;
   note?: string;
   category: string;
-  imageUrl?: string;  // Add the imageUrl field
+  imageUrl?: string; 
 }
 
 

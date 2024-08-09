@@ -56,7 +56,6 @@ const FullMenuPage: React.FC = () => {
             .filter(allergen => userData.allergens[allergen])
             .map(allergen => allergen.toLowerCase().trim());
           setUserAllergens(allergens);
-          console.log("ALLERGENS")
         }
       }
     };

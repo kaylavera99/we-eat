@@ -12,7 +12,7 @@ import {
   IonToast,
 } from '@ionic/react';
 import { RouteComponentProps } from 'react-router';
-import { fetchCreatedMenus, fetchSavedMenus } from '../services/menuService'; // Import the new function
+import { fetchCreatedMenus, fetchSavedMenus } from '../services/menuService';
 import { MenuItem, SavedMenu } from '../services/menuService';
 
 interface IndividualMenuPageProps extends RouteComponentProps<{
@@ -40,7 +40,6 @@ const IndividualMenuPage: React.FC<IndividualMenuPageProps> = ({ match }) => {
           const savedMenus = await fetchSavedMenus();
           fetchedMenu = savedMenus.find(menu => menu.restaurantName === decodeURIComponent(match.params.restaurantName)) || null;
         } else {
-          // You might already have a fetch function for full menus, use it here if needed
         }
 
         if (fetchedMenu) {

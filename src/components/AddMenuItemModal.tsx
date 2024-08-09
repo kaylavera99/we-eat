@@ -49,8 +49,8 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
     }
   }, [initialItem]);
 
-  const handleImageChange = async (e: any) => {
-    if (e.target.files.length > 0) {
+  const handleImageChange = async (e:  React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setImageFile(file);
     }
@@ -60,20 +60,18 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
     let imageDownloadUrl = imageUrl;
     
     if (imageFile) {
-      // Compress and upload the image
       try {
         const compressedFile = await compressImage(imageFile);
         imageDownloadUrl = await uploadImage(compressedFile, 'menu_items');
         setImageUrl(imageDownloadUrl);
       } catch (error) {
         console.error('Error uploading image:', error);
-        // You might want to handle this error more gracefully in your UI
       }
     }
 
     const newItem: MenuItem = { name, description, allergens, note, category, imageUrl: imageDownloadUrl };
     if (initialItem?.id) {
-      newItem.id = initialItem.id; // Include id for editing
+      newItem.id = initialItem.id; 
     }
     onAddMenuItem(newItem);
   };

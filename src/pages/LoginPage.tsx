@@ -3,15 +3,12 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonInput,
   IonButton,
   IonItem,
   IonLabel,
   IonToast,
   IonRow,
-  IonCol,
   IonInputPasswordToggle,
   IonText,
 } from "@ionic/react";
@@ -28,11 +25,9 @@ const LoginPage: React.FC = () => {
   const history = useHistory();
 
   const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault(); // Prevent default form submission behavior
+    event.preventDefault();
 
-    // Debug logging to see the current state values
-    console.log("Email:", email);
-    console.log("Password:", password);
+
 
     if (!email || !password) {
       setToastMessage("Email and password are required.");
@@ -42,7 +37,6 @@ const LoginPage: React.FC = () => {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      // Redirect to home page or any other page after successful login
     } catch (error: any) {
       setToastMessage(`Login failed: ${error.message}`);
       setShowToast(true);
@@ -58,7 +52,7 @@ const LoginPage: React.FC = () => {
       >
         <div className="login-form-container">
           <img
-            src="/assets/WeEat_logo_transparent.png"
+            src="/assets/WeEat_logo_transparent.webp"
             alt="WeEat Logo"
             className="login-logo"
           />

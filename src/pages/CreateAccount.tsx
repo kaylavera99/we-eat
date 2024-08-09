@@ -17,7 +17,7 @@ import {
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
-import { uploadImage, compressImage } from '../services/storageService'; // Import the new service
+import { uploadImage, compressImage } from '../services/storageService'; 
 
 const CreateAccountPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -68,7 +68,7 @@ const CreateAccountPage: React.FC = () => {
       });
 
       setIsLoading(false);
-      history.push('/allergens'); // Redirect to allergens page
+      history.push('/allergens'); 
     } catch (error: any) {
       setIsLoading(false);
       setToastMessage(error.message);

@@ -6,7 +6,11 @@ const { query, where, getDocs } = require('firebase/firestore'); // Add Firestor
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json()); // for parsing application/json
 
 const GOOGLE_PLACES_API_KEY = 'AIzaSyADCxV3t9rLih5de7GhP7R8OlZ5RA1Y_tk';
@@ -94,12 +98,15 @@ app.get('/photo', async (req, res) => {
       responseType: 'stream'
     });
 
+    res.setHeader('Content-Type', response.headers['content-type']);
+    res.setHeader('Cache-Control', 'public, max-age=31536000'); // Cache for one year
     response.data.pipe(res);
   } catch (error) {
     console.error('Error fetching photo from Google Places:', error);
     res.status(500).send('Error fetching photo from Google Places');
   }
 });
+
 
 // Route to fetch user menus
 app.get('/users/:userId/menus', verifyToken, async (req, res) => {

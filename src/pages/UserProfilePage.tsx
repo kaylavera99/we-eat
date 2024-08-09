@@ -46,7 +46,7 @@ interface UserData {
     [key: string]: PreferredLocation;
   };
   createdMenus: {
-    [key: string]: any; // Placeholder for created menus structure
+    [key: string]: any;
   };
   profileImageUrl?: string;
   address: string;
@@ -155,9 +155,9 @@ const UserProfilePage: React.FC = () => {
   const renderAllergens = () => {
     if (userData && userData.allergens) {
       return Object.entries(userData.allergens)
-        .filter(([key, value]) => value) // Only include allergens with true values
-        .map(([key]) => capitalize(key)) // Get the allergen names
-        .join(', '); // Join them into a comma-separated list
+        .filter(([key, value]) => value) 
+        .map(([key]) => capitalize(key)) 
+        .join(', '); // Join them 
     }
     return 'None';
   };
@@ -177,7 +177,7 @@ const UserProfilePage: React.FC = () => {
       const locationDocRef = doc(userDocRef, 'preferredLocations', locationKey);
       await deleteDoc(locationDocRef);
 
-      // Update state to remove the location
+      
       setUserData(prevData => {
         if (!prevData) return prevData;
         const updatedLocations = { ...prevData.preferredLocations };

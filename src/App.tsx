@@ -11,14 +11,13 @@ import {
   setupIonicReact,
   IonLoading,
   IonMenuButton,
-  IonTitle,
   IonHeader,
   IonToolbar, 
   IonButton,
   IonButtons
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeSharp, person, searchOutline, thumbsUp, compassOutline } from 'ionicons/icons';
+import { homeSharp, person, searchOutline, compassOutline } from 'ionicons/icons';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { AuthProvider, useAuth } from './contexts/authContext';
@@ -71,14 +70,13 @@ const AppContent: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       console.log('User state changed:', user);
 
-      setIsLoading(false); // Ensure this is set to false after checking auth state
+      setIsLoading(false); 
       if (user) {
-        // Check if current path is login and redirect to home
+       
         if (location.pathname === '/login' || location.pathname==='/create-account') {
           history.push('/home');
         }
       } else {
-        // Save current path before redirecting to login
         const currentPath = window.location.pathname;
         if (currentPath !== '/login' && currentPath !== '/create-account') {
           sessionStorage.setItem('redirectPath', currentPath);
@@ -88,7 +86,6 @@ const AppContent: React.FC = () => {
     });
 
     return () => {
-      console.log('Cleaning up auth state change listener');
       unsubscribe();
     };
   }, [history, location.pathname]);
@@ -131,7 +128,7 @@ const AppContent: React.FC = () => {
               }}
             >
               <img
-                src="/assets/WeEat_logo_transparent.png"
+                src="/assets/WeEat_logo_transparent.webp"
                 alt="WeEat Logo"
                 className="app-logo"
                 style={{ height: '55px', marginTop: '20px', marginBottom: '20px', bottom: 0 }}

@@ -89,7 +89,6 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({ isOpen, onClose, 
         imageUrlRef.current = imageDownloadUrl;
       } catch (error) {
         console.error('Error uploading image:', error);
-        // You might want to handle this error more gracefully in your UI
       }
     }
 
@@ -173,7 +172,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({ isOpen, onClose, 
           <IonLabel position="stacked">Image</IonLabel>
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </IonItem>
-        {imageUrl && <img src={imageUrl} alt="Menu item" />} {/* Display the uploaded image */}
+        {imageUrl && <img src={imageUrl} alt="Menu item" />} 
         <IonButton expand="block" onClick={handleSave}>
           Save
         </IonButton>
