@@ -3,7 +3,6 @@ import { IonImg } from '@ionic/react';
 
 const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperties }> = ({ src, alt, style }) => {
   const [isInView, setIsInView] = useState(false);
-  const [fetchedSrc, setFetchedSrc] = useState<string | undefined>(undefined);
   const imgRef = useRef<HTMLIonImgElement | null>(null);
 
   useEffect(() => {
@@ -15,7 +14,7 @@ const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperti
         }
       },
       {
-        rootMargin: '50px',
+        rootMargin: '50px', 
         threshold: 0.1,
       }
     );
@@ -26,36 +25,15 @@ const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperti
 
     return () => {
       if (imgRef.current) {
-        observer.unobserve(imgRef.current as unknown as Element);
+        observer.unobserve(imgRef.current as unknown as Element); 
       }
     };
   }, []);
 
-  useEffect(() => {
-    const fetchImage = async () => {
-      if (isInView && src) {
-        try {
-          const response = await fetch(src);
-          if (!response.ok) {
-            throw new Error(`Failed to fetch image: ${response.statusText}`);
-          }
-          const blob = await response.blob();
-          const imageUrl = URL.createObjectURL(blob);
-          setFetchedSrc(imageUrl);
-        } catch (error) {
-          console.error('Image fetch failed:', error);
-          setFetchedSrc(src); // Fallback to original image if fetch fails
-        }
-      }
-    };
-
-    fetchImage();
-  }, [isInView, src]);
-
   return (
     <IonImg
       ref={imgRef}
-      src={fetchedSrc}
+      src={isInView ? src : undefined} 
       alt={alt}
       style={style}
     />

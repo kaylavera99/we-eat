@@ -27,7 +27,7 @@ import { addMenuItemToSavedMenus, MenuItem, fetchSavedMenus } from '../services/
 import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, filterMenuItemsByAllergens, Restaurant } from '../services/recommendationService';
 import '../styles/RecommendationsPage.css';
 import { compassOutline } from 'ionicons/icons';
-const LazyImage = React.lazy(() => import('../components/LazyLoading'));
+import LazyImage from '../components/LazyLoading';
 
 
 interface MenuCategory {

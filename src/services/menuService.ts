@@ -46,39 +46,33 @@ export const fetchMenuData = async (): Promise<{ savedMenus: SavedMenu[], create
 
   if (auth.currentUser) {
     const userDocRef = doc(db, 'users', auth.currentUser.uid);
-    const userDocSnap = await getDoc(userDocRef);
-    if (userDocSnap.exists()) {
-      const userData = userDocSnap.data() as UserData;
-      console.log("User Data: ", userData);
 
-      const savedMenusSnapshot = await getDocs(collection(userDocRef, 'savedMenus'));
-      for (const menuDoc of savedMenusSnapshot.docs) {
-        const menuData = menuDoc.data();
-        const dishes = await fetchMenuItems(menuDoc.ref);
-        savedMenus.push({
-          restaurantName: menuData.restaurantName,
-          dishes,
-        });
-      }
+    const savedMenusSnapshot = await getDocs(collection(userDocRef, 'savedMenus'));
+    for (const menuDoc of savedMenusSnapshot.docs) {
+      const menuData = menuDoc.data();
+      const dishes = await fetchMenuItems(menuDoc.ref);
 
-      console.log("Saved Menus: ", savedMenus);
+      savedMenus.push({
+        restaurantName: menuData.restaurantName,
+        dishes,
+      });
+    }
 
-      const createdMenusSnapshot = await getDocs(collection(userDocRef, 'createdMenus'));
-      for (const menuDoc of createdMenusSnapshot.docs) {
-        const menuData = menuDoc.data();
-        const dishes = await fetchMenuItems(menuDoc.ref);
-        createdMenus.push({
-          restaurantName: menuData.restaurantName,
-          dishes,
-        });
-      }
+    const createdMenusSnapshot = await getDocs(collection(userDocRef, 'createdMenus'));
+    for (const menuDoc of createdMenusSnapshot.docs) {
+      const menuData = menuDoc.data();
+      const dishes = await fetchMenuItems(menuDoc.ref);
 
-      console.log("Created Menus: ", createdMenus);
+      createdMenus.push({
+        restaurantName: menuData.restaurantName,
+        dishes,
+      });
     }
   }
 
   return { savedMenus, createdMenus };
 };
+
 
 // Utility function to get all menu items by category
 const getAllMenuItemsByCategory = (menu: { [category: string]: { dishes: MenuItem[] } } | undefined, category: string): MenuItem[] => {
@@ -275,6 +269,7 @@ export const getCreatedMenusForRestaurant = async (restaurantName: string): Prom
       id: categoryDoc.id,
       category: categoryData.category,
       items,
+      index: categoryData.index || 0,
     });
   }
 
@@ -389,6 +384,7 @@ export const getSavedMenusForRestaurant = async (restaurantName: string): Promis
       id: menuDoc.id,
       category: menuData.category,
       items,
+      index: menuData.index
     });
   }
 
