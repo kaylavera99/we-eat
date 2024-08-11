@@ -99,7 +99,7 @@ const LoginPage: React.FC = () => {
             </IonButton>
             <IonButton
               expand="block"
-              style={{ "--background": "var(--ion-color-light" }}
+              style={{ "--background": "var(--ion-color-tertiary-shade" }}
               fill="default"
               onClick={() =>{
                 console.log("Create account button clicked");

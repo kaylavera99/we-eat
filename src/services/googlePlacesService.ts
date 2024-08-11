@@ -31,10 +31,10 @@ export const fetchRestaurantsFromGooglePlaces = async (lat: number, lng: number,
   };
 
 
-  // src/services/googlePlacesService.ts
+
 
   export const getCoordinatesFromAddress = async (address: string) => {
-    const formattedAddress = address.replace(/\s/g, '+'); // Replace spaces with + for URL compatibility
+    const formattedAddress = address.replace(/\s/g, '+'); 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${formattedAddress}&key=${GOOGLE_API_KEY}`;
     
     console.log("Request URL: ", url);

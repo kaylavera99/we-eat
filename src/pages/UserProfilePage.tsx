@@ -99,14 +99,12 @@ const UserProfilePage: React.FC = () => {
               lastName: userDocData.lastName
             };
 
-            // Fetch Preferred Locations
             const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
             const locations: { [key: string]: PreferredLocation } = {};
             const locationPromises = preferredLocationsSnap.docs.map(async (doc) => {
               const location = doc.data() as PreferredLocation;
               locations[doc.id] = location;
 
-              // Fetch photo URL for the location
               const results = await searchRestaurants(
                 `${location.coordinates.latitude},${location.coordinates.longitude}`,
                 5,
@@ -126,7 +124,6 @@ const UserProfilePage: React.FC = () => {
 
             userData.preferredLocations = locations;
 
-            // Fetch Created Menus
             const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
             createdMenusSnap.forEach((doc) => {
               userData.createdMenus[doc.id] = doc.data();
@@ -157,7 +154,7 @@ const UserProfilePage: React.FC = () => {
       return Object.entries(userData.allergens)
         .filter(([key, value]) => value) 
         .map(([key]) => capitalize(key)) 
-        .join(', '); // Join them 
+        .join(', '); 
     }
     return 'None';
   };
