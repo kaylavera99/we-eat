@@ -49,14 +49,12 @@ const SavedMenuPage: React.FC = () => {
         if (userId) {
           const userDocRef = doc(db, 'users', userId);
           
-          // Fetch saved menus
           const savedMenus = await fetchSavedMenus();
           const savedMenu = savedMenus.find(menu => menu.restaurantName === restaurantName);
           if (savedMenu) {
             setMenuItems(savedMenu.dishes);
           }
 
-          // Fetch user allergens
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data() as UserData;
@@ -66,7 +64,6 @@ const SavedMenuPage: React.FC = () => {
             setUserAllergens(allergens);
           }
 
-          // Fetch preferred locations
           const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
           preferredLocationsSnap.forEach((doc) => {
             const data = doc.data() as PreferredLocation;
@@ -87,7 +84,7 @@ const SavedMenuPage: React.FC = () => {
     setMenuItems(menuItems.map(item => (item.id === updatedItem.id ? updatedItem : item)));
     setToastMessage('Note updated successfully!');
     setShowToast(true);
-    setEditingItem(null); // Close modal
+    setEditingItem(null); 
   };
 
   const handleViewFullMenu = () => {

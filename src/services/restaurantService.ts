@@ -16,6 +16,7 @@ export interface MenuCategory {
   id: string;
   category: string;
   items: MenuItem[];
+  index: number;
 }
 
 export const fetchFullMenuFromRestaurants = async (encodedRestaurantName: string): Promise<MenuCategory[]> => {
@@ -52,9 +53,14 @@ export const fetchFullMenuFromRestaurants = async (encodedRestaurantName: string
       categories.push({
         id: categoryDoc.id,
         category: categoryData.category,
+        index: categoryData.index || 0, // Default to 0 if no index is found
         items,
       });
     }
+
+    // Sort categories by index
+    categories.sort((a, b) => a.index - b.index);
+
     console.log("Fetched categories:", categories);
   } else {
     console.log("No menu found for restaurant:", restaurantName);
