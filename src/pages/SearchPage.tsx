@@ -253,7 +253,7 @@ const SearchPage: React.FC = () => {
             value={searchQuery}
             placeholder="Search by restaurant name"
             onIonInput={(e: CustomEvent) => setSearchQuery(e.detail.value!)}
-            debounce={500} // Adjust debounce time as needed
+            debounce={500} 
           />
         </IonItem>
         <IonButton expand="block" onClick={() => setIsSearching(true)} disabled={isSearching}>

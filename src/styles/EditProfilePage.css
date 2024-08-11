@@ -38,7 +38,7 @@
   }
   
   .custom-upload-btn {
-    --background: #3880ff;
+    --background: var(--ion-color-secondary)!important;
     --color: white;
     --padding: 10px 20px;
     --border-radius: 5px;

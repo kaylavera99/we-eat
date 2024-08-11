@@ -1,0 +1,138 @@
+.pageTitle {
+    margin-bottom:15px!important;
+
+}
+
+.flex-column-item, .flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.flex-column-item, .flex-item {
+    border-radius:10px;
+}
+
+.flex-item {
+    display:flex!important;
+    flex-direction:column!important;
+}
+
+.flex-column .thin-label p {
+    margin-bottom: 0!important;
+    margin-top: 0!important;
+}
+
+.image-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.image-wrapper ion-avatar {
+    width: 150px!important;
+    height: 150px!important;
+}
+
+.upload-wrapper {
+    align-self: center!important;
+    margin-top:0px!important;
+}
+
+.custom-upload-btn {
+    --background:var(--ion-color-secondary)!important;
+    --color: white;
+    --padding: 10px 20px;
+    --border-radius: 5px;
+    --width: 150px!important;
+    font-size:14px;
+}
+
+
+.input-btn {
+    display: none; 
+}
+
+ion-label {
+    font-size: 16px!important;
+}
+
+.terms-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom:1rem;
+}
+
+
+
+.terms-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction:column;
+    width: 100%;
+    background-color: var(--ion-background-color)!important;
+    border-radius:10px;
+    padding-bottom:10px;
+
+}
+
+.terms-content p {
+    margin-right: 15px;
+    margin-left:15px;
+    flex-wrap:nowrap!important;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+.terms-content .check-row {
+    display:flex;
+    align-items:center!important;
+    width:100%!important;
+    margin-left:25px;
+    margin-bottom: 10px;
+}
+
+
+.terms-content .check-row .agree-text {
+    margin-left: 10px!important;
+    
+}
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+
+.allergens-content {
+    background-color: var(--ion-background-color)!important;
+    border-radius:10px;
+}
+
+.create-account-img {
+    height: 55px!important;
+}
+
+.head-bar { 
+    display:flex;
+    justify-content: center!important;
+    margin-top:10px;
+    margin-bottom: 10px;
+}
+
+h1 {
+    margin-bottom: 10px!important;
+}
+
+
+#createAccountContent::part(scroll) {
+    padding-top:20px!important;
+}
