@@ -1,0 +1,90 @@
+.page-banner-img  {
+    height:260px!important;
+    width:100%;
+    object-fit: cover!important;
+
+
+}
+
+.menu-item-card {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  
+  .menu-item-top-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    flex-wrap:wrap!important;
+    justify-content:center;
+  }
+  
+  .menu-thumbnail {
+    flex: 0 0 100px;
+    margin-right: 15px;
+    border-radius: 8px;
+    height: auto;
+    object-fit: cover;
+  }
+  
+  .menu-item-name {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+    text-align:center;
+  }
+  
+  .menu-item-description,
+  .menu-item-allergens,
+  .menu-item-note {
+    font-size: 0.9em;
+    margin: 5px 0;
+  }
+  
+  .menu-item-buttons-row {
+    display: flex;
+    justify-content: space-evenly;
+    gap: 10px;
+  }
+  
+
+
+  .button-content {
+    padding-top:0!important;
+    padding-bottom:0px;
+    display:flex;
+    padding-left:0!important;
+    justify-content:space-around;
+  }
+
+  .button-content .button {
+    width: 150px;
+  }
+
+  ion-card-header {
+    padding-bottom:0px;
+    align-items:center!important;
+    text-align:center;
+  }
+
+  .list-md {
+    background: var(--ion-page-background)!important;
+  }
+
+  ion-badge {
+    padding:5px;
+  }
+
+  .delete {
+    --background:var(--ion-color-danger)!important;
+  }
+
+  .preferred-location-banner {
+    justify-content:center!important;
+    text-align:center;
+  }
+
+  .preferred-location-banner p {
+    text-align:center!important;
+  }

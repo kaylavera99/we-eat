@@ -6,11 +6,12 @@ import {
   IonTitle,
   IonToolbar,
   IonList,
-  IonItem,
-  IonLabel,
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardTitle,
   IonButton,
   IonToast,
-  IonThumbnail,
   IonImg,
   IonBadge,
 } from '@ionic/react';
@@ -19,6 +20,7 @@ import { fetchSavedMenus, MenuItem } from '../services/menuService';
 import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import EditNotesModal from '../components/EditNotesModal';
+import '../styles/SavedMenu.css';
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -34,6 +36,8 @@ interface PreferredLocation {
 const SavedMenuPage: React.FC = () => {
   const { restaurantName: encodedRestaurantName } = useParams<{ restaurantName: string }>();
   const restaurantName = decodeURIComponent(encodedRestaurantName);
+  const [restaurantThumbnail, setRestaurantThumbnail] = useState<string | null>(null);
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
@@ -71,6 +75,14 @@ const SavedMenuPage: React.FC = () => {
               setPreferredLocation(data);
             }
           });
+
+          const querySnapshot = await getDocs(collection(db, 'restaurants'));
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.name === restaurantName) {
+            setRestaurantThumbnail(data.thumbnailUrl || null);
+          }
+        });
         }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
@@ -87,8 +99,19 @@ const SavedMenuPage: React.FC = () => {
     setEditingItem(null); 
   };
 
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + '...';
+  };
+
   const handleViewFullMenu = () => {
     history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
+  };
+
+  const handleDeleteItem = (itemToDelete: MenuItem) => {
+    setMenuItems(menuItems.filter(item => item.id !== itemToDelete.id));
+    setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
+    setShowToast(true);
   };
 
   return (
@@ -99,51 +122,69 @@ const SavedMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonButton expand="block" onClick={handleViewFullMenu}>
-          View Full Menu
-        </IonButton>
-        {preferredLocation && (
-          <div className="preferred-location-banner">
-            <IonImg src={preferredLocation.photoUrl} alt={preferredLocation.name} />
-            <h2>{preferredLocation.name}</h2>
-            <p>Preferred Location: {preferredLocation.address}</p>
-            <IonBadge color="primary">Menu Items: {menuItems.length}</IonBadge>
-          </div>
-        )}
-        {userAllergens.length > 0 && (
-          <p style={{ color: 'red' }}>
-            Menu items with allergens marked in red contain your allergens.
-          </p>
-        )}
+  <IonButton className = 'secondary-button' expand="block" onClick={handleViewFullMenu}>
+    View Full Menu
+  </IonButton>
+  
+
+  {(preferredLocation || restaurantThumbnail) && (
+    <div className="preferred-location-banner">
+      <IonImg
+        src={preferredLocation?.photoUrl || restaurantThumbnail!}
+        alt={preferredLocation?.name || restaurantName}
+        className = 'page-banner-img'
+      />
+      <h2>Your {preferredLocation?.name || restaurantName} Saved Menu</h2>
+      <p>Preferred Location: {preferredLocation?.address || 'No specific location'}</p>
+      <IonBadge color="primary">Menu Items: {menuItems.length}</IonBadge>
+    </div>
+  )}
+  {userAllergens.length > 0 && (
+    <p style={{ color: 'red' , textAlign:'center'}}>
+      Menu items with allergens marked in red contain your allergens.
+    </p>
+  )}
         <IonList>
           {menuItems.map((item, index) => (
-            <IonItem key={index}>
-              {item.imageUrl && (
-                <IonThumbnail slot="start">
-                  <img src={item.imageUrl} alt={item.name} />
-                </IonThumbnail>
-              )}
-              <IonLabel>
-                <h2>{item.name}</h2>
-                <p>{item.description}</p>
-                <p>
-                  Allergens:{' '}
-                  {item.allergens.map((allergen, index) => {
-                    const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
-                    return (
-                      <span
-                        key={index}
-                        style={{ color: isUserAllergen ? 'red' : 'black' }}
-                      >
-                        {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
-                      </span>
-                    );
-                  })}
-                </p>
-                <p>Note: {item.note}</p>
-              </IonLabel>
-              <IonButton onClick={() => setEditingItem(item)}>Edit Note</IonButton>
-            </IonItem>
+            <IonCard key={index} className="menu-item-card">
+              <h2 className="menu-item-name">{item.name}</h2>
+              <div className="menu-item-top-row">
+                {item.imageUrl && (
+                  <IonImg className="menu-thumbnail" src={item.imageUrl} alt={item.name} />
+                )}
+                <IonCardHeader>
+                  <p className="menu-item-description">
+                    {truncateDescription(item.description, 70)}
+                  </p>
+                  <p className="menu-item-allergens">
+                    Allergens:{' '}
+                    {item.allergens.map((allergen, index) => {
+                      const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
+                      return (
+                        <span
+                          key={index}
+                          style={{ color: isUserAllergen ? 'red' : 'black' }}
+                        >
+                          {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
+                        </span>
+                      );
+                    })}
+                  </p>
+                  <p className="menu-item-note">Note: {item.note || 'None'}</p>
+                </IonCardHeader>
+              </div>
+              <IonCardContent className = 'button-content'>
+                <div className="menu-item-buttons-row">
+                <IonButton className = 'secondary-button'  onClick={() => setEditingItem(item)}>
+                    Edit Note
+                  </IonButton>
+                  <IonButton className = 'secondary-button delete' onClick={() => handleDeleteItem(item)}>
+                    Delete
+                  </IonButton>
+
+                </div>
+              </IonCardContent>
+            </IonCard>
           ))}
         </IonList>
         <IonToast

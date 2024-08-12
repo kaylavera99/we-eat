@@ -96,6 +96,10 @@ const HomePage: React.FC = () => {
     history.push(`/restaurant/${restaurantName}/full`);
   };
 
+  const goToExploreMenusPage = () => {
+    history.push('/recommendations');
+  };
+  
   const handleLogout = async () => {
     await signOut(auth);
     history.push('/login');
@@ -179,7 +183,8 @@ const HomePage: React.FC = () => {
                 <IonIcon className="rounded-icon" icon={arrowForward} />
               </IonButton>
             
-            </div><p>Explore all the menus we have to offer</p>
+            </div>
+            <p>Explore all the menus we have to offer</p>
             <Slider {...settings}>
               {restaurants.map(restaurant => (
                 <div
@@ -195,7 +200,17 @@ const HomePage: React.FC = () => {
                 </div>
               ))}
             </Slider>
-            <h2>Explore Menus</h2>
+            <div className="car-header">
+  <h2>Explore Menus</h2>
+  <IonButton
+    className="rounded-icon-button"
+    size="small"
+    onClick={goToExploreMenusPage}
+    style={{ marginLeft: '10px', padding: 0 , borderRadius: '20px'}}
+  >
+    <IonIcon className="rounded-icon" icon={arrowForward} />
+  </IonButton>
+</div>
             <p>Menu's we think you'd like</p>
 
             <Slider {...settings}>
