@@ -118,13 +118,14 @@ const RestaurantPage: React.FC = () => {
       return (
         <IonCard key={index} className="menu-cards">
           <IonCardHeader>
-            <IonCardTitle className='item-name'>{item.name}</IonCardTitle>
+            <h2 className='item-name'>{item.name}</h2>
           </IonCardHeader>
           <IonCardContent>
-            {item.imageUrl && <IonImg src={item.imageUrl} alt={item.name} />}
+            <div className = 'image-div'>
+            {item.imageUrl && <IonImg className = 'menu-img' src={item.imageUrl} alt={item.name} />}</div>
             <p>{item.description}</p>
-            <p>
-              Allergens:{' '}
+            <p className = 'allergens'>
+              <strong>Allergens:{' '}</strong>
               {allergensArray.map((allergen: string, index: number) => {
                 const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
                 return (
@@ -170,7 +171,7 @@ const RestaurantPage: React.FC = () => {
           <div>
             {restaurantDetails && (
               <div className="restaurant-banner">
-                <IonImg src={restaurantDetails.thumbnailUrl} alt={restaurantDetails.name} />
+                <IonImg src={restaurantDetails.thumbnailUrl} alt={restaurantDetails.name} className = 'page-banner-img' />
                 <h2>{restaurantDetails.name}</h2>
                 {userAllergens.length > 0 && (
           <p style={{ color: 'red' }}>

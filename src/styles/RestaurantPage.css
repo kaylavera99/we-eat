@@ -1,8 +1,19 @@
 .menu-img {
-    width: 100px; 
+  border-radius:25px;
+    width: 50%; 
     height: auto;
     object-fit: cover;
     margin-right: 10px;
+  }
+
+  .image-div ion-img {
+    border-radius: 25px!important;
+  }
+ 
+  .image-div  {
+    display:flex;
+    justify-content: center;
+    
   }
   .location-thumbnail {
     width: 100%;
@@ -57,4 +68,15 @@
 
 .menu-cards {
   background-color:white!important;
+  text-align:center!important;
+}
+
+
+.allergens {
+  font-size: 15px!important;
+  color:black;
+}
+
+.item-name {
+  color:black;
 }

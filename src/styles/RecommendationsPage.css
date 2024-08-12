@@ -8,10 +8,28 @@
   flex-direction: row !important;
 }
 
+ion-item-divider {
+  background-color: #02382E ;
+  color:white!important;
+}
+
+.add-btn {
+  --background:var(--ion-color-secondary)!important;
+
+}
 .menu-list {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
+}
+
+.menu-image-container {
+  width: 70px; 
+  height: 70px; 
+  overflow: hidden; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .menu-item-container {
@@ -27,7 +45,41 @@
   flex-direction: column;
   justify-content: space-between;
   margin-left: 10px;
+  flex:1;
 }
+
+.menu-item-container .image-container {
+  width: 100px!important; 
+  height: 100px!important; 
+  overflow: hidden; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.menu-item-container .image-container img {
+  max-width: 110%;
+  max-height: 110%;
+  object-fit: cover!important;
+}
+
+
+.restaurant-thumbnail-container {
+  width: 70px!important;
+  height: 70px!important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; 
+  background-color: white; 
+  flex-shrink: 0; 
+}
+
+.restaurant-thumbnail-container img {
+  max-width: 100%!important;
+  max-height: 100%!important;
+  object-fit: cover!important; 
+}
+
 
 .menu-item-buttons {
   display: flex;
@@ -44,15 +96,45 @@
   margin: 10px 0;
 }
 
+.ion-padding h3 {
+  font-size: 20px!important;
+}
+
+.rest-items {
+  display:flex;
+  align-items:center;
+  border: 5px solid var(--background)!important;
+
+
+
+}
+
+ion-accordion {
+  border-bottom: 5px solid var(--background)!important;
+
+}
+
+
 .ion-item[slot="header"] {
   display: flex;
   align-items: center;
+
+}
+
+.rest-title {
+  margin-left:10px!important;
+  font-size:20px!important;
+  flex-grow:1;
 }
 
 .ion-item[slot="header"] ion-img {
   margin-right: 10px;
 }
 
+.ion-padding[slot="content"] {
+  border-bottom: 5px solid var(--background)!important;
+  
+}
 .page-banner-row {
   display: flex;
   flex-direction: row;
@@ -67,7 +149,183 @@
   margin-top: 8px;
 }
 
+.allergen-line-page {
+  color:black!important;
+  font-size:16px!important;
+  margin-top:5px!important;
+}
+
+.menu-item-container h4 {
+  font-size:18px;
+  font-weight:600!important;
+}
+
 .page-intro {
   margin-left: 10px;
   margin-bottom: 20px;
 }
+
+
+.allergen-line {
+  color:black;
+  margin-top:5px!important;
+  font-size:16px!important;
+  text-align:center;
+}
+
+p {
+  color:black;
+}
+
+
+
+/*MODAL*/
+/* General Modal Styles */
+.view-modal{
+  --background: rgba(0, 0, 0, 0.1) !important; /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+ion-modal {
+  --background: rgba(0, 0, 0, 0.1) !important; /* Semi-transparent background */
+  --ion-background-color: transparent; /* Transparent modal wrapper */
+}
+
+ion-modal::part(content) {
+  background-color: transparent !important; /* Ensure no extra background */
+}
+
+ion-modal>.ion-page {
+  position:absolute!important;
+}
+.view-modal .modal-wrapper {
+  background: transparent !important; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%; 
+  height: 100%;
+  max-height: 100vh;
+  max-width: 100vw;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.view-modal > .ion-page,
+.view-modal .ion-delegate-host {
+  --background: transparent !important; /* Ensure transparency for the backdrop */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -20px!important;
+}
+ion-modal .ion-page {
+  --background: transparent !important;
+  background: transparent !important;
+}
+
+/* Target the modal wrapper itself */
+ion-modal .modal-wrapper {
+  background: none !important;
+  box-shadow: none !important;
+}
+
+
+
+
+/* Modal Card Styles */
+.modal-card {
+  max-width: 600px; /* Adjust width for desktop */
+  width: 90%; /* Responsive width */
+   max-height: 90vh; /* Ensure the modal does not exceed viewport height */
+  background-color: white;
+  border-radius: 15px;
+  margin: 20px;
+  position: relative;
+  
+
+}
+
+/* Card Header Styles */
+ion-card-header {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.modal-title {
+  font-size: 24px !important; 
+  color: #000 !important; 
+  font-family: var(--font-family-secondary) !important; 
+  margin-top: 0 !important;
+}
+
+.modal-category {
+  color: #02382E !important;
+  font-family: var(--font-family-primary) !important;
+  font-size: 16px !important;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Description and Content Styles */
+.modal-card-content .description {
+  margin-bottom: 10px;
+  text-align: center !important;
+}
+
+/* Image Styles */
+.food-img {
+  margin-bottom: 10px !important;
+  max-width: 100%;
+  width: 50%;
+  height: 50%;
+  border-radius: 35px;
+}
+
+/* Button Styles */
+.modal-btn {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-btn .button {
+  width: 150px !important;
+}
+
+/* Close Button Styles */
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  z-index: 1000; 
+  background-color: white !important;
+}
+
+.modal-close-btn ion-icon {
+  font-size: 24px;
+  color: #02382E !important; 
+}
+
+@media only screen and (min-width: 768px) and (min-height: 600px) {
+  ion-modal {
+    --box-shadow: none !important; /* Ensure no box shadow is applied */
+    --border-radius: 15px !important; /* Ensure your custom border-radius is applied */
+  }
+
+ 
+
+
+}
+@media only screen and (max-width: 768px) { 
+  .menu-item-container .image-container {
+    width:100px;
+    height:100px;
+
+
+  }
+}
+
+

@@ -127,7 +127,7 @@ const FullMenuPage: React.FC = () => {
       <IonContent className="ion-padding">
         {userAllergens.length > 0 && (
           <p style={{ color: 'red' }}>
-            Menu items with allergens marked in red contain your allergens.
+            Menu items with allergens marked in red coccccntain your allergens.
           </p>
         )}
         {isLoading ? (

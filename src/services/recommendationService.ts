@@ -6,6 +6,7 @@ export interface MenuCategory {
   id: string;
   category: string;
   items: MenuItem[];
+  index:number;
 }
 
 export interface Restaurant {
@@ -80,6 +81,7 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
         id: categoryDoc.id,
         category: categoryData.category,
         items,
+        index: categoryData.index
       });
     }
     console.log("Fetched categories:", categories);
@@ -123,6 +125,7 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
           id: categoryDoc.id,
           category: categoryData.category,
           items,
+          index: categoryData.index
         });
       }
       console.log("Fetched categories for restaurant ID:", id, categories);

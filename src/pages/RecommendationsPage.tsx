@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from "react";
 import {
   IonPage,
   IonHeader,
@@ -16,37 +16,62 @@ import {
   IonCard,
   IonCardContent,
   IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
   IonAccordion,
   IonAccordionGroup,
   IonItemDivider,
-  IonIcon
-} from '@ionic/react';
-import { addMenuItemToSavedMenus, MenuItem, fetchSavedMenus } from '../services/menuService';
-import { fetchUserData, fetchRestaurantMenus, filterAndRankRestaurants, fetchAllRestaurants, filterMenuItemsByAllergens, Restaurant } from '../services/recommendationService';
-import '../styles/RecommendationsPage.css';
-import { compassOutline } from 'ionicons/icons';
-import LazyImage from '../components/LazyLoading';
-
+  IonIcon,
+} from "@ionic/react";
+import {
+  addMenuItemToSavedMenus,
+  MenuItem,
+  fetchSavedMenus,
+} from "../services/menuService";
+import {
+  fetchUserData,
+  fetchRestaurantMenus,
+  filterAndRankRestaurants,
+  fetchAllRestaurants,
+  filterMenuItemsByAllergens,
+  Restaurant,
+} from "../services/recommendationService";
+import "../styles/RecommendationsPage.css";
+import { compassOutline, bookmarkOutline, close } from "ionicons/icons";
+import LazyImage from "../components/LazyLoading";
+import useScreenWidth from "../hooks/useScreenWidth";
 
 interface MenuCategory {
   category: string;
   items: MenuItem[];
+  index: number; // Added index property for ordering
 }
 
+const truncateDescription = (description: string, smallScreenMaxLength: number, largeScreenMaxLength: number, screenWidth: number) => {
+  const maxLength = screenWidth < 768 ? smallScreenMaxLength : largeScreenMaxLength;
 
+  if (description.length <= maxLength) return description;
+  return description.substring(0, maxLength) + "...";
+};
 
 const RecommendationsPage: React.FC = () => {
-  const [recommendedRestaurants, setRecommendedRestaurants] = useState<{ id: string, name: string, thumbnailUrl: string }[]>([]);
+  const screenWidth = useScreenWidth();
+
+  const [recommendedRestaurants, setRecommendedRestaurants] = useState<
+    { id: string; name: string; thumbnailUrl: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [restaurantMenus, setRestaurantMenus] = useState<{ [key: string]: Restaurant }>({});
+  const [toastMessage, setToastMessage] = useState("");
+  const [restaurantMenus, setRestaurantMenus] = useState<{
+    [key: string]: Restaurant;
+  }>({});
   const [userMenuItems, setUserMenuItems] = useState<MenuItem[]>([]);
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
-  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(null);
-  const [selectedRestaurantName, setSelectedRestaurantName] = useState<string | null>(null);
+  const [selectedMenuItem, setSelectedMenuItem] = useState<MenuItem | null>(
+    null
+  );
+  const [selectedRestaurantName, setSelectedRestaurantName] = useState<
+    string | null
+  >(null);
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -62,23 +87,34 @@ const RecommendationsPage: React.FC = () => {
         const menus = await fetchRestaurantMenus(restaurantIds);
 
         const fetchedUserMenuItems = await fetchSavedMenus();
-        const userMenuItemsFlat = fetchedUserMenuItems.flatMap(menu => menu.dishes);
+        const userMenuItemsFlat = fetchedUserMenuItems.flatMap(
+          (menu) => menu.dishes
+        );
         setUserMenuItems(userMenuItemsFlat);
 
-        const recommendations = filterAndRankRestaurants(allRestaurants, menus, allergens, userMenuItemsFlat);
-        const recommendationsWithThumbnails = recommendations.map(restaurant => {
-          const foundRestaurant = allRestaurants.find(r => r.id === restaurant.id);
-          return {
-            ...restaurant,
-            thumbnailUrl: foundRestaurant ? foundRestaurant.thumbnailUrl : ''
-          };
-        });
+        const recommendations = filterAndRankRestaurants(
+          allRestaurants,
+          menus,
+          allergens,
+          userMenuItemsFlat
+        );
+        const recommendationsWithThumbnails = recommendations.map(
+          (restaurant) => {
+            const foundRestaurant = allRestaurants.find(
+              (r) => r.id === restaurant.id
+            );
+            return {
+              ...restaurant,
+              thumbnailUrl: foundRestaurant ? foundRestaurant.thumbnailUrl : "",
+            };
+          }
+        );
 
         setRecommendedRestaurants(recommendationsWithThumbnails);
         setRestaurantMenus(menus);
       } catch (error) {
         console.error(error);
-        setToastMessage('Failed to fetch recommendations');
+        setToastMessage("Failed to fetch recommendations");
         setShowToast(true);
       } finally {
         setIsLoading(false);
@@ -88,14 +124,17 @@ const RecommendationsPage: React.FC = () => {
     fetchRecommendations();
   }, []);
 
-  const handleAddToPersonalizedMenu = async (restaurantName: string, item: MenuItem) => {
+  const handleAddToPersonalizedMenu = async (
+    restaurantName: string,
+    item: MenuItem
+  ) => {
     try {
       await addMenuItemToSavedMenus(item, restaurantName);
 
       const updatedUserMenuItems = await fetchSavedMenus();
-      setUserMenuItems(updatedUserMenuItems.flatMap(menu => menu.dishes));
+      setUserMenuItems(updatedUserMenuItems.flatMap((menu) => menu.dishes));
 
-      setToastMessage('Item added to personalized menu');
+      setToastMessage("Item added to personalized menu");
       setShowToast(true);
     } catch (error: any) {
       setToastMessage(error.message);
@@ -115,9 +154,9 @@ const RecommendationsPage: React.FC = () => {
         await addMenuItemToSavedMenus(selectedMenuItem, selectedRestaurantName);
 
         const updatedUserMenuItems = await fetchSavedMenus();
-        setUserMenuItems(updatedUserMenuItems.flatMap(menu => menu.dishes));
+        setUserMenuItems(updatedUserMenuItems.flatMap((menu) => menu.dishes));
 
-        setToastMessage('Item added to personalized menu');
+        setToastMessage("Item added to personalized menu");
         setShowToast(true);
         setShowModal(false);
       } catch (error: any) {
@@ -127,18 +166,22 @@ const RecommendationsPage: React.FC = () => {
     }
   };
 
-  const filterUserMenuItems = (restaurantId: string, items: MenuItem[]): MenuItem[] => {
-    return items.filter(item => !userMenuItems.some(userMenuItem => userMenuItem.name === item.name));
+  const filterUserMenuItems = (
+    restaurantId: string,
+    items: MenuItem[]
+  ): MenuItem[] => {
+    return items.filter(
+      (item) =>
+        !userMenuItems.some((userMenuItem) => userMenuItem.name === item.name)
+    );
   };
 
   const filterItemsByAllergens = (items: MenuItem[]): MenuItem[] => {
     return filterMenuItemsByAllergens(items, userAllergens);
   };
 
-  const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length <= maxLength) return description;
-    return description.substring(0, maxLength) + '...';
-  };
+ 
+  
 
   return (
     <IonPage>
@@ -148,87 +191,176 @@ const RecommendationsPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div className='page-banner-row'>       
-        <IonIcon slot="end" icon={compassOutline} style={{color:'black' }} /><h2> Explore Menus</h2></div>
-        <p className='page-intro'>Discover menu items that don't contain your allergens.</p>
+        <div className="page-banner-row">
+          <IonIcon
+            slot="end"
+            icon={compassOutline}
+            style={{ color: "black" }}
+          />
+          <h2> Explore Menus</h2>
+        </div>
+        <p className="page-intro">
+          Discover menu items that don't contain your allergens.
+        </p>
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <IonList>
+          <IonList className = 'rest-list'>
             <IonAccordionGroup>
-  {recommendedRestaurants.map((restaurant) => (
-    <IonAccordion key={`${restaurant.id}-${restaurant.name}`}>
-      <IonItem slot="header">
-      <Suspense fallback={<div>Loading image...</div>}>
+              {recommendedRestaurants.map((restaurant) => (
+                <IonAccordion key={`${restaurant.id}-${restaurant.name}`}>
+                  <IonItem lines="none" slot="header" className = 'rest-items'>
+                    <div className = 'restaurant-thumbnail-container'>
+                    <Suspense fallback={<div>Loading image...</div>}>
                       <LazyImage
                         src={restaurant.thumbnailUrl}
                         alt={restaurant.name}
-                        style={{ width: '50px', height: '50px', marginRight: '10px' }}
+                        
                       />
-                    </Suspense>
-        <h2>{restaurant.name}</h2>
-      </IonItem>
-      <div className="ion-padding" slot="content">
-        {restaurantMenus[restaurant.id]?.menu?.map((menuCategory: MenuCategory, index: number) => (
-          <div key={`${restaurant.id}-${menuCategory.category}-${index}`}>
-            <IonItemDivider>
-              <h3>{menuCategory.category}</h3>
-            </IonItemDivider>
-            <IonList>
-              {filterItemsByAllergens(filterUserMenuItems(restaurant.id, menuCategory.items)).map((item: MenuItem, itemIndex: number) => (
-                <IonItem className='menu-list' key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}>
-                  <div className="menu-item-container">
-                  <Suspense fallback={<div>Loading image...</div>}>
-                                  <LazyImage
-                                    src={item.imageUrl || 'path/to/placeholder-image.jpg'}
-                                    alt={item.name}
-                                    style={{ width: '100px', height: '100px' }}
-                                  />
-                                </Suspense>
-                    <div className="menu-item-details">
-                      <IonLabel>
-                        <h4>{item.name}</h4>
-                        <p>{truncateDescription(item.description, 70)}</p>
-                        <p>
-                          Allergens: {item.allergens.join(', ')}
-                        </p>
-                      </IonLabel>
-                      <div className="menu-item-buttons">
-                        <IonButton onClick={() => handleViewItem(item, restaurant.name)}>View Item</IonButton>
-                        <IonButton onClick={() => handleAddToPersonalizedMenu(restaurant.name, item)}>Add to Menu</IonButton>
-                      </div>
-                    </div>
+                    </Suspense></div>
+                    <h2 className = 'rest-title'>{restaurant.name}</h2>
+                  </IonItem>
+                  <div className="ion-padding" slot="content">
+                    {restaurantMenus[restaurant.id]?.menu
+                      .sort((a, b) => a.index - b.index) // Sort categories by index
+                      .map((menuCategory: MenuCategory, index: number) => {
+                        const filteredItems = filterItemsByAllergens(
+                          filterUserMenuItems(restaurant.id, menuCategory.items)
+                        );
+
+                        return (
+                          <div
+                            key={`${restaurant.id}-${menuCategory.category}-${index}`}
+                          >
+                            <IonItemDivider>
+                              <h3>{menuCategory.category}</h3>
+                            </IonItemDivider>
+                            {filteredItems.length === 0 ? (
+                              <IonItem lines="none">
+                                <IonLabel>
+                                  No safe menu items available
+                                </IonLabel>
+                              </IonItem>
+                            ) : (
+                              <IonList>
+                                {filteredItems.map(
+                                  (item: MenuItem, itemIndex: number) => (
+                                    <IonItem lines="none"
+                                      className="menu-list"
+                                      key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}
+                                    >
+                                      <div className="menu-item-container">
+                                        <div className = 'image-container'>
+                                        <Suspense
+                                          fallback={<div>Loading image...</div>}
+                                        >
+                                          <LazyImage
+                                            src={
+                                              item.imageUrl ||
+                                              "path/to/placeholder-image.jpg"
+                                            }
+                                            alt={item.name}
+
+                                          />
+                                        </Suspense></div>
+                                        <div className="menu-item-details">
+                                          <IonLabel>
+                                            <h4>{item.name}</h4>
+                                            <p>
+  {truncateDescription(item.description, 100, 150, screenWidth)}
+</p>
+
+                                            <p className = 'allergen-line-page'>
+                                              <strong>
+                                              Allergens:{" "}</strong>
+                                              {item.allergens.join(", ")}
+                                            </p>
+                                          </IonLabel>
+                                          <div className="menu-item-buttons">
+                                            <IonButton
+                                              onClick={() =>
+                                                handleViewItem(
+                                                  item,
+                                                  restaurant.name
+                                                )
+                                              }
+                                            >
+                                              View Item
+                                            </IonButton>
+                                            <IonButton className='add-btn'
+                                              onClick={() =>
+                                                handleAddToPersonalizedMenu(
+                                                  restaurant.name,
+                                                  item
+                                                )
+                                              }
+                                            >
+                                              Add to Menu
+                                            </IonButton>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </IonItem>
+                                  )
+                                )}
+                              </IonList>
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
-                </IonItem>
+                </IonAccordion>
               ))}
-            </IonList>
-          </div>
-        ))}
-      </div>
-    </IonAccordion>
-  ))}
-</IonAccordionGroup>
+            </IonAccordionGroup>
           </IonList>
         )}
-        <IonModal isOpen={showModal} onDidDismiss={() => setShowModal(false)}>
-          <IonCard>
-            <IonCardHeader>
-              <IonCardTitle>{selectedMenuItem?.name}</IonCardTitle>
-              <IonCardSubtitle>{selectedMenuItem?.category}</IonCardSubtitle>
+        <IonModal
+          className="view-modal"
+          isOpen={showModal}
+          onDidDismiss={() => setShowModal(false)}
+          backdropDismiss={true}
+        >
+          <IonCard className="modal-card">
+            <IonButton
+              fill="clear"
+              className="modal-close-btn"
+              onClick={() => setShowModal(false)}
+            >
+              <IonIcon icon={close} />
+            </IonButton>
+            <IonCardHeader className='head-col'>
+              <h3 className="modal-category">{selectedMenuItem?.category}</h3>
+              <h2 className="modal-title">{selectedMenuItem?.name}</h2>
             </IonCardHeader>
-            <IonCardContent>
-              <IonImg src={selectedMenuItem?.imageUrl} alt={selectedMenuItem?.name} />
-              <p>{selectedMenuItem?.description}</p>
-              <p>
-                Allergens:{' '}
+            <IonCardContent className="modal-card-content">
+              <div className = "image-wrapper">
+              <IonImg
+                className="food-img"
+                src={selectedMenuItem?.imageUrl}
+                alt={selectedMenuItem?.name}
+                style={{ borderRadius: '35px', overflow: 'hidden' }}
+              /></div>
+              <p className="description">{selectedMenuItem?.description}</p>
+              <p className="allergen-line">
+                <strong>Allergens: </strong>
                 {selectedMenuItem?.allergens.map((allergen, index) => (
                   <span key={index}>
-                    {allergen}{index < selectedMenuItem.allergens.length - 1 ? ', ' : ''}
+                    {allergen}
+                    {index < selectedMenuItem.allergens.length - 1 ? ", " : ""}
                   </span>
                 ))}
               </p>
-              <IonButton onClick={handleAddItemFromModal}>Add</IonButton>
-              <IonButton onClick={() => setShowModal(false)}>Close</IonButton>
+              <div className="modal-btn">
+                <IonButton onClick={handleAddItemFromModal}>
+                  <IonIcon
+                    slot="start"
+                    icon={bookmarkOutline}
+                    style={{ color: "white" }}
+                  />
+                  Add
+                </IonButton>
+                
+              </div>
             </IonCardContent>
           </IonCard>
         </IonModal>
