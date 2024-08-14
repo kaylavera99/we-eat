@@ -11,6 +11,8 @@ import {
   IonTextarea,
 } from '@ionic/react';
 import { MenuItem, updateNotesInSavedMenus, updateNotesInCreatedMenus } from '../services/menuService';
+import '../styles/ModalStyles.css';
+
 
 interface EditNotesModalProps {
   isOpen: boolean;
@@ -58,33 +60,33 @@ const EditNotesModal: React.FC<EditNotesModalProps> = ({ isOpen, onClose, onSave
   };
 
   return (
-    <IonModal isOpen={isOpen} onDidDismiss={onClose}>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>{initialItem ? 'Edit Note' : 'Add Note'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="stacked">Note</IonLabel>
-          <IonTextarea 
-            value={note} 
-            onIonChange={e => { 
-              const newNote = e.detail.value!;
-              console.log("Updating note state:", newNote);
-              setNote(newNote);
-              noteRef.current = newNote; // Update the ref whenever the note changes
-            }} 
-          />
-        </IonItem>
-        <IonButton expand="block" onClick={handleSave}>
-          Save
-        </IonButton>
-        <IonButton expand="block" color="light" onClick={onClose}>
-          Cancel
-        </IonButton>
-      </IonContent>
-    </IonModal>
+<IonModal isOpen={isOpen} onDidDismiss={onClose}>
+  <IonHeader>
+    <IonToolbar>
+      <IonTitle>{initialItem ? 'Edit Note' : 'Add Note'}</IonTitle>
+    </IonToolbar>
+  </IonHeader>
+  <IonContent className="ion-padding modal-content">
+    <IonItem lines="none" className="form-item">
+      <IonLabel position='stacked' className="add-item-label">Note</IonLabel>
+      <IonTextarea
+        className="input-field"
+        value={note}
+        onIonChange={e => {
+          const newNote = e.detail.value!;
+          setNote(newNote);
+          noteRef.current = newNote;
+        }}
+      />
+    </IonItem>
+    <IonButton expand="block" className="modal-button" onClick={handleSave}>
+      Save
+    </IonButton>
+    <IonButton expand="block" color="light" className="modal-button" onClick={onClose}>
+      Cancel
+    </IonButton>
+  </IonContent>
+</IonModal>
   );
 };
 

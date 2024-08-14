@@ -244,7 +244,9 @@ const CreateAccountPage: React.FC = () => {
               }}
             >
               <IonCheckbox
+              className = 'check-round'
                 name="wheat"
+                mode = 'ios'
                 checked={allergens.wheat || false}
                 onIonChange={handleAllergenChange}
               />

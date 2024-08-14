@@ -88,7 +88,7 @@ http://ionicframework.com/docs/theming/ */
 }
 
 
-h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel, .input-field, .native-input, .input-btn, ion-label, .IonText, ion-text {
+h1, h2, h3, h4, h5, .IonTitle, .IonHeader, .button, .IonLabel, .input-field, .native-input, .input-btn, .select-text,ion-label, .IonText, ion-text {
     font-family: var(--font-family-primary)!important;
 
 }
@@ -106,6 +106,24 @@ p {
 
 
 }
+
+ion-checkbox {
+  --border-radius: 50%;
+  --size: 22px; 
+  --border-color:rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.23);
+  --border-width: 0.125rem;
+  --checkmark-width: 1.5px!important;
+}
+
+checkbox-icon {
+  border-color:var(--border-color)!important;
+}
+ ion-list {
+  --background:var(--ion-page-background)!important;
+ }
+
+
+
 
 h2 {
     font-size: 24px!important;

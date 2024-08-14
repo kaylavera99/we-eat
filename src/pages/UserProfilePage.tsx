@@ -69,7 +69,7 @@ const UserProfilePage: React.FC = () => {
   };
 
   const handleNavigateCreate = () => {
-    history.push('/create');
+    history.push('/create-menu');
   };
 
   const capitalize = (str: string) => {

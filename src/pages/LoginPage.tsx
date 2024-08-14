@@ -82,12 +82,15 @@ const LoginPage: React.FC = () => {
               </IonInput>
             </IonItem>
             <IonRow style={{ justifyContent: "flex-end" }}>
-              <IonText
-                className="forgot-password-link"
-                onClick={() => history.push("/password-reset")}
-              >
-                Forgot Password?
-              </IonText>
+            <IonText
+  className="forgot-password-link"
+  onClick={() => {
+    console.log("Navigating to Password Reset");
+    history.push("/password-reset");
+  }}
+>
+  Forgot Password?
+</IonText>
             </IonRow>
             <IonButton
               className="secondary-button"

@@ -1,0 +1,80 @@
+ion-title {
+    text-align: center;
+    color: white !important;
+    font-family: var(--font-family-primary);
+    font-size: 24px;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Add space between form elements */
+    --padding-top:10px!important;
+}
+
+.modal-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.add-item-label {
+    font-family: var(--font-family-secondary) !important;
+    font-size: 16px !important;
+    margin-bottom: 5px;
+    display: block; /* Ensure the label takes up its own line above the input */
+    padding-left: 2px; /* Optional: small padding for alignment */
+}
+
+.input-field {
+    background-color: white !important;
+    border-radius: 5px !important;
+    padding: 10px !important;
+    font-family: var(--font-family-primary);
+    width: 100%; /* Ensure the input takes up full width */
+    box-sizing: border-box; /* Ensure padding and borders are included in the element's total width and height */
+}
+
+.modal-button {
+    font-size: 16px !important;
+    font-weight: bold !important;
+    border-radius: 5px !important;
+    margin-top: 20px; /* Optional: margin to add space between fields and buttons */
+}
+
+.form-item {
+    width: 100%;
+    margin-bottom: 15px; /* Spacing between fields */
+    display: flex;
+    flex-direction: column; /* Ensure the label and input stack vertically */
+    border-radius:5px;
+}
+
+
+.form-item input {
+    justify-self:center!important;
+}
+input[type="text"], textarea, input[type="file"] {
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    background-color:white;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Center the container */
+.file-upload-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Hide the actual file input */
+  .file-input {
+    display: none;
+  }
+  

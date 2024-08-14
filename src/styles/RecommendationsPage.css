@@ -297,11 +297,14 @@ ion-card-header {
 /* Close Button Styles */
 .modal-close-btn {
   position: absolute;
-  top: 10px;
+  top: 15px;
   right: 10px;
   font-size: 24px;
   z-index: 1000; 
-  background-color: white !important;
+  --background: transparent; 
+  padding-left:0px!important;
+  padding-right:0px!important;
+  
 }
 
 .modal-close-btn ion-icon {

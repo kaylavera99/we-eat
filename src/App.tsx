@@ -78,7 +78,7 @@ const AppContent: React.FC = () => {
         }
       } else {
         const currentPath = window.location.pathname;
-        if (currentPath !== '/login' && currentPath !== '/create-account') {
+        if (currentPath !== '/login' && currentPath !== '/create-account' && currentPath !== '/password-reset') {
           sessionStorage.setItem('redirectPath', currentPath);
           history.push('/login');
         }

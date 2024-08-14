@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
@@ -13,12 +13,14 @@ import {
   IonToast,
   IonImg,
   IonInput,
-  IonAvatar
-} from '@ionic/react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
-import { uploadImage, compressImage } from '../services/storageService';
-import '../styles/EditProfilePage.css'
+  IonAvatar,
+  IonIcon
+} from "@ionic/react";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { uploadImage, compressImage } from "../services/storageService";
+import "../styles/EditProfilePage.css";
+import {personCircleSharp} from 'ionicons/icons';
 
 interface AllergenState {
   eggs: boolean;
@@ -42,16 +44,16 @@ const EditProfilePage: React.FC = () => {
     fish: false,
     shellfish: false,
     peanuts: false,
-    gluten: false
+    gluten: false,
   });
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [address, setAddress] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const history = useHistory();
 
   useEffect(() => {
@@ -59,7 +61,7 @@ const EditProfilePage: React.FC = () => {
       setIsLoading(true);
       try {
         if (auth.currentUser) {
-          const docRef = doc(db, 'users', auth.currentUser.uid);
+          const docRef = doc(db, "users", auth.currentUser.uid);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const userData = docSnap.data();
@@ -76,9 +78,9 @@ const EditProfilePage: React.FC = () => {
               gluten: Boolean(allergenData.gluten),
             });
             setProfileImageUrl(userData.profileImageUrl);
-            setFirstName(userData.firstName || '');
-            setLastName(userData.lastName || '');
-            setAddress(userData.address || '');
+            setFirstName(userData.firstName || "");
+            setLastName(userData.lastName || "");
+            setAddress(userData.address || "");
           }
         }
         setIsLoading(false);
@@ -103,12 +105,11 @@ const EditProfilePage: React.FC = () => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setProfileImage(file);
-  
+
       const localImageUrl = URL.createObjectURL(file);
       setProfileImageUrl(localImageUrl);
     }
   };
-  
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -118,7 +119,10 @@ const EditProfilePage: React.FC = () => {
 
         if (profileImage) {
           const compressedImage = await compressImage(profileImage);
-          updatedProfileImageUrl = await uploadImage(compressedImage, auth.currentUser.uid);
+          updatedProfileImageUrl = await uploadImage(
+            compressedImage,
+            auth.currentUser.uid
+          );
         }
 
         const updatedAllergens = {
@@ -130,10 +134,10 @@ const EditProfilePage: React.FC = () => {
           fish: Boolean(allergens.fish),
           shellfish: Boolean(allergens.shellfish),
           peanuts: Boolean(allergens.peanuts),
-          gluten: Boolean(allergens.gluten)
+          gluten: Boolean(allergens.gluten),
         };
 
-        await updateDoc(doc(db, 'users', auth.currentUser.uid), {
+        await updateDoc(doc(db, "users", auth.currentUser.uid), {
           firstName,
           lastName,
           address,
@@ -142,9 +146,9 @@ const EditProfilePage: React.FC = () => {
         });
 
         setIsLoading(false);
-        setToastMessage('Profile updated successfully!');
+        setToastMessage("Profile updated successfully!");
         setShowToast(true);
-        history.push('/profile'); 
+        history.push("/profile");
       }
     } catch (error: any) {
       setIsLoading(false);
@@ -156,17 +160,21 @@ const EditProfilePage: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          
-        </IonToolbar>
+        <IonToolbar></IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-      <h1>Edit Profile</h1>
-      <IonItem className="flex-column" style={{ display: 'flex', flexDirection: 'column' }}>
-  <IonLabel position="stacked" className="input-field">Profile Picture</IonLabel>
+      <div className='page-banner-row'>
+          <IonIcon slot="end" icon={personCircleSharp} style={{ color: 'black' }} />
+          <h2>Edit Profile</h2>
+        </div>
+        <IonLabel position="stacked" className="input-field-profile">
+          Profile Picture
+        </IonLabel>
+        <IonItem lines="none" className="flex-column">
+          <div className = 'profile-container'>
   <div className="image-wrapper">
     {profileImageUrl && (
-      <IonAvatar style={{ width: '250px', height: '250px', objectFit: 'cover' }}>
+      <IonAvatar style={{ width: "100px", height: "100px", objectFit: "cover" }}>
         <IonImg src={profileImageUrl} alt="Profile Picture" />
       </IonAvatar>
     )}
@@ -178,93 +186,120 @@ const EditProfilePage: React.FC = () => {
       onChange={handleImageChange}
       className="input-btn"
       id="fileInput"
-      style={{ display: 'none' }}
+      style={{ display: "none" }}
     />
-    <IonButton onClick={() => document.getElementById('fileInput')?.click()} className="custom-upload-btn">
+    <IonButton
+      onClick={() => document.getElementById("fileInput")?.click()}
+      className="custom-upload-btn"
+    >
       Choose File
     </IonButton>
-  </div>
+  </div></div>
 </IonItem>
 
-        <IonItem className = "flex-column">
-
-          <IonLabel position='stacked' className='input-field'>First Name</IonLabel>
-          <IonInput value={firstName} onIonChange={(e) => setFirstName(e.detail.value!)} />
+        <IonLabel position="stacked" className="input-field-profile">
+          First Name
+        </IonLabel>
+        <IonItem lines="none" className="flex-column">
+          <IonInput
+            value={firstName}
+            onIonChange={(e) => setFirstName(e.detail.value!)}
+          />
         </IonItem>
-        <IonItem className = "flex-column">
-          <IonLabel position='stacked' className='input-field'>Last Name</IonLabel>
-          <IonInput value={lastName} onIonChange={(e) => setLastName(e.detail.value!)} />
+        <IonLabel position="stacked" className="input-field-profile">
+          Last Name
+        </IonLabel>
+        <IonItem lines="none" className="flex-column">
+          <IonInput
+            value={lastName}
+            onIonChange={(e) => setLastName(e.detail.value!)}
+          />
+        </IonItem>{" "}
+        <IonLabel position="stacked" className="input-field-profile">
+          Location
+        </IonLabel>
+        <IonItem lines="none" className="flex-column">
+          <IonInput
+            value={address}
+            onIonChange={(e) => setAddress(e.detail.value!)}
+          />
         </IonItem>
-        <IonItem className = "flex-column" >
-          <IonLabel position='stacked' className='input-field'>Location</IonLabel>
-          <IonInput value={address} onIonChange={(e) => setAddress(e.detail.value!)} />
-        </IonItem>
-
         <h3>Allergens</h3>
-
-        <IonItem>
-          <IonLabel className='input-field'>Eggs</IonLabel>
-          <IonCheckbox
-            checked={allergens.eggs}
-            onIonChange={() => handleAllergenChange('eggs')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Gluten</IonLabel>
-          <IonCheckbox
-            checked={allergens.gluten}
-            onIonChange={() => handleAllergenChange('gluten')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Wheat</IonLabel>
-          <IonCheckbox
-            checked={allergens.wheat}
-            onIonChange={() => handleAllergenChange('wheat')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Dairy</IonLabel>
-          <IonCheckbox
-            checked={allergens.dairy}
-            onIonChange={() => handleAllergenChange('dairy')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Soy</IonLabel>
-          <IonCheckbox
-            checked={allergens.soy}
-            onIonChange={() => handleAllergenChange('soy')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Tree Nuts</IonLabel>
-          <IonCheckbox
-            checked={allergens.tree_nuts}
-            onIonChange={() => handleAllergenChange('tree_nuts')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Fish</IonLabel>
-          <IonCheckbox
-            checked={allergens.fish}
-            onIonChange={() => handleAllergenChange('fish')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Shellfish</IonLabel>
-          <IonCheckbox
-            checked={allergens.shellfish}
-            onIonChange={() => handleAllergenChange('shellfish')}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel className='input-field'>Peanuts</IonLabel>
-          <IonCheckbox
-            checked={allergens.peanuts}
-            onIonChange={() => handleAllergenChange('peanuts')}
-          />
-        </IonItem>
+        <div className="allergens-content-profile">
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.eggs}
+              onIonChange={() => handleAllergenChange("eggs")}
+            />
+            <IonLabel className="input-field-profile">Eggs</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.gluten}
+              onIonChange={() => handleAllergenChange("gluten")}
+            />
+            <IonLabel className="input-field-profile">Gluten</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.wheat}
+              onIonChange={() => handleAllergenChange("wheat")}
+            />
+            <IonLabel className="input-field-profile">Wheat</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.dairy}
+              onIonChange={() => handleAllergenChange("dairy")}
+            />
+            <IonLabel className="input-field-profile">Dairy</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.soy}
+              onIonChange={() => handleAllergenChange("soy")}
+            />
+            <IonLabel className="input-field-profile">Soy</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.tree_nuts}
+              onIonChange={() => handleAllergenChange("tree_nuts")}
+            />
+            <IonLabel className="input-field-profile">Tree Nuts</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.fish}
+              onIonChange={() => handleAllergenChange("fish")}
+            />
+            <IonLabel className="input-field-profile">Fish</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              slot="start"
+              checked={allergens.shellfish}
+              onIonChange={() => handleAllergenChange("shellfish")}
+            />
+            <IonLabel className="input-field-profile">Shellfish</IonLabel>
+          </IonItem>
+          <IonItem lines="none">
+            <IonCheckbox
+              mode="ios"
+              slot="start"
+              checked={allergens.peanuts}
+              onIonChange={() => handleAllergenChange("peanuts")}
+            />
+            <IonLabel className="input-field-profile">Peanuts</IonLabel>
+          </IonItem>
+        </div>
         <IonButton expand="full" onClick={handleSave}>
           Save
         </IonButton>

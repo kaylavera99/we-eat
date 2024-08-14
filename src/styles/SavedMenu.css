@@ -1,90 +1,240 @@
-.page-banner-img  {
-    height:260px!important;
-    width:100%;
-    object-fit: cover!important;
+/* General Layout */
+.ion-page {
+  --background: #f7f7f7;
+}
 
+
+
+/* Banner Section */
+.preferred-location-banner {
+  display:flex!important;
+  justify-content:space-evenly;
+  padding-top: 15px!important;
+}
+
+.preferred-location-banner .menu-banner  {
+  width: 90%!important;
+  height: 100%!important;
+  object-fit: cover!important;
+  aspect-ratio: 1 / 1 !important;
+}
+
+list-ios {
+  --background:var(--ion-page-background)!important;
+}
+.info-column .allergen-warn {
+  font-size:12px!important;
+}
+
+.info-column .address-text {
+  margin-bottom:5px!important;
+  font-size: 15px!important;
+}
+
+.info-column p {
+  padding-bottom:0!important;
+}
+
+
+
+
+.preferred-location-banner h2 {
+  font-family: var(--font-family-primary);
+  font-weight: bold;
+  color: var(--ion-color-dark);
+}
+
+.preferred-location-banner p {
+  font-family: var(--font-family-secondary);
+  color: var(--ion-color-medium);
+}
+
+
+
+/* List Section */
+.full-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color:var( --ion-page-background)
+}
+
+.created-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  margin-bottom:5px!important;
+  border-top: 5px solid var( --ion-page-background) !important;
+}
+  
+
+
+.menu-item-card-col {
+  display:flex;
+  justify-content: space-around!important;
+  flex-direction:column;
+  width:75%;
+  margin-top:10px!important;
+}
+
+.created-img {
+  width: 100px;
+  height: 100px;
+  margin-left: 15px;
+  align-self:center!important;
 
 }
 
-.menu-item-card {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-  
-  .menu-item-top-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    flex-wrap:wrap!important;
-    justify-content:center;
-  }
-  
-  .menu-thumbnail {
-    flex: 0 0 100px;
-    margin-right: 15px;
-    border-radius: 8px;
-    height: auto;
-    object-fit: cover;
-  }
-  
-  .menu-item-name {
-    font-size: 1.2em;
-    margin-bottom: 5px;
-    text-align:center;
-  }
-  
-  .menu-item-description,
-  .menu-item-allergens,
-  .menu-item-note {
-    font-size: 0.9em;
-    margin: 5px 0;
-  }
-  
-  .menu-item-buttons-row {
-    display: flex;
-    justify-content: space-evenly;
-    gap: 10px;
-  }
-  
+.menu-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Text Styles */
+.item-h3 {
+  font-family: var(--font-family-primary);
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: var(--ion-color-dark);
+}
+
+/* Updated CSS for Truncating the Description */
+.menu-item-description {
+  font-family: var(--font-family-secondary);
+  font-size: 12px!important;
+  color: var(--ion-color-medium);
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit the text to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden!important;;
+  text-overflow: ellipsis;
+  line-height: 1.2em!important; /* Adjust line height to control spacing */
+  max-height: 2.4em; /* Ensure the max height matches the line clamp */
+  margin: 0!important; /* Ensure no extra margins add to the height */
+}
+
+.allergen-label {
+  margin-top: 5px!important;
+}
+
+.allergen-label, .note-label {
+  font-family: var(--font-family-secondary);
+  font-size: 14px;
+  color: var(--ion-color-medium);
+  margin-bottom: 5px!important;
+}
+
+.allergen-label strong, .note-label strong {
+  font-weight: bold;
+  color: var(--ion-color-dark);
+}
+
+/* Button Styles */
+.create-btn-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.create-btn-row .button {
+  font-size: 10px!important;
+  font-weight: 500!important;
+  border-radius: 1px!important;
+}
 
 
-  .button-content {
-    padding-top:0!important;
-    padding-bottom:0px;
-    display:flex;
-    padding-left:0!important;
-    justify-content:space-around;
-  }
+/* Modal Styles */
+.item-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 15px;
+  max-width: 90%;
+  margin: auto;
+  text-align: center;
+  position: relative;
+  cursor:pointer;
+  --height:auto;
+}
 
-  .button-content .button {
-    width: 150px;
-  }
+.item-modal img {
+  width: 100%;
+  height: auto;
+  max-width: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
 
-  ion-card-header {
-    padding-bottom:0px;
-    align-items:center!important;
-    text-align:center;
-  }
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10; /* Ensure it stays above other content */
+  --color: var(--ion-color-primary); /* Set the color to primary */
+  --background: transparent; /* Remove the background */
+  --background-activated: transparent; /* Remove background on click */
+  --box-shadow: none; /* Remove any shadow */
 
-  .list-md {
-    background: var(--ion-page-background)!important;
-  }
+}
 
-  ion-badge {
-    padding:5px;
-  }
+.item-modal h2 {
+  font-family: var(--font-family-primary);
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--ion-color-dark);
+}
 
-  .delete {
-    --background:var(--ion-color-danger)!important;
-  }
+.item-badge {
+  text-align:left;
+  max-width:fit-content;
+  padding: 5px;
+  font-family:var(--font-family-primary);
+  font-weight:500;
+  margin-left: 10px!important;
+  height: 25px!important;
+}
 
-  .preferred-location-banner {
-    justify-content:center!important;
-    text-align:center;
-  }
 
-  .preferred-location-banner p {
-    text-align:center!important;
-  }
+.item-modal p {
+  font-family: var(--font-family-secondary);
+  font-size: 16px;
+  color: var(--ion-color-medium);
+  margin-bottom: 10px;
+}
+
+.item-modal .ion-button {
+  --border-radius: 5px;
+  font-size: 14px;
+  padding: 10px 20px;
+  margin-top: 15px;
+}
+
+.item-modal .ion-button:last-child {
+  margin-top: 0;
+}
+
+.item-modal .ion-button:nth-child(3) {
+  margin-top: 15px;
+}
+
+
+.modal-btn-row {
+  width:100%;
+  display:flex;
+  flex-direction:row;
+  justify-content:space-evenly!important;
+}
+
+.modal-btn-row .button {
+  min-width:100px!important;
+  display:flex;
+  flex-direction:row;
+  align-items: center!important;
+}
