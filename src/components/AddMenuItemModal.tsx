@@ -14,6 +14,7 @@ import {
 } from '@ionic/react';
 import { MenuItem } from '../services/menuService';
 import { compressImage, uploadImage } from '../services/storageService';
+import '../styles/ModalStyles.css';
 
 interface AddMenuItemModalProps {
   isOpen: boolean;
@@ -78,45 +79,77 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({ isOpen, onClose, on
 
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose}>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>{initialItem ? 'Edit Menu Item' : 'Add Menu Item'}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="stacked">Name</IonLabel>
-          <IonInput value={name} onIonChange={e => setName(e.detail.value!)} />
+  <IonHeader>
+    <IonToolbar>
+      <IonTitle>{initialItem ? 'Edit Menu Item' : 'Add Menu Item'}</IonTitle>
+    </IonToolbar>
+  </IonHeader>
+  <IonContent className="ion-padding modal-content">
+    <IonItem lines="none" className="form-item">
+      <IonLabel position = 'stacked' className="add-item-label">Name</IonLabel>
+      <IonInput
+        className="input-field"
+        value={name}
+        onIonChange={e => setName(e.detail.value!)}
+      />
+    </IonItem>
+
+    <IonItem lines="none" className="form-item">
+      <IonLabel position = 'stacked' className="add-item-label">Description</IonLabel>
+      <IonTextarea
+        className="input-field"
+        value={description}
+        onIonChange={e => setDescription(e.detail.value!)}
+      />
+    </IonItem>
+
+    <IonItem lines="none" className="form-item">
+      <IonLabel position = 'stacked' className="add-item-label">Allergens</IonLabel>
+      <IonInput
+        className="input-field"
+        value={allergens.join(', ')}
+        onIonChange={e => setAllergens(e.detail.value!.split(',').map(a => a.trim()))}
+      />
+    </IonItem>
+
+    <IonItem lines="none" className="form-item">
+      <IonLabel position = 'stacked' className="add-item-label">Note</IonLabel>
+      <IonTextarea
+        className="input-field"
+        value={note}
+        onIonChange={e => setNote(e.detail.value!)}
+      />
+    </IonItem>
+
+    <IonItem lines="none" className="form-item">
+      <IonLabel position = 'stacked' className="add-item-label">Category</IonLabel>
+      <IonInput
+        className="input-field"
+        value={category}
+        onIonChange={e => setCategory(e.detail.value!)}
+      />
+    </IonItem>
+
+    <IonItem lines="none" className="form-item file-upload-container">
+          <IonLabel position="stacked" className="add-item-label">
+            Image
+            
+          </IonLabel>{" "}
+          {imageUrl && (
+            <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
+          )}<input type="file" accept="image/*" onChange={handleImageChange} />
         </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Description</IonLabel>
-          <IonTextarea value={description} onIonChange={e => setDescription(e.detail.value!)} />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Allergens</IonLabel>
-          <IonInput value={allergens.join(', ')} onIonChange={e => setAllergens(e.detail.value!.split(',').map(a => a.trim()))} />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Note</IonLabel>
-          <IonTextarea value={note} onIonChange={e => setNote(e.detail.value!)} />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Category</IonLabel>
-          <IonInput value={category} onIonChange={e => setCategory(e.detail.value!)} />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Image</IonLabel>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-        </IonItem>
-        {imageUrl && <IonImg src={imageUrl} />} {/* Display the uploaded image */}
-        <IonButton expand="block" onClick={handleSave}>
-          Save
-        </IonButton>
-        <IonButton expand="block" color="light" onClick={onClose}>
-          Cancel
-        </IonButton>
-      </IonContent>
-    </IonModal>
+
+
+    <IonButton expand="block" className="modal-button" onClick={handleSave}>
+      Save
+    </IonButton>
+    <IonButton expand="block" color="light" className="modal-button" onClick={onClose}>
+      Cancel
+    </IonButton>
+  </IonContent>
+</IonModal>
+
   );
 };
 

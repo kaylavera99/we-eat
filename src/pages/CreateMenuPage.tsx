@@ -12,14 +12,70 @@ import {
   IonToast,
   IonIcon,
   IonList,
+  IonSelect,
+  IonSelectOption,
 } from '@ionic/react';
-import { addPreferredLocationForCreatedMenu } from '../services/restaurantLocationService';
+import { addPreferredLocationForCreatedMenu, fetchZipCode } from '../services/restaurantLocationService';
 import { useHistory, useLocation } from 'react-router-dom';
 import { uploadImage, compressImage } from '../services/storageService';
 import { auth, db } from '../firebaseConfig';
 import { doc, collection, setDoc } from 'firebase/firestore';
 import { createOutline } from 'ionicons/icons';
-import '../styles/CreateMenu.css'
+import { getCoordinatesFromAddress } from '../services/googlePlacesService';
+import '../styles/CreateMenu.css';
+
+const states = [
+  { name: 'Alabama', code: 'AL' },
+  { name: 'Alaska', code: 'AK' },
+  { name: 'Arizona', code: 'AZ' },
+  { name: 'Arkansas', code: 'AR' },
+  { name: 'California', code: 'CA' },
+  { name: 'Colorado', code: 'CO' },
+  { name: 'Connecticut', code: 'CT' },
+  { name: 'Delaware', code: 'DE' },
+  { name: 'Florida', code: 'FL' },
+  { name: 'Georgia', code: 'GA' },
+  { name: 'Hawaii', code: 'HI' },
+  { name: 'Idaho', code: 'ID' },
+  { name: 'Illinois', code: 'IL' },
+  { name: 'Indiana', code: 'IN' },
+  { name: 'Iowa', code: 'IA' },
+  { name: 'Kansas', code: 'KS' },
+  { name: 'Kentucky', code: 'KY' },
+  { name: 'Louisiana', code: 'LA' },
+  { name: 'Maine', code: 'ME' },
+  { name: 'Maryland', code: 'MD' },
+  { name: 'Massachusetts', code: 'MA' },
+  { name: 'Michigan', code: 'MI' },
+  { name: 'Minnesota', code: 'MN' },
+  { name: 'Mississippi', code: 'MS' },
+  { name: 'Missouri', code: 'MO' },
+  { name: 'Montana', code: 'MT' },
+  { name: 'Nebraska', code: 'NE' },
+  { name: 'Nevada', code: 'NV' },
+  { name: 'New Hampshire', code: 'NH' },
+  { name: 'New Jersey', code: 'NJ' },
+  { name: 'New Mexico', code: 'NM' },
+  { name: 'New York', code: 'NY' },
+  { name: 'North Carolina', code: 'NC' },
+  { name: 'North Dakota', code: 'ND' },
+  { name: 'Ohio', code: 'OH' },
+  { name: 'Oklahoma', code: 'OK' },
+  { name: 'Oregon', code: 'OR' },
+  { name: 'Pennsylvania', code: 'PA' },
+  { name: 'Rhode Island', code: 'RI' },
+  { name: 'South Carolina', code: 'SC' },
+  { name: 'South Dakota', code: 'SD' },
+  { name: 'Tennessee', code: 'TN' },
+  { name: 'Texas', code: 'TX' },
+  { name: 'Utah', code: 'UT' },
+  { name: 'Vermont', code: 'VT' },
+  { name: 'Virginia', code: 'VA' },
+  { name: 'Washington', code: 'WA' },
+  { name: 'West Virginia', code: 'WV' },
+  { name: 'Wisconsin', code: 'WI' },
+  { name: 'Wyoming', code: 'WY' }
+];
 
 
 const CreateMenuPage: React.FC = () => {
@@ -50,6 +106,21 @@ const CreateMenuPage: React.FC = () => {
       setCity(addressParts[1]);
     }
   };
+
+
+  const handleAddressChange = async () => {
+    console.log('Address changed:', streetAddress, city, state);
+    if (streetAddress && city && state) {
+      const fetchedZipCode = await fetchZipCode(streetAddress, city, state);
+      if (fetchedZipCode) {
+        console.log('Fetched ZIP code:', fetchedZipCode);
+        setZipCode(fetchedZipCode);
+      } else {
+        console.log('Failed to fetch ZIP code');
+      }
+    }
+  };
+  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -86,6 +157,11 @@ const CreateMenuPage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    // Fetch ZIP code whenever streetAddress, city, or state changes
+    handleAddressChange();
+  }, [streetAddress, city, state]);
+
   return (
     <IonPage>
       <IonHeader>
@@ -94,38 +170,45 @@ const CreateMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-      <div className='page-banner-row'>
-      <IonIcon slot="end" icon={createOutline} style={{color:'black' }} /><h2> Create a Menu</h2></div>
-      <p>First, let's add some information about the restaurant you're creating a menu for:</p>
-      <div className='create-menu-container'>
-        <IonList>
-        <IonLabel position="stacked">Restaurant Name</IonLabel>
-        <IonItem>
-            <IonInput value={restaurantName} onIonChange={e => setRestaurantName(e.detail.value!)} />
-          </IonItem>
-          <IonLabel position="stacked">Street Address</IonLabel>
-          <IonItem>
-            <IonInput value={streetAddress} onIonChange={e => setStreetAddress(e.detail.value!)} />
-          </IonItem>
-          <IonLabel position="stacked">City</IonLabel>
-          <IonItem>
-            <IonInput value={city} onIonChange={e => setCity(e.detail.value!)} />
-          </IonItem>
-          <IonLabel position="stacked">State</IonLabel>
-
-          <IonItem>
-            <IonInput value={state} onIonChange={e => setState(e.detail.value!)} />
-          </IonItem>
-          <IonLabel position="stacked">Zip Code</IonLabel>
-          <IonItem>
-            <IonInput value={zipCode} onIonChange={e => setZipCode(e.detail.value!)} />
-          </IonItem>
-          <IonLabel position="stacked">Thumbnail</IonLabel>
-
-          <IonItem>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-          </IonItem>
-        </IonList></div>
+        <div className='page-banner-row'>
+          <IonIcon slot="end" icon={createOutline} style={{ color: 'black' }} />
+          <h2>Create a Menu</h2>
+        </div>
+        <p>First, let's add some information about the restaurant you're creating a menu for:</p>
+        <div className='create-menu-container'>
+          <IonList>
+            <IonLabel position="stacked">Restaurant Name</IonLabel>
+            <IonItem lines='none'>
+              <IonInput value={restaurantName} onIonChange={e => setRestaurantName(e.detail.value!)} />
+            </IonItem>
+            <IonLabel position="stacked">Street Address</IonLabel>
+            <IonItem  lines='none'>
+              <IonInput value={streetAddress} onIonChange={e => setStreetAddress(e.detail.value!)} />
+            </IonItem>
+            <IonLabel position="stacked">City</IonLabel>
+            <IonItem  lines='none'>
+              <IonInput value={city} onIonChange={e => setCity(e.detail.value!)} />
+            </IonItem>
+            <IonLabel position="stacked">State</IonLabel>
+            <IonItem  lines='none'>
+              <IonSelect slot="end" placeholder='Select State' value={state} onIonChange={e => setState(e.detail.value!)} >
+                {states.map((stateObj) => (
+                  <IonSelectOption key={stateObj.code} value={stateObj.name} style = {{fontFamily:'--font-family-primary'}}>
+                    {stateObj.name}
+                  </IonSelectOption>
+                ))}
+              </IonSelect>
+            </IonItem>
+            <IonLabel position="stacked">Zip Code</IonLabel>
+            <IonItem  lines='none'>
+              <IonInput value={zipCode} onIonChange={e => setZipCode(e.detail.value!)} />
+            </IonItem>
+            <IonLabel position="stacked">Thumbnail</IonLabel>
+            <IonItem  lines='none'>
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+            </IonItem>
+          </IonList>
+        </div>
         <IonButton expand="block" onClick={handleSubmit}>
           Submit
         </IonButton>

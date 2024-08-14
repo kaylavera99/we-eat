@@ -4,6 +4,8 @@
 }
 
 
+.page-banner 
+
 .flex-column {
     display: flex;
     flex-direction: column!important;
@@ -22,9 +24,11 @@
     margin-bottom: 1rem;
   }
   
+
   .image-wrapper ion-avatar {
     width: 150px!important;
     height: 150px!important;
+    margin-top:16px!important;
 
   }
 
@@ -46,4 +50,13 @@
   
   .input-btn {
     display: none; /* Hide the default file input */
+  }
+
+
+  .profile-container {
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content: center!important;
+    align-items:center;
+    width:100%!important;
   }

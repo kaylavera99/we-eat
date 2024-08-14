@@ -45,8 +45,14 @@ interface MenuCategory {
   index: number; // Added index property for ordering
 }
 
-const truncateDescription = (description: string, smallScreenMaxLength: number, largeScreenMaxLength: number, screenWidth: number) => {
-  const maxLength = screenWidth < 768 ? smallScreenMaxLength : largeScreenMaxLength;
+const truncateDescription = (
+  description: string,
+  smallScreenMaxLength: number,
+  largeScreenMaxLength: number,
+  screenWidth: number
+) => {
+  const maxLength =
+    screenWidth < 768 ? smallScreenMaxLength : largeScreenMaxLength;
 
   if (description.length <= maxLength) return description;
   return description.substring(0, maxLength) + "...";
@@ -180,9 +186,6 @@ const RecommendationsPage: React.FC = () => {
     return filterMenuItemsByAllergens(items, userAllergens);
   };
 
- 
-  
-
   return (
     <IonPage>
       <IonHeader>
@@ -205,20 +208,20 @@ const RecommendationsPage: React.FC = () => {
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <IonList className = 'rest-list'>
+          <IonList className="rest-list">
             <IonAccordionGroup>
               {recommendedRestaurants.map((restaurant) => (
                 <IonAccordion key={`${restaurant.id}-${restaurant.name}`}>
-                  <IonItem lines="none" slot="header" className = 'rest-items'>
-                    <div className = 'restaurant-thumbnail-container'>
-                    <Suspense fallback={<div>Loading image...</div>}>
-                      <LazyImage
-                        src={restaurant.thumbnailUrl}
-                        alt={restaurant.name}
-                        
-                      />
-                    </Suspense></div>
-                    <h2 className = 'rest-title'>{restaurant.name}</h2>
+                  <IonItem lines="none" slot="header" className="rest-items">
+                    <div className="restaurant-thumbnail-container">
+                      <Suspense fallback={<div>Loading image...</div>}>
+                        <LazyImage
+                          src={restaurant.thumbnailUrl}
+                          alt={restaurant.name}
+                        />
+                      </Suspense>
+                    </div>
+                    <h2 className="rest-title">{restaurant.name}</h2>
                   </IonItem>
                   <div className="ion-padding" slot="content">
                     {restaurantMenus[restaurant.id]?.menu
@@ -245,34 +248,41 @@ const RecommendationsPage: React.FC = () => {
                               <IonList>
                                 {filteredItems.map(
                                   (item: MenuItem, itemIndex: number) => (
-                                    <IonItem lines="none"
+                                    <IonItem
+                                      lines="none"
                                       className="menu-list"
                                       key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}
                                     >
                                       <div className="menu-item-container">
-                                        <div className = 'image-container'>
-                                        <Suspense
-                                          fallback={<div>Loading image...</div>}
-                                        >
-                                          <LazyImage
-                                            src={
-                                              item.imageUrl ||
-                                              "path/to/placeholder-image.jpg"
+                                        <div className="image-container">
+                                          <Suspense
+                                            fallback={
+                                              <div>Loading image...</div>
                                             }
-                                            alt={item.name}
-
-                                          />
-                                        </Suspense></div>
+                                          >
+                                            <LazyImage
+                                              src={
+                                                item.imageUrl ||
+                                                "path/to/placeholder-image.jpg"
+                                              }
+                                              alt={item.name}
+                                            />
+                                          </Suspense>
+                                        </div>
                                         <div className="menu-item-details">
                                           <IonLabel>
                                             <h4>{item.name}</h4>
                                             <p>
-  {truncateDescription(item.description, 100, 150, screenWidth)}
-</p>
+                                              {truncateDescription(
+                                                item.description,
+                                                100,
+                                                150,
+                                                screenWidth
+                                              )}
+                                            </p>
 
-                                            <p className = 'allergen-line-page'>
-                                              <strong>
-                                              Allergens:{" "}</strong>
+                                            <p className="allergen-line-page">
+                                              <strong>Allergens: </strong>
                                               {item.allergens.join(", ")}
                                             </p>
                                           </IonLabel>
@@ -287,7 +297,8 @@ const RecommendationsPage: React.FC = () => {
                                             >
                                               View Item
                                             </IonButton>
-                                            <IonButton className='add-btn'
+                                            <IonButton
+                                              className="add-btn"
                                               onClick={() =>
                                                 handleAddToPersonalizedMenu(
                                                   restaurant.name,
@@ -328,18 +339,19 @@ const RecommendationsPage: React.FC = () => {
             >
               <IonIcon icon={close} />
             </IonButton>
-            <IonCardHeader className='head-col'>
+            <IonCardHeader className="head-col">
               <h3 className="modal-category">{selectedMenuItem?.category}</h3>
               <h2 className="modal-title">{selectedMenuItem?.name}</h2>
             </IonCardHeader>
             <IonCardContent className="modal-card-content">
-              <div className = "image-wrapper">
-              <IonImg
-                className="food-img"
-                src={selectedMenuItem?.imageUrl}
-                alt={selectedMenuItem?.name}
-                style={{ borderRadius: '35px', overflow: 'hidden' }}
-              /></div>
+              <div className="image-wrapper">
+                <IonImg
+                  className="food-img"
+                  src={selectedMenuItem?.imageUrl}
+                  alt={selectedMenuItem?.name}
+                  style={{ borderRadius: "35px", overflow: "hidden" }}
+                />
+              </div>
               <p className="description">{selectedMenuItem?.description}</p>
               <p className="allergen-line">
                 <strong>Allergens: </strong>
@@ -359,7 +371,6 @@ const RecommendationsPage: React.FC = () => {
                   />
                   Add
                 </IonButton>
-                
               </div>
             </IonCardContent>
           </IonCard>
