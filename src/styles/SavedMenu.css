@@ -101,7 +101,6 @@ list-ios {
   color: var(--ion-color-dark);
 }
 
-/* Updated CSS for Truncating the Description */
 .menu-item-description {
   font-family: var(--font-family-secondary);
   font-size: 12px!important;
@@ -111,9 +110,9 @@ list-ios {
   -webkit-box-orient: vertical;
   overflow: hidden!important;;
   text-overflow: ellipsis;
-  line-height: 1.2em!important; /* Adjust line height to control spacing */
-  max-height: 2.4em; /* Ensure the max height matches the line clamp */
-  margin: 0!important; /* Ensure no extra margins add to the height */
+  line-height: 1.2em!important; 
+  max-height: 2.4em;
+  margin: 0!important; 
 }
 
 .allergen-label {
@@ -176,10 +175,10 @@ list-ios {
   top: 10px;
   right: 10px;
   z-index: 10; /* Ensure it stays above other content */
-  --color: var(--ion-color-primary); /* Set the color to primary */
-  --background: transparent; /* Remove the background */
-  --background-activated: transparent; /* Remove background on click */
-  --box-shadow: none; /* Remove any shadow */
+  --color: var(--ion-color-primary); 
+  --background: transparent; 
+  --background-activated: transparent; 
+  --box-shadow: none; 
 
 }
 

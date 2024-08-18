@@ -9,7 +9,7 @@ export interface MenuItem {
   allergens: string[];
   note?: string;
   category: string;
-  imageUrl?: string;  // Add the imageUrl field
+  imageUrl?: string; 
 }
 
 export interface SavedMenu {

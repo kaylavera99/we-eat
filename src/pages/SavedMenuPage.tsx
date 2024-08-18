@@ -158,7 +158,7 @@ const SavedMenuPage: React.FC = () => {
         // Update the local state to remove the item
         setMenuItems(menuItems.filter((item) => item.id !== itemToDelete.id));
 
-        // Show a success message
+        // Show  success message
         setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
         setShowToast(true);
       } else {
@@ -290,13 +290,12 @@ const SavedMenuPage: React.FC = () => {
             isOpen={!!viewingItem}
             onDidDismiss={() => setViewingItem(null)}
             backdropDismiss={true}
-            showBackdrop={true} // Enables closing the modal by clicking outside
+            showBackdrop={true} //  closing  modal by clicking outside
           >
             <div className="item-modal">
-              {/* Close Button */}
               <IonButton
                 className="close-button"
-                fill="clear" /* Ensure there's no background */
+                fill="clear" 
                 onClick={() => setViewingItem(null)}
               >
                 <IonIcon
