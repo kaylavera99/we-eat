@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   IonContent,
   IonHeader,
@@ -14,16 +14,27 @@ import {
   IonSearchbar,
   IonThumbnail,
   IonAlert,
-  IonIcon
-} from '@ionic/react';
-import { searchRestaurants } from '../services/searchService';
-import { useHistory, useLocation } from 'react-router-dom';
-import { GeoPoint } from 'firebase/firestore';
-import { doc, getDocs, collection, query, where, setDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
-import { fetchFullMenuFromRestaurants } from '../services/restaurantService';
-import { getCoordinatesFromAddress } from '../services/googlePlacesService';
-import { searchOutline } from 'ionicons/icons';
+  IonIcon,
+  IonRange,
+  IonModal,
+  IonText,
+} from "@ionic/react";
+import { searchRestaurants } from "../services/searchService";
+import { useHistory, useLocation } from "react-router-dom";
+import { GeoPoint } from "firebase/firestore";
+import {
+  doc,
+  getDocs,
+  collection,
+  query,
+  where,
+  setDoc,
+} from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
+import { fetchFullMenuFromRestaurants } from "../services/restaurantService";
+import { getCoordinatesFromAddress } from "../services/googlePlacesService";
+import { searchOutline, optionsOutline, filterOutline } from "ionicons/icons";
+import '../styles/SearchPage.css';
 
 interface Place {
   name: string;
@@ -42,52 +53,61 @@ interface Place {
 }
 
 const SearchPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [radius, setRadius] = useState<number>(5);
   const [results, setResults] = useState<Place[]>([]);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const location = useLocation<{ query?: string }>();
   const history = useHistory();
 
   const handleSearch = useCallback(async () => {
     const trimmedSearchQuery = searchQuery.trim();
     if (!trimmedSearchQuery) {
-      setToastMessage('Please enter a restaurant name to search');
+      setToastMessage("Please enter a restaurant name to search");
       setShowToast(true);
       setIsSearching(false);
       return;
     }
 
     if (!navigator.geolocation) {
-      setToastMessage('Geolocation is not supported by your browser');
+      setToastMessage("Geolocation is not supported by your browser");
       setShowToast(true);
       setIsSearching(false);
       return;
     }
 
-    setIsSearching(true); // Set searching state before geolocation
-    navigator.geolocation.getCurrentPosition(async (position) => {
-      const { latitude, longitude } = position.coords;
-      const location = `${latitude},${longitude}`;
+    setIsSearching(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        const location = `${latitude},${longitude}`;
 
-      try {
-        const allResults: Place[] = await searchRestaurants(location, radius, trimmedSearchQuery, { lat: latitude, lng: longitude });
-        setResults(allResults);
-      } catch (error) {
-        setToastMessage('Error fetching data from Google Places');
+        try {
+          const allResults: Place[] = await searchRestaurants(
+            location,
+            radius,
+            trimmedSearchQuery,
+            { lat: latitude, lng: longitude }
+          );
+          setResults(allResults);
+        } catch (error) {
+          setToastMessage("Error fetching data from Google Places");
+          setShowToast(true);
+        } finally {
+          setIsSearching(false);
+        }
+      },
+      (error) => {
+        setToastMessage("Unable to retrieve your location");
         setShowToast(true);
-      } finally {
         setIsSearching(false);
       }
-    }, (error) => {
-      setToastMessage('Unable to retrieve your location');
-      setShowToast(true);
-      setIsSearching(false);
-    });
+    );
   }, [searchQuery, radius]);
 
   useEffect(() => {
@@ -102,7 +122,7 @@ const SearchPage: React.FC = () => {
     if (isSearching) {
       const timeoutId = setTimeout(() => {
         handleSearch();
-      }, 500); // Debounce time
+      }, 500);
 
       return () => clearTimeout(timeoutId);
     }
@@ -120,8 +140,10 @@ const SearchPage: React.FC = () => {
       };
 
       history.push({
-        pathname: `/restaurant/${encodeURIComponent(selectedPlace.name)}/create`,
-        state: { place: placeWithAddress }
+        pathname: `/restaurant/${encodeURIComponent(
+          selectedPlace.name
+        )}/create`,
+        state: { place: placeWithAddress },
       });
     }
   };
@@ -130,35 +152,40 @@ const SearchPage: React.FC = () => {
     const restaurantName = place.name;
 
     try {
-      // Check if the user has a saved menu for this restaurant
       const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
       if (userHasSavedMenu) {
-        console.log("User has saved Menu");
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/saved`, { place });
+        history.push(
+          `/restaurant/${encodeURIComponent(restaurantName)}/saved`,
+          { place }
+        );
         return;
       }
 
-      // Check if the user has a created menu for this restaurant
-      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(restaurantName);
+      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(
+        restaurantName
+      );
       if (userHasCreatedMenu) {
-        console.log("User has created Menu");
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/created`, { place });
+        history.push(
+          `/restaurant/${encodeURIComponent(restaurantName)}/created`,
+          { place }
+        );
         return;
       }
 
-      // Check if the full menu exists in the restaurant database
       const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
       if (fullMenu.length > 0) {
-        console.log("Full menu exists");
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, { place });
+        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, {
+          place,
+        });
         return;
       }
 
-      // If no menu is found, show alert to create a new menu
       setSelectedPlace(place);
       setShowAlert(true);
     } catch (error) {
-      setToastMessage(`Error navigating to ${place.name}: ${(error as Error).message}`);
+      setToastMessage(
+        `Error navigating to ${place.name}: ${(error as Error).message}`
+      );
       setShowToast(true);
     }
   };
@@ -166,62 +193,78 @@ const SearchPage: React.FC = () => {
   const handleSetAsPreferredLocation = async (place: Place) => {
     try {
       if (!auth.currentUser) {
-        throw new Error('User not authenticated');
+        throw new Error("User not authenticated");
       }
 
-      const userDocRef = doc(db, 'users', auth.currentUser.uid);
-      const preferredLocationsRef = collection(userDocRef, 'preferredLocations');
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const preferredLocationsRef = collection(
+        userDocRef,
+        "preferredLocations"
+      );
       const q = query(preferredLocationsRef, where("name", "==", place.name));
       const querySnapshot = await getDocs(q);
 
-      const geoPoint = new GeoPoint(place.geometry.location.lat, place.geometry.location.lng);
+      const geoPoint = new GeoPoint(
+        place.geometry.location.lat,
+        place.geometry.location.lng
+      );
 
       if (!querySnapshot.empty) {
-        // If the location already exists, update it
         const existingDocRef = querySnapshot.docs[0].ref;
         await setDoc(existingDocRef, {
           name: place.name,
           address: place.vicinity,
           coordinates: geoPoint,
-          photoUrl: place.photoUrl
+          photoUrl: place.photoUrl,
         });
         setToastMessage(`Updated ${place.name} as preferred location`);
       } else {
-        // If the location does not exist, add a new one
         const newLocationDocRef = doc(preferredLocationsRef);
         await setDoc(newLocationDocRef, {
           name: place.name,
           address: place.vicinity,
           coordinates: geoPoint,
-          photoUrl: place.photoUrl
+          photoUrl: place.photoUrl,
         });
         setToastMessage(`Set ${place.name} as preferred location`);
       }
 
       setShowToast(true);
     } catch (error) {
-      setToastMessage(`Error setting preferred location: ${(error as Error).message}`);
+      setToastMessage(
+        `Error setting preferred location: ${(error as Error).message}`
+      );
       setShowToast(true);
     }
   };
 
-  const checkIfUserHasSavedMenu = async (restaurantName: string): Promise<boolean> => {
+  const checkIfUserHasSavedMenu = async (
+    restaurantName: string
+  ): Promise<boolean> => {
     if (!auth.currentUser) return false;
 
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-    const savedMenusRef = collection(userDocRef, 'savedMenus');
-    const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    const savedMenusRef = collection(userDocRef, "savedMenus");
+    const q = query(
+      savedMenusRef,
+      where("restaurantName", "==", restaurantName)
+    );
     const querySnapshot = await getDocs(q);
 
     return !querySnapshot.empty;
   };
 
-  const checkIfUserHasCreatedMenu = async (restaurantName: string): Promise<boolean> => {
+  const checkIfUserHasCreatedMenu = async (
+    restaurantName: string
+  ): Promise<boolean> => {
     if (!auth.currentUser) return false;
 
-    const userDocRef = doc(db, 'users', auth.currentUser.uid);
-    const createdMenusRef = collection(userDocRef, 'createdMenus');
-    const q = query(createdMenusRef, where("restaurantName", "==", restaurantName));
+    const userDocRef = doc(db, "users", auth.currentUser.uid);
+    const createdMenusRef = collection(userDocRef, "createdMenus");
+    const q = query(
+      createdMenusRef,
+      where("restaurantName", "==", restaurantName)
+    );
     const querySnapshot = await getDocs(q);
 
     return !querySnapshot.empty;
@@ -235,52 +278,103 @@ const SearchPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div className='page-banner-row'>
-          <IonIcon slot="end" icon={searchOutline} style={{ color: 'black' }} /><h2> Search Menus</h2>
-        </div>
-        <IonItem>
-          <IonLabel position="stacked">Enter radius in miles</IonLabel>
-          <IonInput
-            type="number"
-            value={radius}
-            placeholder="Enter radius in miles"
-            onIonChange={(e) => setRadius(parseInt(e.detail.value!, 10))}
-          />
-        </IonItem>
-        <IonItem>
-          <IonLabel position="stacked">Search by restaurant name</IonLabel>
+        <div className="page-banner-row">
+          <IonIcon slot="end" icon={searchOutline} style={{ color: "black" }} />
+          <h2>Search Menus</h2>
+        </div> 
+        <IonItem className = 'search-container' lines='none'>
+         
           <IonSearchbar
             value={searchQuery}
             placeholder="Search by restaurant name"
             onIonInput={(e: CustomEvent) => setSearchQuery(e.detail.value!)}
-            debounce={500} 
+            debounce={500}
           />
+          <IonButton className = 'filter-btn' slot="end" fill= 'clear'  onClick={() => setShowFilterModal(true)}>
+            <IonIcon  style={{ color: "var(--ion-color-primary)", paddingLeft: '0' }} className = 'filter-icon' icon={filterOutline} />
+          </IonButton>
+          
         </IonItem>
-        <IonButton expand="block" onClick={() => setIsSearching(true)} disabled={isSearching}>
-          {isSearching ? 'Searching...' : 'Search'}
-        </IonButton>
-        <IonList>
+
+        <IonButton
+        className = 'search-button'
+          expand="block"
+          onClick={() => setIsSearching(true)}
+          disabled={isSearching}
+        >
+          {isSearching ? "Searching..." : "Search"}
+        </IonButton>        <IonText className="ion-margin-top">
+          <p className='dist-lbl'>Within: {radius} miles</p>
+        </IonText>
+        <IonList lines='none'>
           {results.map((place, index) => (
-            <IonItem key={index}>
+            <IonItem key={index} className = 'result-item'>
               {place.photoUrl && (
                 <IonThumbnail slot="start">
                   <img src={place.photoUrl} alt={`${place.name}`} />
                 </IonThumbnail>
-              )}
-              <IonLabel>
-                <h2>{place.name}</h2>
-                <p>{place.vicinity}</p>
-                <p>Distance: {place.distance.toFixed(2)} miles</p> {/* Display distance */}
+              )}<div className = 'result-col'>
+              <IonLabel className = 'result-info'>
+                <h3 className = 'rest-name'>{place.name}</h3>
+                <p className = 'rest-add'>{place.vicinity}</p>
+                <p className = 'rest-dist'>Distance: {place.distance.toFixed(2)} miles</p>
               </IonLabel>
+              <div className = 'result-btn-row'>
               <IonButton onClick={() => handleNavigateToRestaurantPage(place)}>
                 View Menu
               </IonButton>
-              <IonButton onClick={() => handleSetAsPreferredLocation(place)}>
-                Set as Preferred Location
-              </IonButton>
+              <IonButton className = 'rest-save' onClick={() => handleSetAsPreferredLocation(place)}>
+                Save Location
+              </IonButton></div></div>
             </IonItem>
           ))}
         </IonList>
+
+        <IonModal
+          isOpen={showFilterModal}
+          onDidDismiss={() => setShowFilterModal(false)}
+        >
+          <IonContent className="ion-padding">
+            <IonRange
+              min={0}
+              max={50}
+              step={5}
+              snaps={true}
+              value={radius}
+              pin={true}
+              onIonChange={(e) => setRadius(e.detail.value as number)}
+            >
+              <IonLabel
+                slot="start"
+                style={{
+                  position: "absolute",
+                  left: "0",
+                  top: "-20px",
+                  color: "black",
+                  fontSize: "12px",
+                }}
+              >
+                5
+              </IonLabel>
+            
+            <IonLabel
+              style={{
+                position: "absolute",
+                right: "0",
+                top: "-20px",
+                color: "black",
+                fontSize: "12px",
+              }}
+              slot="end"
+            >
+              50
+            </IonLabel></IonRange>
+            <IonButton expand="block" className = 'search-button' onClick={() => setShowFilterModal(false)}>
+              Set Distance
+            </IonButton>
+          </IonContent>
+        </IonModal>
+
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}
@@ -290,18 +384,18 @@ const SearchPage: React.FC = () => {
         <IonAlert
           isOpen={showAlert}
           onDidDismiss={() => setShowAlert(false)}
-          header={'Create Menu'}
+          header={"Create Menu"}
           message={`There is no menu on WeEat for ${selectedPlace?.name}. Do you want to create one?`}
           buttons={[
             {
-              text: 'No',
-              role: 'cancel',
-              handler: () => setShowAlert(false)
+              text: "No",
+              role: "cancel",
+              handler: () => setShowAlert(false),
             },
             {
-              text: 'Yes',
-              handler: handleAlertConfirm
-            }
+              text: "Yes",
+              handler: handleAlertConfirm,
+            },
           ]}
         />
       </IonContent>

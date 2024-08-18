@@ -34,7 +34,7 @@ ion-item-divider {
 
 .menu-item-container {
   display: flex;
-  flex-direction: row;
+  flex-direction: row-reverse;
   align-items: center;
   justify-content: space-between;
   padding: 10px 0;
@@ -61,6 +61,7 @@ ion-item-divider {
   max-height: 110%;
   object-fit: cover!important;
 }
+
 
 
 .restaurant-thumbnail-container {
@@ -111,6 +112,7 @@ ion-item-divider {
 
 ion-accordion {
   border-bottom: 5px solid var(--background)!important;
+  background-color:var(--background)!important;
 
 }
 
@@ -173,12 +175,58 @@ ion-accordion {
   text-align:center;
 }
 
-p {
-  color:black;
+.menu {
+  color:black!important;
+}
+
+.rec-accordion {
+  border-bottom: 5px solid var(--ion-page-background)!important;
+
+}
+.category-accordion .item-label {
+  background:var(--ion-background-color);
+  color:black!important;;
+
+}
+.category-accordion.accordion-expanded .item-label {
+  --background:var(--ion-color-primary-tint)!important;
+  color:white!important;
+}
+
+.category-accordion.accordion-expanded .menu-list, .no-safe  {
+  background-color:white!important;
+  --background: white!important;
+}
+
+.no-safe {
+  padding-left: 28px!important;
+  padding-top:20px!important;
+  padding-bottom: 20px;
+  border-bottom: 5px solid transparent!important;
+  margin-top:5px;
+  margin-bottom:5px;
+
+}
+
+.accordion-expanded .explore-titles .description-grey{
+  color:grey!important;
+}
+
+.explore-titles p {
+  padding-right:15px!important;
+}
+
+
+.accordion-expanded .allergen-line p {
+  color:black!important;
 }
 
 
 
+.menu-item-container, .rec-accordion .allergen-line {
+  background-color:white!important;
+  color: black!important;
+}
 /*MODAL*/
 /* General Modal Styles */
 .view-modal{
@@ -194,7 +242,7 @@ ion-modal {
 }
 
 ion-modal::part(content) {
-  background-color: transparent !important; /* Ensure no extra background */
+  background-color: transparent !important; 
 }
 
 ion-modal>.ion-page {
@@ -215,7 +263,7 @@ ion-modal>.ion-page {
 
 .view-modal > .ion-page,
 .view-modal .ion-delegate-host {
-  --background: transparent !important; /* Ensure transparency for the backdrop */
+  --background: transparent !important; 
   display: flex;
   align-items: center;
   justify-content: center;
@@ -226,7 +274,7 @@ ion-modal .ion-page {
   background: transparent !important;
 }
 
-/* Target the modal wrapper itself */
+
 ion-modal .modal-wrapper {
   background: none !important;
   box-shadow: none !important;
@@ -237,9 +285,9 @@ ion-modal .modal-wrapper {
 
 /* Modal Card Styles */
 .modal-card {
-  max-width: 600px; /* Adjust width for desktop */
-  width: 90%; /* Responsive width */
-   max-height: 90vh; /* Ensure the modal does not exceed viewport height */
+  max-width: 600px; 
+  width: 90%; 
+   max-height: 90vh; 
   background-color: white;
   border-radius: 15px;
   margin: 20px;
@@ -314,8 +362,8 @@ ion-card-header {
 
 @media only screen and (min-width: 768px) and (min-height: 600px) {
   ion-modal {
-    --box-shadow: none !important; /* Ensure no box shadow is applied */
-    --border-radius: 15px !important; /* Ensure your custom border-radius is applied */
+    --box-shadow: none !important; 
+    --border-radius: 15px !important; 
   }
 
  
@@ -331,4 +379,26 @@ ion-card-header {
   }
 }
 
+.accordion-next .rest-items {
+ --border-width:0px!important;
+}
 
+.rec-accordion.accordion-expanded .rest-items {
+  border-bottom: 5px solid var(--ion-page-background)!important;
+
+}
+
+.cat-acc{
+  margin-left:10px;
+  margin-right:10spx;
+}
+
+.rec-accordion.expanded .ion-accordion-toggle-icon {
+  --stroke: var(--ion-color-primary-tint)!important;
+}
+
+
+.category-accordion ion-item {
+  border-bottom: 5px solid var(--ion-page-background)!important;
+
+}

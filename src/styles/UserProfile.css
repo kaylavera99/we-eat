@@ -14,6 +14,12 @@
     margin-bottom: 16px!important; /* Space below header if needed */
   }
 
+ .secondary-button {
+  text-transform:capitalize!important;
+  font-weight:600;
+  font-family: var(--font-family-primary)!important;
+ }
+
   .button-block {
     display:flex!important;
   }
@@ -22,6 +28,7 @@
     margin:0!important;
   }
 
+ 
   .container {
     display: flex!important;
     flex-direction: column!important;
@@ -49,19 +56,18 @@
   .profile-avatar {
     width: 150px;
     height: 150px;
-    border-radius: 100px!important; /* Set rounded corners */
-    overflow: hidden; /* Hide overflow to clip the image */
+    border-radius: 100px!important; 
+    overflow: hidden; 
     display: flex;
     align-items: center;
-    /*float:left;
-    position: relative; /* Ensure proper positioning of the image */
+    
   }
   
   .profile-avatar ion-img {
-    width: 100%; /* Make the image fit the container */
-    height: 100%; /* Ensure it covers the container */
-    object-fit: cover; /* Maintain aspect ratio and cover the area */
-    border-radius: 10px; /* Apply border radius to image */
+    width: 100%; 
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
   }
   
 
@@ -74,14 +80,71 @@
   }
 
   .styled-hr {
-    border: 0!important; /* Remove default border */
-    height: 4px!important; /* Set the thickness */
+    border: 0!important;
+    height: 4px!important; 
     width:50%!important;
-    background-color:var(--ion-color-primary-tint); /* Set the color */
-    margin: 20px auto!important; /* Adjust spacing around the hr */
-    border-radius: 10px; /* Adjust the radius to your liking */
+    background-color:var(--ion-color-primary-tint);
+    margin: 20px auto!important; 
+    border-radius: 10px; 
   }
 
 .user-info {
   text-align:center;
 }
+
+
+.page-banner-row-user ion-icon {
+  width:35px!important;
+  height:35px!important;
+  margin-right: 10px;
+}
+
+.page-banner-row-user {
+  display:flex!important;;
+  flex-direction:row;
+  align-items: center!important;
+  margin-top: 10px!important;
+  
+}
+
+.location-icon-row {
+  display:flex!important;;
+  flex-direction:row;
+  align-items: center!important;
+}
+
+.location-icon-row ion-icon {
+  width:20px!important;
+  height:20px!important;
+}
+
+.rest-acc.accordion-expanded .item-label {
+  --background:var(--ion-color-primary-tint)!important;
+  color:white!important;
+  border-bottom: 5px solid var(--ion-page-background)!important;
+
+}
+
+.rest-acc ion-item {
+  border-bottom: 5px solid var(--ion-page-background)!important;
+
+}
+
+.loc-acc {
+  background-color:white!important;
+}
+
+.rest-acc  .ion-padding[slot="content"] {
+  border-bottom: 5px solid var(--ion-page-background)!important;
+  border-left:5px solid var(--ion-page-background)!important;
+border-right:5px solid var(--ion-page-background)!important;
+
+}
+.accordion-next .loc-items {
+  --border-width:0px!important;
+ }
+ 
+ .loc.accordion-expanded .rest-items {
+   border-bottom: 5px solid var(--ion-page-background)!important;
+ 
+ }

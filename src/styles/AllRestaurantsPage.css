@@ -1,4 +1,3 @@
-/* src/styles/AllRestaurantsPage.css */
 
 .restaurant-list {
     display: flex;
@@ -38,3 +37,25 @@ h1 {
     margin-bottom:0!important;
 }
   
+.page-banner-row-all {
+  display:flex!important;;
+  flex-direction:row;
+  align-items: center;
+  margin-top: 10px!important;
+  
+}
+
+.page-banner-row-all ion-icon {
+  width:30px!important;
+  height:30px!important;
+  margin-right: 10px;
+  margin-top: 8px;
+}
+
+.page-desc-all {
+margin-bottom:10px!important;
+}
+
+.restaurant-name {
+  font-weight:700;
+}

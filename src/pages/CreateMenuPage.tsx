@@ -138,6 +138,7 @@ const CreateMenuPage: React.FC = () => {
         thumbnailUrl = await uploadImage(compressedImage, `profilePictures/${auth.currentUser.uid}/createdMenus/${restaurantName}`);
       } else if (!thumbnail && place?.photoUrl) {
         thumbnailUrl = place.photoUrl;
+        console.log('using place photo:', thumbnailUrl)
       }
 
       if (auth.currentUser) {

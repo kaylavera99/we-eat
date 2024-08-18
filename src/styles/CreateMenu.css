@@ -32,10 +32,10 @@
  
   .create-menu-container ion-item {
     --background:white!important;
-    --inner-border-width: 0 !important; /* Remove the inner border (line) */
+    --inner-border-width: 0 !important; 
     --padding-start: 0;
     --inner-padding-end: 0;
-    --inner-padding-start: 16px;
+    --inner-padding-start: ;
     --padding-end: 0;
     margin-bottom: 15px;
 
@@ -43,7 +43,7 @@
 
   }
   .create-menu-container ion-item:hover {
-    --background: white !important; /* Ensure the background doesn't change on hover */
+    --background: white !important; 
     transition:none!important;
   }
 
@@ -51,6 +51,7 @@
 
   .list-md {
     background:none!important;
+    --background:none!important;
   }
 
   .create-menu-container ion-input .native-input {
@@ -58,14 +59,8 @@
     
   }
 
-  /* Target the inner item wrapper and input wrapper */
-.create-menu-container ion-item .item-inner,
-.create-menu-container ion-item .native-wrapper,
-.create-menu-container ion-item .native-input {
-  background-color: white !important;
-}
 
-/* Specifically target the input field background */
+
 .create-menu-container ion-input .native-input,
 .create-menu-container ion-select .select-text {
   --background: white !important;
@@ -76,7 +71,6 @@
   border-radius: 8px !important;
 }
 
-/* Remove hover effect */
 .create-menu-container ion-item:hover,
 .create-menu-container ion-item:hover .item-inner,
 .create-menu-container ion-item:hover .native-wrapper,

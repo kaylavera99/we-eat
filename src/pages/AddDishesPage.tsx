@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   IonContent,
   IonHeader,
@@ -9,13 +9,17 @@ import {
   IonButton,
   IonLabel,
   IonItem,
+  IonIcon,
   IonToast,
   IonList,
-} from '@ionic/react';
-import { useHistory, useParams } from 'react-router-dom';
-import { doc, collection, addDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
-import { uploadImage, compressImage } from '../services/storageService';
+  IonImg,
+} from "@ionic/react";
+import { useHistory, useParams } from "react-router-dom";
+import { doc, collection, addDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
+import { uploadImage, compressImage } from "../services/storageService";
+import "../styles/AddDishes.css";
+import { pizzaOutline } from "ionicons/icons";
 
 interface Dish {
   category: string;
@@ -28,30 +32,39 @@ interface Dish {
 
 const AddDishesPage: React.FC = () => {
   const { menuId } = useParams<{ menuId: string }>(); // Use menuId from URL
-  const [category, setCategory] = useState('');
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [allergens, setAllergens] = useState('');
-  const [note, setNote] = useState('');
-  const [image, setImage] = useState<File | null>(null); // New state for dish image
+  const [category, setCategory] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [allergens, setAllergens] = useState("");
+  const [note, setNote] = useState("");
+  const [image, setImage] = useState<File | null>(null); // new state for dish image
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
   const history = useHistory();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
-      setImage(event.target.files[0]);
+      const file = event.target.files[0];
+      setImage(file);
+
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreviewUrl(previewUrl);
     }
   };
 
   const handleSubmit = async () => {
-    const allergensArray = allergens.split(',').map(a => a.trim());
-    let imageUrl = '';
+    const allergensArray = allergens.split(",").map((a) => a.trim());
+    let imageUrl = "";
 
     try {
       if (image && auth.currentUser) {
         const compressedImage = await compressImage(image);
-        imageUrl = await uploadImage(compressedImage, `profilePictures/${auth.currentUser.uid}/createdMenus/${menuId}/menuItems/${name}`);
+        imageUrl = await uploadImage(
+          compressedImage,
+          `profilePictures/${auth.currentUser.uid}/createdMenus/${menuId}/menuItems/${name}`
+        );
       }
 
       const dish: Dish = {
@@ -64,16 +77,16 @@ const AddDishesPage: React.FC = () => {
       };
 
       if (auth.currentUser) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
-        const createdMenusRef = collection(userDocRef, 'createdMenus');
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
+        const createdMenusRef = collection(userDocRef, "createdMenus");
         const newMenuDocRef = doc(createdMenusRef, menuId);
-        const dishesRef = collection(newMenuDocRef, 'dishes');
+        const dishesRef = collection(newMenuDocRef, "dishes");
         await addDoc(dishesRef, dish);
       }
 
       setShowToast(true);
-      setToastMessage('Dish added successfully!');
-      history.push('/personalized-menu');
+      setToastMessage("Dish added successfully!");
+      history.push("/personalized-menu");
     } catch (error) {
       setShowToast(true);
       setToastMessage(`Error: ${(error as Error).message}`);
@@ -88,33 +101,98 @@ const AddDishesPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonList>
-          <IonItem>
-            <IonLabel position="stacked">Category</IonLabel>
-            <IonInput value={category} onIonChange={e => setCategory(e.detail.value!)} />
+      <div className="page-banner-row-add">
+              <IonIcon
+                slot="end"
+                className="menu-icon"
+                icon={pizzaOutline} /><h2>
+
+
+                Add Menu Item
+              </h2>
+              
+            </div>
+        <IonList lines="none">
+          <IonLabel className="dishes-lbl">Category</IonLabel>
+          <IonItem className="dishes-item">
+            <IonInput
+              value={category}
+              onIonChange={(e) => setCategory(e.detail.value!)}
+            />
           </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Name</IonLabel>
-            <IonInput value={name} onIonChange={e => setName(e.detail.value!)} />
+          <IonLabel className="dishes-lbl" position="stacked">
+            Name
+          </IonLabel>
+          <IonItem className="dishes-item">
+            <IonInput
+              className="dishes-input"
+              value={name}
+              onIonChange={(e) => setName(e.detail.value!)}
+            />
           </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Description</IonLabel>
-            <IonInput value={description} onIonChange={e => setDescription(e.detail.value!)} />
+          <IonLabel className="dishes-lbl" position="stacked">
+            Description
+          </IonLabel>
+
+          <IonItem className="dishes-item">
+            <IonInput
+              value={description}
+              onIonChange={(e) => setDescription(e.detail.value!)}
+            />
           </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Allergens</IonLabel>
-            <IonInput value={allergens} onIonChange={e => setAllergens(e.detail.value!)} />
+          <IonLabel className="dishes-lbl" position="stacked">
+            Allergens
+          </IonLabel>
+
+          <IonItem className="dishes-item">
+            <IonInput
+              value={allergens}
+              onIonChange={(e) => setAllergens(e.detail.value!)}
+            />
           </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Notes</IonLabel>
-            <IonInput value={note} onIonChange={e => setNote(e.detail.value!)} />
+          <IonLabel className="dishes-lbl" position="stacked">
+            Notes
+          </IonLabel>
+
+          <IonItem className="dishes-item">
+            <IonInput
+              value={note}
+              onIonChange={(e) => setNote(e.detail.value!)}
+            />
           </IonItem>
-          <IonItem>
-            <IonLabel position="stacked">Image</IonLabel>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-          </IonItem>
+          <IonLabel className="dishes-lbl" position="stacked">
+            Image
+          </IonLabel>
+          <div className="dish-image-wrapper">
+  {imagePreviewUrl && (
+    <div className = 'dish-img-item'>
+      <IonImg className="dish-img" src={imagePreviewUrl} alt="Dish Image Preview" />
+    </div>
+  )}
+  <div className="upload-wrapper">
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleFileChange}
+      className="input-btn"
+      id="fileInput"
+      style={{ display: "none" }}
+    />
+    <IonButton
+      onClick={() => document.getElementById("fileInput")?.click()}
+      className="custom-upload-btn"
+    >
+      Choose File
+    </IonButton>
+  </div>
+</div>
+
         </IonList>
-        <IonButton expand="block" onClick={handleSubmit}>
+        <IonButton
+          expand="block"
+          className="secondary-button"
+          onClick={handleSubmit}
+        >
           Submit
         </IonButton>
         <IonToast

@@ -1,0 +1,123 @@
+.search-button{
+    --background:var(--ion-color-secondary)!important;
+}
+
+.rest-save {
+    --background:var(--ion-color-primary-tint)!important;
+}
+
+.search-container {
+    display:flex!important;
+    align-items: center!important;
+    --background:var(--ion-page-background)!important;
+
+}
+
+
+.search-container .searchbar-input {
+    background:white!important;
+    padding-inline-start: 2.0rem!important;
+    border-radius:15px!important;
+    font-family:var(--font-family-primary)!important;
+    font-weight:500;
+    width:100%!important;
+}
+
+
+ion-searchbar {
+    padding-left:0!important;
+}
+
+.searchbar-search-icon {
+    inset-inline-start:7px!important;
+}
+
+.filter-icon  {
+    font-size:24px!important;
+    stroke-width:2px!important;
+    cursor:pointer;
+    margin:0!important;
+    padding:0!important;
+}
+
+.filter-btn {
+    display: flex!important;
+    align-items: center!important;
+    justify-content: center!important;
+    height: 100%!important; 
+    width: 40px!important; 
+    --padding-start:0!important;
+    --padding-end:1.0rem!important;
+}
+
+.filter-btn::part(native) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    --padding-start: 0 !important;
+    --padding-end: 0 !important;
+    --padding-top: 0 !important;
+    --padding-bottom: 0 !important;
+    --webkit-padding-start: 0 !important;
+    --webkit-padding-end: 0 !important;
+    --padding-inline-start: 0 !important;
+    --padding-inline-end: 0 !important;
+}
+
+.dist-lbl {
+    text-align:right!important;
+    font-size:14px;
+    margin-right:16px;
+    font-weight:600;
+    font-family:var(--font-family-primary)!important;
+
+}
+
+
+
+.result-item {
+    display:flex!important;
+    border-bottom: 5px solid var(--background)!important;
+    --inner-border-width:5px;
+    margin-bottom:5px;
+}
+
+
+.result-col {
+    display:flex;
+    flex-direction:column;
+    padding-top:10px;
+}
+
+.result-info p {
+    white-space:normal;
+    word-wrap:break-word;
+    overflow-wrap: break-word;
+}
+
+
+.result-item ion-thumbnail {
+    --size: 65px!important;
+}
+
+
+.result-item .result-info h3 {
+    font-size: 16px!important;
+    font-weight:600;
+}
+
+.result-item .rest-add {
+    font-size:12px!important;
+}
+
+.result-item .rest-dist {
+    color:black!important;
+}
+
+.result-btn-row .button {
+    margin-top:2px!important;
+}
+
