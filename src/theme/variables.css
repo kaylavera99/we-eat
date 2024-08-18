@@ -5,6 +5,8 @@ http://ionicframework.com/docs/theming/ */
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Urbanist:ital,wght@0,100..900&display=swap" rel="stylesheet');
 
 :root {
+    color-scheme: light;
+
 	--ion-color-primary: #02382E;
 	--ion-color-primary-rgb: 45,89,73;
 	--ion-color-primary-contrast: #FFFFFF;
@@ -78,9 +80,9 @@ http://ionicframework.com/docs/theming/ */
     --ion-toolbar-background: #02382E; 
     --ion-toolbar-height: 56px!important;
     --ion-color-primary: #02382E;
-  --ion-tab-bar-background-color: #02382E!important; /* Use your primary color */
-  --ion-tab-bar-color: #FFFFFF; /* Use your contrast color for the icons */
-  --ion-tab-bar-selected-color: var(--ion-color-secondary); /* Use your contrast color for selected icons */
+  --ion-tab-bar-background-color: #02382E!important; 
+  --ion-tab-bar-color: #FFFFFF;
+  --ion-tab-bar-selected-color: var(--ion-color-secondary); 
   --ion-background-color: #fbfbfb!important;
   --ion-page-background: #f2efef;
     
@@ -105,7 +107,11 @@ p {
     margin-bottom:10px;
 
 
+
+    
 }
+
+
 
 ion-checkbox {
   --border-radius: 50%;
@@ -129,6 +135,11 @@ h2 {
     font-size: 24px!important;
 }
 
+
+.list-ios {
+  background:none!important;
+  --background:none!important;
+}
 .ion-tab-bar {
     background-color:#02382E!important;
 }
@@ -166,7 +177,7 @@ ion-content {
   
   .ion-menu-button {
     font-size: 1.5em;
-    color: #fff!important; /* Ensure the color is set for the icon */
+    color: #fff!important;
   }
   
   #background-content {
@@ -178,11 +189,11 @@ ion-content {
 }
   @media (max-width: 768px) {
     .app-logo {
-      height: 45px; /* Adjust size for smaller screens */
+      height: 45px;
       margin-right: calc(1.2em + 16px);
     }
     .ion-menu-button {
-      font-size: 1.2em; /* Adjust size for smaller screens */
+      font-size: 1.2em; 
     }
   }
   
@@ -191,10 +202,10 @@ ion-content {
 
   
     .ion-menu-button {
-      color: #fff!important; /* Ensure the menu button is visible in dark mode */
+      color: #fff!important; 
     }
   
-    /* Additional styles for dark mode */
+ 
     .toolbar-container {
       background-color: #02382E; 
     }

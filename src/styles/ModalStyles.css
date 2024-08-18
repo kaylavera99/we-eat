@@ -8,7 +8,7 @@ ion-title {
 .modal-content {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Add space between form elements */
+    gap: 20px; 
     --padding-top:10px!important;
 }
 
@@ -23,8 +23,8 @@ ion-title {
     font-family: var(--font-family-secondary) !important;
     font-size: 16px !important;
     margin-bottom: 5px;
-    display: block; /* Ensure the label takes up its own line above the input */
-    padding-left: 2px; /* Optional: small padding for alignment */
+    display: block; 
+    padding-left: 2px; 
 }
 
 .input-field {
@@ -32,22 +32,22 @@ ion-title {
     border-radius: 5px !important;
     padding: 10px !important;
     font-family: var(--font-family-primary);
-    width: 100%; /* Ensure the input takes up full width */
-    box-sizing: border-box; /* Ensure padding and borders are included in the element's total width and height */
+    width: 100%; 
+    box-sizing: border-box; 
 }
 
 .modal-button {
     font-size: 16px !important;
     font-weight: bold !important;
     border-radius: 5px !important;
-    margin-top: 20px; /* Optional: margin to add space between fields and buttons */
+    margin-top: 20px; 
 }
 
 .form-item {
     width: 100%;
-    margin-bottom: 15px; /* Spacing between fields */
+    margin-bottom: 15px; 
     display: flex;
-    flex-direction: column; /* Ensure the label and input stack vertically */
+    flex-direction: column; 
     border-radius:5px;
 }
 
@@ -65,7 +65,6 @@ input[type="text"], textarea, input[type="file"] {
 }
 
 
-/* Center the container */
 .file-upload-container {
     display: flex;
     flex-direction: column;
@@ -73,8 +72,24 @@ input[type="text"], textarea, input[type="file"] {
     align-items: center;
   }
   
-  /* Hide the actual file input */
   .file-input {
     display: none;
   }
   
+
+  @media (max-width:1440px) {
+    .form-item .input-field {
+        padding-top:5px!important;
+        padding-bottom:8px!important;
+    }
+
+    .add-item-label {
+        margin-bottom:5px!important;
+        font-family: var(--font-family-primary)!important;
+        font-size: 18px!important;
+        font-weight:600;
+    }
+
+
+
+}

@@ -23,7 +23,7 @@ import { useHistory } from 'react-router-dom';
 import { searchRestaurants } from '../services/searchService';
 import '../styles/UserProfile.css';
 import 'ionicons/icons';
-import { locationOutline } from 'ionicons/icons';
+import { locationOutline, personCircleOutline } from 'ionicons/icons';
 
 interface PreferredLocation {
   address: string;
@@ -197,10 +197,14 @@ const UserProfilePage: React.FC = () => {
           <IonTitle>User Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding" style={{ '--background': 'var(--ion-background-color)' }}>          
+      <IonContent className="ion-padding" >          
         <div className="page-header">
-          <h2 className="page-title">Your Profile</h2>              
-          <IonButton className="button" onClick={handleEditProfile}>
+        <div className="page-banner-row-user"><IonIcon
+                slot="end"
+                className="menu-icon"
+                icon={personCircleOutline} />
+          <h2 className="page-title">Your Profile</h2>  </div>            
+          <IonButton className="secondary-button" onClick={handleEditProfile}>
             Edit Profile
           </IonButton>
         </div>
@@ -212,7 +216,8 @@ const UserProfilePage: React.FC = () => {
             </IonAvatar>
             <div className="user-info">
               <h3>{renderFullName()}</h3>
-              <h4><IonIcon icon={locationOutline}/>{userData.address}</h4>
+              <div className = 'location-icon-row'>
+             <IonIcon icon={locationOutline}/> <h4>{userData.address}</h4></div>
               <h4><strong>Allergens: </strong>{renderAllergens()}</h4>
             </div>
           </div>
@@ -237,14 +242,14 @@ const UserProfilePage: React.FC = () => {
           <IonList>
             {Object.keys(userData.preferredLocations).length > 0 ? (
               <div>
-                <h3>Preferred Locations:</h3>
-                <IonAccordionGroup>
+                <h2>Restaurant Locations:</h2>
+                <IonAccordionGroup className = 'loc-acc' >
                   {Object.entries(userData.preferredLocations).map(([key, location]) => (
-                    <IonAccordion key={key}>
-                      <IonItem slot="header">
+                    <IonAccordion key={key} className =  'rest-acc'>
+                      <IonItem slot="header" lines='none' className = 'loc-items'>
                         <IonLabel>{location.name}</IonLabel>
                       </IonItem>
-                      <div className="ion-padding" slot="content">
+                      <div className="ion-padding" slot="content" >
                         {location.photoUrl && <IonImg src={location.photoUrl} alt={location.name} className="location-thumbnail" />}
                         <p>{location.address}</p>
                         <IonButton

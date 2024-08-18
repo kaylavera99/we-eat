@@ -1,0 +1,63 @@
+.dishes-item {
+   height:44px!important;
+}
+
+.dish-img {
+    max-width:150px!important;
+    border-radius:50px!important;
+    padding-top:20px!important;
+
+    
+}
+.dish-img-item .dish-img {
+    --border-radius:50px!important;
+}
+
+
+
+.dish-image-wrapper {
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:center!important;
+    background-color:white!important;
+    align-items:center!important;
+}
+
+.dish-img-item .item-inner {
+--padding-right:0px!important;
+
+}
+
+.upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .custom-upload-btn {
+    --background: var(--ion-color-primary);
+    --color: white;
+    --padding: 10px 20px;
+    --border-radius: 5px;
+  }
+  
+  .input-btn {
+    display: none; /* Hiding default file input */
+  }
+
+  .page-banner-row-add {
+    display:flex!important;;
+    flex-direction:row;
+    align-items: center;
+    margin-top: 10px!important;
+    margin-bottom:10px!important;
+    
+  }
+  
+  .page-banner-row-add ion-icon {
+    width:30px!important;
+    height:30px!important;
+    margin-right: 10px;
+    margin-top: 8px;
+  }

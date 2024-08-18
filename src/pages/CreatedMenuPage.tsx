@@ -72,6 +72,8 @@ const CreatedMenuPage: React.FC = () => {
         if (userId) {
           const userDocRef = doc(db, "users", userId);
 
+          
+
           // Fetch created menus
           const createdMenus = await fetchCreatedMenus();
           const createdMenu = createdMenus.find(
@@ -81,7 +83,7 @@ const CreatedMenuPage: React.FC = () => {
             setMenuItems(createdMenu.dishes);
           }
 
-          // Fetch user allergens
+          // fetch user allergens
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userData = userDocSnap.data() as UserData;
@@ -91,7 +93,7 @@ const CreatedMenuPage: React.FC = () => {
             setUserAllergens(allergens);
           }
 
-          // Fetch preferred locations and their photos
+          // fetch preferred locations and their photos
           const preferredLocationsSnap = await getDocs(
             collection(userDocRef, "preferredLocations")
           );
@@ -102,7 +104,7 @@ const CreatedMenuPage: React.FC = () => {
               if (location.name === restaurantName) {
                 locations[doc.id] = location;
 
-                // Fetch photo URL for the location
+                // fetch photo URL for the location
                 const results = await searchRestaurants(
                   `${location.coordinates.latitude},${location.coordinates.longitude}`,
                   5,
@@ -290,7 +292,7 @@ const CreatedMenuPage: React.FC = () => {
             <IonItem
               button
               onClick={() => {
-                // Handle edit restaurant logic
+                //  edit restaurant logic
                 setShowPopover({ isOpen: false, event: undefined });
               }}
             >
@@ -300,7 +302,7 @@ const CreatedMenuPage: React.FC = () => {
               button
               color="danger"
               onClick={() => {
-                // Handle delete menu logic
+                // delete menu logic
                 setShowPopover({ isOpen: false, event: undefined });
               }}
             >

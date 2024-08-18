@@ -50,6 +50,7 @@
 
 .list-container h5 {
   font-size: 1.5rem;
+  padding-top:10px;
   font-weight: 700;
 }
 
@@ -80,3 +81,44 @@
 .item-name {
   color:black;
 }
+
+
+ion-segment-button .segment-button-checked {
+  --indicator-color: transparent !important; 
+  color: white !important;
+  border-radius: 0px !important;
+  background-clip: padding-box;
+}
+
+ion-segment-button {
+  --indicator-color: transparent !important; 
+  --indicator-box-shadow: none !important; 
+  width: 100%;
+  border-radius: 0px !important;
+  --border-color:transparent!important;
+
+  margin-top: 0 !important;
+  margin-bottom: 0px !important;
+  margin-left: 0 !important;
+}
+
+ion-segment {
+  background-color: var(--ion-page-background) !important;
+}
+
+.segment-button-checked .seg-button {
+  box-shadow: inset 0px -4px  0px -2px var(--ion-color-primary-tint) !important;
+  background-clip: padding-box!important;
+}
+
+ion-segment {
+  overflow-x: scroll;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+ion-segment::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, and Opera */
+}
+
+

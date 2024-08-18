@@ -15,6 +15,9 @@ import {
   IonButton,
   IonImg,
   IonBadge,
+  IonSegment,
+  IonSegmentButton,
+  IonLabel,
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
 import {
@@ -23,14 +26,7 @@ import {
   MenuItem,
 } from "../services/restaurantService";
 import { addMenuItemToSavedMenus } from "../services/menuService";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 
 interface UserData {
@@ -48,6 +44,7 @@ const RestaurantPage: React.FC = () => {
     thumbnailUrl: string;
   } | null>(null);
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
     const fetchUserAllergens = async () => {
@@ -65,10 +62,7 @@ const RestaurantPage: React.FC = () => {
     };
 
     const fetchRestaurantDetails = async (restaurantName: string) => {
-      const q = query(
-        collection(db, "restaurants"),
-        where("name", "==", restaurantName)
-      );
+      const q = query(collection(db, "restaurants"), where("name", "==", restaurantName));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const restaurantDoc = querySnapshot.docs[0];
@@ -91,6 +85,11 @@ const RestaurantPage: React.FC = () => {
           name: restaurantData.name,
           thumbnailUrl: restaurantData.thumbnailUrl,
         });
+
+        // set the default selected category to first indexed category
+        if (fullMenu.length > 0) {
+          setSelectedCategory(fullMenu[0].category);
+        }
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
@@ -137,11 +136,7 @@ const RestaurantPage: React.FC = () => {
           <IonCardContent>
             <div className="image-div">
               {item.imageUrl && (
-                <IonImg
-                  className="menu-img"
-                  src={item.imageUrl}
-                  alt={item.name}
-                />
+                <IonImg className="menu-img" src={item.imageUrl} alt={item.name} />
               )}
             </div>
             <p>{item.description}</p>
@@ -162,7 +157,7 @@ const RestaurantPage: React.FC = () => {
                 );
               })}
             </p>
-            <IonButton onClick={() => handleAddToSavedMenu(item)}>
+            <IonButton  className = 'secondary-button'onClick={() => handleAddToSavedMenu(item)}>
               Add to Saved Menu
             </IonButton>
           </IonCardContent>
@@ -172,23 +167,21 @@ const RestaurantPage: React.FC = () => {
   };
 
   const renderMenuCategories = (categories: MenuCategory[]) => {
-    return categories.map((category, index) => (
-      <div key={index} className="list-container">
-        <h5>{category.category}</h5>
-        <IonList className="menu-list">
-          {renderMenuItems(category.items)}
-        </IonList>
-      </div>
-    ));
+    return categories
+      .filter((category) => category.category === selectedCategory)
+      .map((category, index) => (
+        <div key={index} className="list-container">
+          <h5>{category.category}</h5>
+          <IonList className="menu-list">{renderMenuItems(category.items)}</IonList>
+        </div>
+      ));
   };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>
-            {restaurantDetails?.name || restaurantName} Full Menu
-          </IonTitle>
+          <IonTitle>{restaurantDetails?.name || restaurantName} Full Menu</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -206,8 +199,7 @@ const RestaurantPage: React.FC = () => {
                 <h2>{restaurantDetails.name}</h2>
                 {userAllergens.length > 0 && (
                   <p style={{ color: "red" }}>
-                    Menu items with allergens marked in red contain your
-                    allergens.
+                    Menu items with allergens marked in red contain your allergens.
                   </p>
                 )}
                 <IonBadge color="primary">
@@ -219,6 +211,22 @@ const RestaurantPage: React.FC = () => {
                 </IonBadge>
               </div>
             )}
+
+            <IonSegment
+              scrollable
+              value={selectedCategory}
+              onIonChange={(e) => setSelectedCategory(e.detail.value!.toString())}
+            >
+              {menuCategories.map((category) => (
+                <IonSegmentButton
+                  key={category.category}
+                  value={category.category}
+                >
+                  <IonLabel  className = 'seg-button' >{category.category}</IonLabel>
+                </IonSegmentButton>
+              ))}
+            </IonSegment>
+
             {renderMenuCategories(menuCategories)}
           </div>
         )}

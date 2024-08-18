@@ -20,6 +20,7 @@
     "@capacitor/keyboard": "6.0.1",
     "@capacitor/status-bar": "6.0.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
+    "@ionic/lab": "^3.2.15",
     "@ionic/react": "^8.2.5",
     "@ionic/react-router": "^8.2.5",
     "@types/react-router": "^5.1.20",
