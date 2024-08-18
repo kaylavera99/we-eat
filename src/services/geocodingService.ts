@@ -1,4 +1,3 @@
-// src/services/geocodingService.ts
 
 import axios from 'axios';
 import { GeoPoint } from 'firebase/firestore';

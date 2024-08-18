@@ -1,4 +1,3 @@
-// src/services/googlePlacesService.ts
 
 import axios from 'axios';
 
