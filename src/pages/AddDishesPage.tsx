@@ -29,7 +29,7 @@ interface Dish {
   note: string;
   imageUrl?: string;
 }
-
+const placeholderImage = "../../public/assets/placeholder.webp";
 const AddDishesPage: React.FC = () => {
   const { menuId } = useParams<{ menuId: string }>(); // Use menuId from URL
   const [category, setCategory] = useState("");
@@ -40,9 +40,11 @@ const AddDishesPage: React.FC = () => {
   const [image, setImage] = useState<File | null>(null); // new state for dish image
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(placeholderImage);
 
   const history = useHistory();
+
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -56,7 +58,7 @@ const AddDishesPage: React.FC = () => {
 
   const handleSubmit = async () => {
     const allergensArray = allergens.split(",").map((a) => a.trim());
-    let imageUrl = "";
+    let imageUrl = imagePreviewUrl || placeholderImage;
 
     try {
       if (image && auth.currentUser) {
@@ -66,6 +68,8 @@ const AddDishesPage: React.FC = () => {
           `profilePictures/${auth.currentUser.uid}/createdMenus/${menuId}/menuItems/${name}`
         );
       }
+
+      console.log('This is the image Url', imageUrl)
 
       const dish: Dish = {
         category,
@@ -101,17 +105,10 @@ const AddDishesPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-      <div className="page-banner-row-add">
-              <IonIcon
-                slot="end"
-                className="menu-icon"
-                icon={pizzaOutline} /><h2>
-
-
-                Add Menu Item
-              </h2>
-              
-            </div>
+        <div className="page-banner-row-add">
+          <IonIcon slot="end" className="menu-icon" icon={pizzaOutline} />
+          <h2>Add Menu Item</h2>
+        </div>
         <IonList lines="none">
           <IonLabel className="dishes-lbl">Category</IonLabel>
           <IonItem className="dishes-item">
@@ -133,7 +130,6 @@ const AddDishesPage: React.FC = () => {
           <IonLabel className="dishes-lbl" position="stacked">
             Description
           </IonLabel>
-
           <IonItem className="dishes-item">
             <IonInput
               value={description}
@@ -143,7 +139,6 @@ const AddDishesPage: React.FC = () => {
           <IonLabel className="dishes-lbl" position="stacked">
             Allergens
           </IonLabel>
-
           <IonItem className="dishes-item">
             <IonInput
               value={allergens}
@@ -153,46 +148,37 @@ const AddDishesPage: React.FC = () => {
           <IonLabel className="dishes-lbl" position="stacked">
             Notes
           </IonLabel>
-
           <IonItem className="dishes-item">
-            <IonInput
-              value={note}
-              onIonChange={(e) => setNote(e.detail.value!)}
-            />
+            <IonInput value={note} onIonChange={(e) => setNote(e.detail.value!)} />
           </IonItem>
           <IonLabel className="dishes-lbl" position="stacked">
             Image
           </IonLabel>
           <div className="dish-image-wrapper">
-  {imagePreviewUrl && (
-    <div className = 'dish-img-item'>
-      <IonImg className="dish-img" src={imagePreviewUrl} alt="Dish Image Preview" />
-    </div>
-  )}
-  <div className="upload-wrapper">
-    <input
-      type="file"
-      accept="image/*"
-      onChange={handleFileChange}
-      className="input-btn"
-      id="fileInput"
-      style={{ display: "none" }}
-    />
-    <IonButton
-      onClick={() => document.getElementById("fileInput")?.click()}
-      className="custom-upload-btn"
-    >
-      Choose File
-    </IonButton>
-  </div>
-</div>
-
+          {imagePreviewUrl && (
+              <div className="dish-img-item">
+                <IonImg className="dish-img" src={imagePreviewUrl} alt="Dish Image Preview" />
+              </div>
+            )}
+            <div className="upload-wrapper">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="input-btn"
+                id="fileInput"
+                style={{ display: "none" }}
+              />
+              <IonButton
+                onClick={() => document.getElementById("fileInput")?.click()}
+                className="custom-upload-btn"
+              >
+                Choose File
+              </IonButton>
+            </div>
+          </div>
         </IonList>
-        <IonButton
-          expand="block"
-          className="secondary-button"
-          onClick={handleSubmit}
-        >
+        <IonButton expand="block" className="secondary-button" onClick={handleSubmit}>
           Submit
         </IonButton>
         <IonToast
