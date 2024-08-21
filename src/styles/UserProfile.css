@@ -111,7 +111,17 @@
   display:flex!important;;
   flex-direction:row;
   align-items: center!important;
+  justify-content: center!important;
 }
+
+.location-icon-row h4 {
+  margin-left: 4px;
+  text-align: center;
+  margin-top:8px;
+  text-align:center!important;
+}
+
+
 
 .location-icon-row ion-icon {
   width:20px!important;

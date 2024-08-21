@@ -2,6 +2,7 @@
   display:flex!important;
   justify-content:space-evenly;
   padding-top: 20px!important;
+  align-items:center!important;
 }
 
 
@@ -22,6 +23,10 @@
 }
 
 
+.info-column h2 {
+  font-size:22px!important;
+}
+
 .preferred-location-banner .menu-banner {
   aspect-ratio: 1 / 1 !important;
 
@@ -35,9 +40,9 @@ list-ios {
 
 
 .add-fab {
-  --background: var(--ion-color-secondary); /* For the add button */
+  --background: var(--ion-color-secondary); 
   --color:white;
-  margin-top:100%!important;
+  margin-top:75%!important;
   stroke:white!important;
 
 }
@@ -154,4 +159,29 @@ list-ios {
 
 .item-desc {
   font-size: 12px!important;
+}
+
+
+.add-fab {
+  --background: var(--ion-color-secondary);
+  --color:white;
+  margin-top:75%!important;
+  stroke:white!important;
+
+}
+
+@media (max-width:400px) {
+  .add-fab {
+    margin-top:100%!important;
+    font-size:10px!important;
+  }
+
+
+  .info-column h2 {
+    font-size: 20px!important;
+  }
+
+  .preferred-location-banner {
+    padding-top:25px!important;
+  }
 }

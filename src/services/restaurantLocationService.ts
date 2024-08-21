@@ -195,11 +195,9 @@ export const fetchZipCode = async (street: string, city: string, state: string):
       return null;
     }
 
-    // Use the fetchRestaurantsFromGooglePlaces function
     const restaurants = await fetchRestaurantsFromGooglePlaces(coordinates.lat, coordinates.lng, 1000, 'restaurant');
 
     if (restaurants.length > 0) {
-      // Assuming the first restaurant's ZIP code is close enough to the address provided
       const restaurant = restaurants[0];
       const addressComponents = restaurant.address_components;
 

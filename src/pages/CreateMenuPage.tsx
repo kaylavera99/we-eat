@@ -159,7 +159,6 @@ const CreateMenuPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Fetch ZIP code whenever streetAddress, city, or state changes
     handleAddressChange();
   }, [streetAddress, city, state]);
 

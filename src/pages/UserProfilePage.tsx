@@ -149,11 +149,19 @@ const UserProfilePage: React.FC = () => {
     fetchUserProfile();
   }, []);
 
+  const formatAllergen = (allergen: string) => {
+    return allergen
+      .split('_')
+      .map(word => capitalize(word))
+      .join(' ');
+  };
+  
+
   const renderAllergens = () => {
     if (userData && userData.allergens) {
       return Object.entries(userData.allergens)
         .filter(([key, value]) => value) 
-        .map(([key]) => capitalize(key)) 
+        .map(([key]) => formatAllergen(key)) 
         .join(', '); 
     }
     return 'None';

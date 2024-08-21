@@ -18,7 +18,7 @@ import {
 import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig';
 import { useHistory } from 'react-router-dom';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { add, person } from 'ionicons/icons';
 import 'ionicons';
 import {arrowForward, search } from 'ionicons/icons'; 
@@ -42,16 +42,36 @@ const HomePage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState('');
   const history = useHistory();
 
+
+    const fetchUserDataWithRetry = async (userUid: string, retries = 3) => {
+      while (retries > 0) {
+        const userDocRef = doc(db, 'users', userUid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          return userDocSnap.data();
+        }
+        retries--;
+        await new Promise((resolve) => setTimeout(resolve, 500)); // wait a bit before retrying
+      }
+      return null;
+    };
+
   useEffect(() => {
-    const fetchUserData = async () => {
-      setIsLoading(true);
-      try {
-        if (auth.currentUser) {
-          const userDocRef = doc(db, 'users', auth.currentUser.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            setFirstName(userData.firstName);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+
+          setIsLoading(true);
+
+          await new Promise((resolve) => setTimeout(resolve, 500));
+
+
+          const userData = await fetchUserDataWithRetry(user.uid);
+          if (userData) {
+            setFirstName(userData.firstName || "Guest");
+            console.log(userData.firstName);
+          } else {
+            setFirstName("Else Guest")
           }
 
           const querySnapshot = await getDocs(collection(db, 'restaurants'));
@@ -60,16 +80,18 @@ const HomePage: React.FC = () => {
             ...doc.data(),
           } as Restaurant));
           setRestaurants(restaurantList);
+        } catch (error: any) {
+          setToastMessage(error.message);
+          setShowToast(true);
+        } finally {
+          setIsLoading(false);
         }
+      } else {
         setIsLoading(false);
-      } catch (error: any) {
-        setIsLoading(false);
-        setToastMessage(error.message);
-        setShowToast(true);
       }
-    };
+    });
 
-    fetchUserData();
+    return () => unsubscribe();
   }, []);
 
  

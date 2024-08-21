@@ -85,6 +85,9 @@ const AddDishesPage: React.FC = () => {
         const createdMenusRef = collection(userDocRef, "createdMenus");
         const newMenuDocRef = doc(createdMenusRef, menuId);
         const dishesRef = collection(newMenuDocRef, "dishes");
+
+        console.log('Dish to be added:', dish);
+
         await addDoc(dishesRef, dish);
       }
 

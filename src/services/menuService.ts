@@ -181,8 +181,17 @@ export const updateMenuItemInCreatedMenus = async (item: MenuItem, restaurantNam
   }
 
   const menuDocRef = querySnapshot.docs[0].ref;
-  const dishDocRef = doc(collection(menuDocRef, 'dishes'), itemId);
-  await updateDoc(dishDocRef, { ...item });
+  const dishesCollectionRef = collection(menuDocRef, 'dishes');
+
+  const dishQuery = query(dishesCollectionRef, where("id", "==", itemId));
+  const dishSnapshot = await getDocs(dishQuery);
+
+  if (dishSnapshot.empty) {
+    throw new Error("Dish not found.");
+  }
+
+  const dishDocRef = dishSnapshot.docs[0].ref; 
+  await updateDoc(dishDocRef, { ...item }); 
 };
 
 export const updateNotesInCreatedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
