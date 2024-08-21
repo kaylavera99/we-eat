@@ -91,7 +91,7 @@ export const searchRestaurants = async (location: string, radius: number, search
       icon: result.icon,
       photoUrl
     };
-  }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // Margin of error
+  }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // margin of error
 
   formattedResults.sort((a, b) => a.distance - b.distance);
 
