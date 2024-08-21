@@ -50,6 +50,8 @@ interface PreferredLocation {
 
 const CreatedMenuPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
+  const decodedRestaurantName = decodeURIComponent(restaurantName); // decoding the restaurant name
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
@@ -77,7 +79,7 @@ const CreatedMenuPage: React.FC = () => {
           // Fetch created menus
           const createdMenus = await fetchCreatedMenus();
           const createdMenu = createdMenus.find(
-            (menu) => menu.restaurantName === restaurantName
+            (menu) => menu.restaurantName === decodedRestaurantName
           );
           if (createdMenu) {
             setMenuItems(createdMenu.dishes);
@@ -101,7 +103,7 @@ const CreatedMenuPage: React.FC = () => {
           const locationPromises = preferredLocationsSnap.docs.map(
             async (doc) => {
               const location = doc.data() as PreferredLocation;
-              if (location.name === restaurantName) {
+              if (location.name === decodedRestaurantName) {
                 locations[doc.id] = location;
 
                 // fetch photo URL for the location
@@ -130,13 +132,13 @@ const CreatedMenuPage: React.FC = () => {
       }
     };
     fetchData();
-  }, [restaurantName]);
+  }, [decodedRestaurantName]);
 
   const handleSaveItem = async (updatedItem: MenuItem) => {
     try {
       await updateMenuItemInCreatedMenus(
         updatedItem,
-        restaurantName,
+        decodedRestaurantName,
         updatedItem.id!
       );
       setMenuItems(
@@ -155,7 +157,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteMenuItemFromCreatedMenus(itemId, restaurantName);
+      await deleteMenuItemFromCreatedMenus(itemId, decodedRestaurantName);
       setMenuItems(menuItems.filter((item) => item.id !== itemId));
       setToastMessage("Item deleted successfully!");
       setShowToast(true);
@@ -167,7 +169,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleAddMenuItem = async (newItem: MenuItem) => {
     try {
-      await addMenuItemToCreatedMenus(newItem, restaurantName);
+      await addMenuItemToCreatedMenus(newItem, decodedRestaurantName);
       setMenuItems([...menuItems, newItem]);
       setToastMessage("Item added successfully!");
       setShowToast(true);
@@ -331,6 +333,7 @@ const CreatedMenuPage: React.FC = () => {
           isOpen={showAddMenuItemModal}
           onClose={() => setShowAddMenuItemModal(false)}
           onAddMenuItem={handleAddMenuItem}
+          restaurantName={restaurantName}
         />
       </IonContent>
     </IonPage>

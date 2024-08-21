@@ -20,7 +20,7 @@ const SlideMenu: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
 
-  useDisableScroll('ion-menu ion-content'); // Use the custom hook
+  useDisableScroll('ion-menu ion-content'); 
 
 
   const navigateTo = (path: string) => {

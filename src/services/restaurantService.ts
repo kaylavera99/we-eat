@@ -20,11 +20,13 @@ export interface MenuCategory {
 }
 
 export const fetchFullMenuFromRestaurants = async (encodedRestaurantName: string): Promise<MenuCategory[]> => {
+console.log("BEfore: ", encodedRestaurantName);
   const restaurantName = decodeURIComponent(encodedRestaurantName);
+  console.log("After decoding: ", restaurantName)
   const categories: MenuCategory[] = [];
   console.log("Fetching full menu for restaurant:", restaurantName);
   const restaurantsRef = collection(db, 'restaurants');
-  const q = query(restaurantsRef, where("name", "==", restaurantName));
+  const q = query(restaurantsRef, where("name", "==", encodeURIComponent(restaurantName)));
   const querySnapshot = await getDocs(q);
 
   if (!querySnapshot.empty) {
@@ -46,19 +48,19 @@ export const fetchFullMenuFromRestaurants = async (encodedRestaurantName: string
           allergens: itemData.allergens,
           note: itemData.note,
           category: categoryData.category,
-          imageUrl: itemData.imageUrl  // Include imageUrl
+          imageUrl: itemData.imageUrl  
         };
       });
 
       categories.push({
         id: categoryDoc.id,
         category: categoryData.category,
-        index: categoryData.index || 0, // Default to 0 if no index is found
+        index: categoryData.index || 0, // default to 0 if no index is found
         items,
       });
     }
 
-    // Sort categories by index
+    // sort categories by index
     categories.sort((a, b) => a.index - b.index);
 
     console.log("Fetched categories:", categories);

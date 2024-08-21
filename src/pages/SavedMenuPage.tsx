@@ -63,7 +63,7 @@ const SavedMenuPage: React.FC = () => {
   );
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [viewingItem, setViewingItem] = useState<MenuItem | null>(null); // State for viewing item
+  const [viewingItem, setViewingItem] = useState<MenuItem | null>(null); 
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
@@ -145,20 +145,16 @@ const SavedMenuPage: React.FC = () => {
   };
 
   const handleViewItem = (item: MenuItem) => {
-    setViewingItem(item); // Set the item to view
+    setViewingItem(item); 
   };
 
   const handleDeleteItem = async (itemToDelete: MenuItem) => {
     try {
       if (itemToDelete.id && restaurantName) {
-        // Ensure both are defined
-        // Call the service to delete the item from the saved menus in the database
         await deleteMenuItemFromSavedMenus(itemToDelete.id, restaurantName);
 
-        // Update the local state to remove the item
         setMenuItems(menuItems.filter((item) => item.id !== itemToDelete.id));
 
-        // Show  success message
         setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
         setShowToast(true);
       } else {
@@ -166,7 +162,6 @@ const SavedMenuPage: React.FC = () => {
         setShowToast(true);
       }
     } catch (error) {
-      // Handle any errors that occur during the deletion process
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
     }

@@ -53,6 +53,7 @@ interface PreferredLocation {
   };
   photoUrl?: string;
 }
+
 const PersonalizedMenuPage: React.FC = () => {
   const [createdMenus, setCreatedMenus] = useState<Menu[]>([]);
   const [savedMenus, setSavedMenus] = useState<Menu[]>([]);
@@ -76,7 +77,7 @@ const PersonalizedMenuPage: React.FC = () => {
           const locationPromises = preferredLocationsSnap.docs.map(
             async (doc) => {
               const location = doc.data() as PreferredLocation;
-              locations[location.name] = location;
+              locations[decodeURIComponent(location.name)] = location;
             }
           );
           await Promise.all(locationPromises);
@@ -94,7 +95,7 @@ const PersonalizedMenuPage: React.FC = () => {
 
             const restaurantQuery = query(
               collection(db, "restaurants"),
-              where("name", "==", data.restaurantName)
+              where("name", "==", decodeURIComponent(data.restaurantName))
             );
             const restaurantSnapshot = await getDocs(restaurantQuery);
             let thumbnailUrl = "";
@@ -111,7 +112,7 @@ const PersonalizedMenuPage: React.FC = () => {
             });
           }
 
-          // fetch created menus
+          // Fetch created menus
           const createdMenusSnap = await getDocs(
             collection(userDocRef, "createdMenus")
           );
@@ -122,13 +123,13 @@ const PersonalizedMenuPage: React.FC = () => {
 
             let thumbnailUrl = "";
 
-            //  preferred location coordinates for fetching the thumbnailUrl
-            const location = locations[data.restaurantName];
+            // Use preferred location coordinates for fetching the thumbnailUrl
+            const location = locations[decodeURIComponent(data.restaurantName)];
             if (location) {
               const results = await searchRestaurants(
                 `${location.coordinates.latitude},${location.coordinates.longitude}`,
                 5,
-                data.restaurantName,
+                decodeURIComponent(data.restaurantName),
                 {
                   lat: location.coordinates.latitude,
                   lng: location.coordinates.longitude,
@@ -185,11 +186,12 @@ const PersonalizedMenuPage: React.FC = () => {
     try {
       const userId = auth.currentUser?.uid;
       if (userId) {
+        const encodedRestaurantName = encodeURIComponent(restaurantName);
         const userDocRef = doc(db, "users", userId);
         const menuCollection = isCreatedMenu ? "createdMenus" : "savedMenus";
         const menuQuery = query(
           collection(userDocRef, menuCollection),
-          where("restaurantName", "==", restaurantName)
+          where("restaurantName", "==", encodedRestaurantName)
         );
         const querySnapshot = await getDocs(menuQuery);
 
@@ -198,7 +200,7 @@ const PersonalizedMenuPage: React.FC = () => {
           setToastMessage("Menu deleted successfully.");
           setShowToast(true);
 
-          // live update to  menu list after deletion
+          // Update the menu list after deletion
           const updatedMenus = isCreatedMenu
             ? createdMenus.filter(
                 (menu) => menu.restaurantName !== restaurantName

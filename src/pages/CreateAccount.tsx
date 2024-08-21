@@ -18,7 +18,7 @@ import {
   IonInputPasswordToggle,
 } from "@ionic/react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { uploadImage, compressImage } from "../services/storageService";
 import "../styles/CreateAccountPage.css";
@@ -106,8 +106,18 @@ const CreateAccountPage: React.FC = () => {
         profileImageUrl,
       });
 
-      setIsLoading(false);
-      history.push("/allergens");
+      const userDocRef = doc(db, "users", user.uid);
+      const userDocSnap = await getDoc(userDocRef); 
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+
+
+      if (userDocSnap.exists()) {
+        history.push("/home");
+    } else {
+        setToastMessage("Failed to load user data. Please try again.");
+        setShowToast(true);
+    }
     } catch (error: any) {
       setIsLoading(false);
       setToastMessage(error.message);

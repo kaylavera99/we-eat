@@ -149,7 +149,7 @@ const SearchPage: React.FC = () => {
   };
 
   const handleNavigateToRestaurantPage = async (place: Place) => {
-    const restaurantName = place.name;
+    const restaurantName = encodeURIComponent(place.name);
 
     try {
       const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
@@ -238,37 +238,32 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const checkIfUserHasSavedMenu = async (
-    restaurantName: string
-  ): Promise<boolean> => {
+  const checkIfUserHasSavedMenu = async (restaurantName: string): Promise<boolean> => {
     if (!auth.currentUser) return false;
+  
+    const encodedRestaurantName = encodeURIComponent(restaurantName);
 
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const savedMenusRef = collection(userDocRef, "savedMenus");
-    const q = query(
-      savedMenusRef,
-      where("restaurantName", "==", restaurantName)
-    );
+    const q = query(savedMenusRef, where("restaurantName", "==", encodedRestaurantName));
     const querySnapshot = await getDocs(q);
-
+  
     return !querySnapshot.empty;
   };
-
-  const checkIfUserHasCreatedMenu = async (
-    restaurantName: string
-  ): Promise<boolean> => {
+  
+  const checkIfUserHasCreatedMenu = async (restaurantName: string): Promise<boolean> => {
     if (!auth.currentUser) return false;
+    const encodedRestaurantName = encodeURIComponent(restaurantName);
 
+  
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const createdMenusRef = collection(userDocRef, "createdMenus");
-    const q = query(
-      createdMenusRef,
-      where("restaurantName", "==", restaurantName)
-    );
+    const q = query(createdMenusRef, where("restaurantName", "==", encodedRestaurantName));
     const querySnapshot = await getDocs(q);
-
+  
     return !querySnapshot.empty;
   };
+  
 
   return (
     <IonPage>
