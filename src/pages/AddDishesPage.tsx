@@ -29,7 +29,7 @@ interface Dish {
   note: string;
   imageUrl?: string;
 }
-const placeholderImage = "../../public/assets/placeholder.webp";
+const placeholderImage = "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
 const AddDishesPage: React.FC = () => {
   const { menuId } = useParams<{ menuId: string }>(); // Use menuId from URL
   const [category, setCategory] = useState("");

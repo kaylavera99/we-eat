@@ -66,7 +66,7 @@ const CreateAccountPage: React.FC = () => {
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
     if (!password.match(passwordRegex)) {
       setPasswordError(
-        "Password must contain at least 6 characters, including letters and numbers."
+        "Password must contain at least 6 characters, including letters and numbers. Password cannot contain special characters"
       );
       return;
     }
