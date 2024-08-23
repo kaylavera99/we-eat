@@ -5,9 +5,9 @@
 
 
 .card-flex-content {
-    display:flex!important;
-    flex-direction:row!important;
-    justify-content: space-around!important;
+    display:flex;
+    flex-direction:row;
+    justify-content: space-around;
     margin-left:15px;
     margin-right:15px;
     padding-top:0px;
@@ -15,8 +15,7 @@
 
 .per-card-title {
     font-family:var(--font-family-primary);
-    font-size:20px!important;
-    color:black!important;
+    font-size: calc(.75em + 2vw)!important;    color:black!important;
     padding-left:20px;
     margin-bottom:0px!important;
 
@@ -114,12 +113,104 @@
     padding-bottom:10px;
 }
 
+.acc-lbl  {
+    font-size: calc(.9em + 1vw)!important;
+    font-weight:600;
 
-@media (max-width:400px) {
+}
+
+ .per-h2 {
+    font-size: calc(1em + 2vw)!important;
+
+}
+
+.title-exp {
+    font-size: calc(.6em + 1vw)!important;
+
+}
+
+.secondary-button .button {
+    font-size: calc(.7em + 1vw)!important;
+}
+
+@media only screen and (min-width:666px) {
+
+    .list-flx {
+        display:flex;
+        flex-direction:row;
+        flex-wrap:wrap;
+        justify-content:center;
+    }
+
+    .rest-per-card {
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        width:45%;
+    }
+    .card-flex-content {
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .per-card-title {
+        margin-left:0;
+        padding-left:5px;
+        padding-right:5px;
+        font-size: calc(.55em + 2vw)!important;
+        text-align:center;
+
+
+    }
+
+}
+
+
+@media only screen and  (max-width:666px) and (min-width:422px) {
+    .personal-header .restaurant-thumbnail {
+        width:100px;
+        height:100px;
+    }
+}
+
+@media (max-width:422px) {
     .per-card-content .button {
         width:50px!important;
         font-size:10px!important;
     }
+
+    .personal-header .restaurant-thumbnail {
+        width:75px;
+        height:75px;
+    }
+
+    .per-card-content .per-btn-row {
+        display:flex;
+        flex-direction:row;
+    }
+
+    .per-card-content {
+        padding-left:10px;
+    }
+    .card-flex-content {
+        margin-left:0px!important;
+        margin-right:0px;
+    }
+
+    .per-card-title {
+        padding-right:5px;
+        font-size: calc(.75em + 2vw)!important;
+
+    }
+
+  
+
+
+  
+
+
+
 
     
 }

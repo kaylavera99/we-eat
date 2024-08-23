@@ -186,7 +186,8 @@ const PersonalizedMenuPage: React.FC = () => {
     try {
       const userId = auth.currentUser?.uid;
       if (userId) {
-        const encodedRestaurantName = encodeURIComponent(restaurantName);
+        const encodedRestaurantName = decodeURIComponent(restaurantName);
+        console.log(encodedRestaurantName)
         const userDocRef = doc(db, "users", userId);
         const menuCollection = isCreatedMenu ? "createdMenus" : "savedMenus";
         const menuQuery = query(
@@ -291,7 +292,7 @@ const PersonalizedMenuPage: React.FC = () => {
                   slot="end"
                   className="menu-icon"
                   icon={restaurantOutline}
-                /><h2>
+                /><h2 className = 'per-h2'>
                
                 
                 Your Menus
@@ -301,11 +302,11 @@ const PersonalizedMenuPage: React.FC = () => {
               <IonAccordion value="created" className="item-expanded">
                 <IonItem slot="header" className="item-lbl">
                   <div className="item-banner">
-                    <IonLabel>Created Menus</IonLabel>
-                    <p>These are the menus you created.</p>
+                    <h4 className = 'acc-lbl' >Created Menus</h4>
+                    <p className="title-exp">These are the menus you created.</p>
                   </div>
                 </IonItem>
-                <IonList slot="content">
+                <IonList slot="content" className='list-flx'>
                   {createdMenus.length > 0 ? (
                     createdMenus.map((menu) => renderMenuCard(menu))
                   ) : (
@@ -320,14 +321,14 @@ const PersonalizedMenuPage: React.FC = () => {
               >
                 <IonItem slot="header" className="item-lbl">
                   <div className="item-banner">
-                    <IonLabel>Saved Menus</IonLabel>
+                    <h4 className = 'acc-lbl'>Saved Menus</h4>
                     <p className="title-exp">
                       These are the menus in which you've saved items from on
                       WeEat.
                     </p>
                   </div>
                 </IonItem>
-                <IonList slot="content">
+                <IonList slot="content" className = 'list-flx'>
                   {savedMenus.length > 0 ? (
                     savedMenus.map((menu) => renderMenuCard(menu))
                   ) : (

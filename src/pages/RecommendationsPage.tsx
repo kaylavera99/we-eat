@@ -59,7 +59,6 @@ const truncateDescription = (
 
 const RecommendationsPage: React.FC = () => {
   const screenWidth = useScreenWidth();
-
   const [recommendedRestaurants, setRecommendedRestaurants] = useState<
     { id: string; name: string; thumbnailUrl: string }[]
   >([]);
@@ -128,17 +127,52 @@ const RecommendationsPage: React.FC = () => {
 
     fetchRecommendations();
   }, []);
+
   useEffect(() => {
-    const accordions = document.querySelectorAll('.rec-accordion');
-    accordions.forEach(accordion => {
-      accordion.addEventListener('ionAccordionDidExpand', () => {
-        accordion.classList.add('expanded');
+    const accordions = document.querySelectorAll(".rec-accordion");
+    console.log("Accordions found: ", accordions.length);
+
+    accordions.forEach((accordion) => {
+      console.log("Attaching event to: ", accordion);
+
+      accordion.addEventListener("ionAccordionDidExpand", () => {
+        console.log("Accordion expanded ");
+        accordion.classList.add("expanded"); 
+        const accordionGroup = accordion.closest('.rest-acc-list');
+      
+        if (accordionGroup) {
+          const boundingRect = accordionGroup.getBoundingClientRect();
+          const offsetTop = boundingRect.top + window.scrollY;
+          const scrollToPosition = offsetTop - 56; // Adjust this value based on your header height or layout
+          
+          console.log("Offset: ", offsetTop);
+          console.log("Scroll: ", scrollToPosition);
+          console.log("Bound: ", boundingRect);
+          
+          window.scrollTo({ top: scrollToPosition, behavior: 'smooth' });
+        }
       });
-      accordion.addEventListener('ionAccordionDidCollapse', () => {
-        accordion.classList.remove('expanded');
+      accordion.addEventListener("ionAccordionDidCollapse", () => {
+        accordion.classList.remove("expanded");
+        window.scrollBy(0, -10);
       });
     });
-  }, []); 
+
+    const catAccordions = document.querySelectorAll(".category-accordion");
+    catAccordions.forEach((categoryacc) => {
+      categoryacc.addEventListener("ionAccordionDidExpand", () => {
+        categoryacc.classList.add("expanded");
+        categoryacc.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "start",
+        });
+      });
+      categoryacc.addEventListener("ionAccordionDidCollapse", () => {
+        categoryacc.classList.remove("expanded");
+      });
+    });
+  }, []);
 
   const handleAddToPersonalizedMenu = async (
     restaurantName: string,
@@ -196,6 +230,38 @@ const RecommendationsPage: React.FC = () => {
     return filterMenuItemsByAllergens(items, userAllergens);
   };
 
+  const handleAccordionClick = (event: React.MouseEvent<HTMLIonItemElement, MouseEvent>) => {
+    console.log("Accordion clicked")
+    const accordion = event.currentTarget;
+    console.log("Accordion: " , accordion)
+
+    const accordionGroup = accordion.closest('.rec-accordion');
+    console.log("accordion group: ", accordionGroup)
+
+    if (accordionGroup) {
+      const boundingRect = accordion.getBoundingClientRect();
+      console.log("Bounding : ", boundingRect)
+      console.log("Bounding Rect: ", boundingRect.top)
+      
+      console.log("Window: ", window.scrollY)
+      const offsetTop = boundingRect.top + window.scrollY;
+      console.log("Offset Top: ", offsetTop)
+      const scrollToPosition = boundingRect.height - 200; 
+      console.log("Scroll: ", scrollToPosition)
+
+      window.scrollTo(0,scrollToPosition);
+
+      
+
+
+      const itemElem = accordion.querySelector('.rest-rec-title');
+      if (itemElem) {
+        console.log("Element found: ", itemElem);
+        itemElem.scrollTo(0, scrollToPosition)
+      }window.scrollTo({ top: scrollToPosition, behavior: 'auto' });
+    } 
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -218,15 +284,20 @@ const RecommendationsPage: React.FC = () => {
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <IonList className="rest-list">
-            <IonAccordionGroup>
+          <IonList className="rest-rec-list">
+            <IonAccordionGroup className = 'rest-acc-list'>
               {recommendedRestaurants.map((restaurant) => (
                 <IonAccordion
                   key={`${restaurant.id}-${restaurant.name}`}
                   value={`restaurant-${restaurant.id}`}
                   className="rec-accordion"
                 >
-                  <IonItem lines="none" slot="header" className="rest-items">
+                  <IonItem
+                    lines="none"
+                    slot="header"
+                    className="rest-rec-items"
+                    onClick= {handleAccordionClick}
+                  >
                     <div className="restaurant-thumbnail-container">
                       <Suspense fallback={<div>Loading image...</div>}>
                         <LazyImage
@@ -235,101 +306,120 @@ const RecommendationsPage: React.FC = () => {
                         />
                       </Suspense>
                     </div>
-                    <h2 className="rest-title">{restaurant.name}</h2>
-                    
+                    <h2 className="rest-rec-title">{restaurant.name}</h2>
                   </IonItem>
-                  <IonList lines='none' slot="content" className = 'rest-list'>
-                  <IonAccordionGroup className="cat-acc">
-  {restaurantMenus[restaurant.id]?.menu
-    .sort((a, b) => a.index - b.index)
-    .map((menuCategory: MenuCategory, categoryIndex: number) => {
-      const filteredItems = filterItemsByAllergens(
-        filterUserMenuItems(restaurant.id, menuCategory.items)
-      );
+                  <IonList lines="none" slot="content" className="rest-list">
+                    <IonAccordionGroup className="cat-acc">
+                      {restaurantMenus[restaurant.id]?.menu
+                        .sort((a, b) => a.index - b.index)
+                        .map(
+                          (
+                            menuCategory: MenuCategory,
+                            categoryIndex: number
+                          ) => {
+                            const filteredItems = filterItemsByAllergens(
+                              filterUserMenuItems(
+                                restaurant.id,
+                                menuCategory.items
+                              )
+                            );
 
-      return (
-        <IonAccordion
-          key={`${restaurant.id}-${menuCategory.category}-${categoryIndex}`}
-          value={`category-${restaurant.id}-${categoryIndex}`}
-          className="category-accordion"
-        >
-          <IonItem lines="none" slot="header">
-            <IonLabel>{menuCategory.category}</IonLabel>
-          </IonItem>
-          <IonList slot="content">
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item: MenuItem, itemIndex: number) => (
-                <IonItem
-                  lines="none"
-                  className="menu-list"
-                  key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}
-                >
-                  <div className="menu-item-container">
-                    <div className="image-container">
-                      <Suspense fallback={<div>Loading image...</div>}>
-                        <LazyImage
-                          src={
-                            item.imageUrl ||
-                            "path/to/placeholder-image.jpg"
+                            return (
+                              <IonAccordion
+                                key={`${restaurant.id}-${menuCategory.category}-${categoryIndex}`}
+                                value={`category-${restaurant.id}-${categoryIndex}`}
+                                className="category-accordion"
+                                
+                              >
+                                <IonItem lines="none" slot="header">
+                                  <IonLabel>{menuCategory.category}</IonLabel>
+                                </IonItem>
+                                <IonList slot="content">
+                                  {filteredItems.length > 0 ? (
+                                    filteredItems.map(
+                                      (item: MenuItem, itemIndex: number) => (
+                                        <IonItem
+                                          lines="none"
+                                          className="menu-list"
+                                          key={`${restaurant.id}-${menuCategory.category}-${item.id}-${itemIndex}`}
+                                        >
+                                          <div className="menu-item-container">
+                                            <div className="image-container">
+                                              <Suspense
+                                                fallback={
+                                                  <div>Loading image...</div>
+                                                }
+                                              >
+                                                <LazyImage
+                                                  src={
+                                                    item.imageUrl ||
+                                                    "path/to/placeholder-image.jpg"
+                                                  }
+                                                  alt={item.name}
+                                                />
+                                              </Suspense>
+                                            </div>
+                                            <div className="menu-item-details">
+                                              <IonLabel className="explore-titles">
+                                                <h4>{item.name}</h4>
+                                                <p className="menu-item-description">
+                                                  {truncateDescription(
+                                                    item.description,
+                                                    100,
+                                                    150,
+                                                    screenWidth
+                                                  )}
+                                                </p>
+                                                <p
+                                                  className="allergen-line-page"
+                                                  style={{ color: "black" }}
+                                                >
+                                                  <strong>Allergens: </strong>
+                                                  {item.allergens.join(", ")}
+                                                </p>
+                                              </IonLabel>
+                                              <div className="menu-item-buttons">
+                                                <IonButton
+                                                  onClick={() =>
+                                                    handleViewItem(
+                                                      item,
+                                                      restaurant.name
+                                                    )
+                                                  }
+                                                >
+                                                  View Item
+                                                </IonButton>
+                                                <IonButton
+                                                  className="add-btn"
+                                                  onClick={() =>
+                                                    handleAddToPersonalizedMenu(
+                                                      restaurant.name,
+                                                      item
+                                                    )
+                                                  }
+                                                >
+                                                  Add to Menu
+                                                </IonButton>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </IonItem>
+                                      )
+                                    )
+                                  ) : (
+                                    <IonItem lines="none" className="no-safe">
+                                      <p>
+                                        No safe menu items available at this
+                                        time
+                                      </p>
+                                    </IonItem>
+                                  )}
+                                </IonList>
+                              </IonAccordion>
+                            );
                           }
-                          alt={item.name}
-                        />
-                      </Suspense>
-                    </div>
-                    <div className="menu-item-details">
-                      <IonLabel className="explore-titles">
-                        <h4>{item.name}</h4>
-                        <p className="menu-item-description">
-                          {truncateDescription(
-                            item.description,
-                            100,
-                            150,
-                            screenWidth
-                          )}
-                        </p>
-                        <p
-                          className="allergen-line-page"
-                          style={{ color: "black" }}
-                        >
-                          <strong>Allergens: </strong>
-                          {item.allergens.join(", ")}
-                        </p>
-                      </IonLabel>
-                      <div className="menu-item-buttons">
-                        <IonButton
-                          onClick={() =>
-                            handleViewItem(item, restaurant.name)
-                          }
-                        >
-                          View Item
-                        </IonButton>
-                        <IonButton
-                          className="add-btn"
-                          onClick={() =>
-                            handleAddToPersonalizedMenu(
-                              restaurant.name,
-                              item
-                            )
-                          }
-                        >
-                          Add to Menu
-                        </IonButton>
-                      </div>
-                    </div>
-                  </div>
-                </IonItem>
-              ))
-            ) : (
-              <IonItem lines="none" className="no-safe">
-                < p>No safe menu items available at this time</p>
-              </IonItem>
-            )}
-          </IonList>
-        </IonAccordion>
-      );
-    })}
-</IonAccordionGroup>
-
+                        )}
+                    </IonAccordionGroup>
                   </IonList>
                 </IonAccordion>
               ))}

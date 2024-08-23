@@ -101,7 +101,7 @@ ion-item-divider {
   font-size: 20px!important;
 }
 
-.rest-items {
+.rest-rec-items {
   display:flex;
   align-items:center;
   border: 5px solid var(--background)!important;
@@ -109,6 +109,8 @@ ion-item-divider {
 
 
 }
+
+
 
 ion-accordion {
   border-bottom: 5px solid var(--background)!important;
@@ -123,10 +125,13 @@ ion-accordion {
 
 }
 
-.rest-title {
+.rest-rec-title {
   margin-left:10px!important;
   font-size:20px!important;
   flex-grow:1;
+  font-size: calc(.55em + 2vw)!important;
+  font-weight:600;
+
 }
 
 .ion-item[slot="header"] ion-img {
@@ -158,7 +163,7 @@ ion-accordion {
 }
 
 .menu-item-container h4 {
-  font-size:18px;
+  font-size:  calc(0.7em + 1vw)!important;
   font-weight:600!important;
 }
 
@@ -199,12 +204,16 @@ ion-accordion {
 }
 
 .no-safe {
-  padding-left: 28px!important;
   padding-top:20px!important;
-  padding-bottom: 20px;
+  padding-bottom: 0px;
   border-bottom: 5px solid transparent!important;
   margin-top:5px;
   margin-bottom:5px;
+  text-align:center!important;
+  width:100%!important;
+  display:flex;
+  --justify-content: center;
+  --text-align:center!important;
 
 }
 
@@ -214,7 +223,11 @@ ion-accordion {
 
 .explore-titles p {
   padding-right:15px!important;
+  font-size:  calc(0.5em + 1vw)!important;
+
 }
+
+
 
 
 .accordion-expanded .allergen-line p {
@@ -239,6 +252,11 @@ ion-accordion {
 ion-modal {
   --background: rgba(0, 0, 0, 0.1) !important; /* Semi-transparent background */
   --ion-background-color: transparent; /* Transparent modal wrapper */
+}
+
+.no-safe p {
+  width:100%!important;
+  
 }
 
 ion-modal::part(content) {
@@ -360,6 +378,12 @@ ion-card-header {
   color: #02382E !important; 
 }
 
+
+
+.menu-list {
+  border-radius:20px;
+}
+
 @media only screen and (min-width: 768px) and (min-height: 600px) {
   ion-modal {
     --box-shadow: none !important; 
@@ -370,27 +394,38 @@ ion-card-header {
 
 
 }
-@media only screen and (max-width: 768px) { 
+@media only screen and (max-width: 375px) { 
   .menu-item-container .image-container {
     width:100px;
     height:100px;
 
 
   }
+
+
+  .rest-rec-list {
+    padding-left:0px;
+    padding-right:0px;
+
+  }
+
+ 
+
+
+ 
 }
 
-.accordion-next .rest-items {
+
+
+.accordion-next .rest-rec-items {
  --border-width:0px!important;
 }
 
-.rec-accordion.accordion-expanded .rest-items {
-  border-bottom: 5px solid var(--ion-page-background)!important;
 
-}
 
 .cat-acc{
   margin-left:10px;
-  margin-right:10spx;
+  margin-right:10px;
 }
 
 .rec-accordion.expanded .ion-accordion-toggle-icon {
@@ -398,7 +433,50 @@ ion-card-header {
 }
 
 
-.category-accordion ion-item {
-  border-bottom: 5px solid var(--ion-page-background)!important;
+.category-accordion ion-item, .rest-rec-items {
+  border-radius:5px;
+  margin-bottom:5px;
+}
 
+
+
+
+@media only screen and (max-width: 399px) {
+  .menu-item-container {
+    flex-direction:column;
+    
+  }
+
+
+
+
+  .menu-item-buttons {
+    justify-content:center;
+  }
+
+  .explore-titles {
+    text-align:center;
+  }
+}
+
+
+@media only screen and (min-width: 300px) {
+  .menu-item-container {
+    width:100%!important;
+  }
+
+
+  .rest-rec-items .no-safe  {
+    display:block!important;
+    margin-left:auto;
+    justify-content:center!important;
+  }
+
+
+ .rest-rec-items .no-safe  {
+    text-align:center!important;
+  }
+
+
+  
 }
