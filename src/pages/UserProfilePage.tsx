@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonHeader,
@@ -15,15 +15,25 @@ import {
   IonAccordion,
   IonAccordionGroup,
   IonItem,
-  IonLabel
-} from '@ionic/react';
-import { doc, getDoc, collection, getDocs, deleteDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
-import { useHistory } from 'react-router-dom';
-import { searchRestaurants } from '../services/searchService';
-import '../styles/UserProfile.css';
-import 'ionicons/icons';
-import { locationOutline, personCircleOutline } from 'ionicons/icons';
+  IonLabel,
+} from "@ionic/react";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
+import { useHistory } from "react-router-dom";
+import { searchRestaurants } from "../services/searchService";
+import "../styles/UserProfile.css";
+import "ionicons/icons";
+import {
+  locationOutline,
+  personCircleOutline,
+  locationSharp,
+} from "ionicons/icons";
 
 interface PreferredLocation {
   address: string;
@@ -56,20 +66,22 @@ const UserProfilePage: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [restaurantPhotos, setRestaurantPhotos] = useState<{ [key: string]: string }>({});
+  const [toastMessage, setToastMessage] = useState("");
+  const [restaurantPhotos, setRestaurantPhotos] = useState<{
+    [key: string]: string;
+  }>({});
   const history = useHistory();
 
   const handleEditProfile = () => {
-    history.push('/edit-profile');
+    history.push("/edit-profile");
   };
 
   const handleViewPersonalizedMenus = () => {
-    history.push('/personalized-menu');
+    history.push("/personalized-menu");
   };
 
   const handleNavigateCreate = () => {
-    history.push('/create-menu');
+    history.push("/create-menu");
   };
 
   const capitalize = (str: string) => {
@@ -81,7 +93,7 @@ const UserProfilePage: React.FC = () => {
       setIsLoading(true);
       try {
         if (auth.currentUser) {
-          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const userDocRef = doc(db, "users", auth.currentUser.uid);
           const userDocSnap = await getDoc(userDocRef);
           if (userDocSnap.exists()) {
             const userDocData = userDocSnap.data() || {};
@@ -94,48 +106,57 @@ const UserProfilePage: React.FC = () => {
               allergens: userDocData.allergens || {},
               preferredLocations: {},
               createdMenus: {},
-              profileImageUrl: userDocData.profileImageUrl || '',
+              profileImageUrl: userDocData.profileImageUrl || "",
               address: userDocData.address,
-              lastName: userDocData.lastName
+              lastName: userDocData.lastName,
             };
 
-            const preferredLocationsSnap = await getDocs(collection(userDocRef, 'preferredLocations'));
+            const preferredLocationsSnap = await getDocs(
+              collection(userDocRef, "preferredLocations")
+            );
             const locations: { [key: string]: PreferredLocation } = {};
-            const locationPromises = preferredLocationsSnap.docs.map(async (doc) => {
-              const location = doc.data() as PreferredLocation;
-              locations[doc.id] = location;
+            const locationPromises = preferredLocationsSnap.docs.map(
+              async (doc) => {
+                const location = doc.data() as PreferredLocation;
+                locations[doc.id] = location;
 
-              const results = await searchRestaurants(
-                `${location.coordinates.latitude},${location.coordinates.longitude}`,
-                5,
-                location.name,
-                { lat: location.coordinates.latitude, lng: location.coordinates.longitude }
-              );
-              if (results.length > 0) {
-                location.photoUrl = results[0].photoUrl;
-                setRestaurantPhotos((prevPhotos) => ({
-                  ...prevPhotos,
-                  [location.name]: results[0].photoUrl,
-                }));
+                const results = await searchRestaurants(
+                  `${location.coordinates.latitude},${location.coordinates.longitude}`,
+                  5,
+                  location.name,
+                  {
+                    lat: location.coordinates.latitude,
+                    lng: location.coordinates.longitude,
+                  }
+                );
+                if (results.length > 0) {
+                  location.photoUrl = results[0].photoUrl;
+                  setRestaurantPhotos((prevPhotos) => ({
+                    ...prevPhotos,
+                    [location.name]: results[0].photoUrl,
+                  }));
+                }
               }
-            });
+            );
 
             await Promise.all(locationPromises);
 
             userData.preferredLocations = locations;
 
-            const createdMenusSnap = await getDocs(collection(userDocRef, 'createdMenus'));
+            const createdMenusSnap = await getDocs(
+              collection(userDocRef, "createdMenus")
+            );
             createdMenusSnap.forEach((doc) => {
               userData.createdMenus[doc.id] = doc.data();
             });
 
             setUserData(userData);
           } else {
-            setToastMessage('No such document!');
+            setToastMessage("No such document!");
             setShowToast(true);
           }
         } else {
-          setToastMessage('User not authenticated');
+          setToastMessage("User not authenticated");
           setShowToast(true);
         }
       } catch (error: any) {
@@ -151,46 +172,44 @@ const UserProfilePage: React.FC = () => {
 
   const formatAllergen = (allergen: string) => {
     return allergen
-      .split('_')
-      .map(word => capitalize(word))
-      .join(' ');
+      .split("_")
+      .map((word) => capitalize(word))
+      .join(" ");
   };
-  
 
   const renderAllergens = () => {
     if (userData && userData.allergens) {
       return Object.entries(userData.allergens)
-        .filter(([key, value]) => value) 
-        .map(([key]) => formatAllergen(key)) 
-        .join(', '); 
+        .filter(([key, value]) => value)
+        .map(([key]) => formatAllergen(key))
+        .join(", ");
     }
-    return 'None';
+    return "None";
   };
 
   const renderFullName = () => {
     if (userData && userData.name && userData.lastName) {
       return `${userData.name} ${userData.lastName}`;
     }
-    return 'No name available';
+    return "No name available";
   };
 
   const handleRemovePreferredLocation = async (locationKey: string) => {
     if (!auth.currentUser) return;
 
     try {
-      const userDocRef = doc(db, 'users', auth.currentUser.uid);
-      const locationDocRef = doc(userDocRef, 'preferredLocations', locationKey);
+      const userDocRef = doc(db, "users", auth.currentUser.uid);
+      const locationDocRef = doc(userDocRef, "preferredLocations", locationKey);
       await deleteDoc(locationDocRef);
 
-      
-      setUserData(prevData => {
+      setUserData((prevData) => {
         if (!prevData) return prevData;
         const updatedLocations = { ...prevData.preferredLocations };
         delete updatedLocations[locationKey];
         return { ...prevData, preferredLocations: updatedLocations };
       });
 
-      setToastMessage('Preferred location removed');
+      setToastMessage("Preferred location removed");
       setShowToast(true);
     } catch (error: any) {
       setToastMessage(error.message);
@@ -205,74 +224,105 @@ const UserProfilePage: React.FC = () => {
           <IonTitle>User Profile</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding" >          
-        <div className="page-header">
-        <div className="page-banner-row-user"><IonIcon
+      <IonContent className="ion-padding pad">
+        
+          <div className="page-header">
+            <div className="page-banner-row-user">
+              <IonIcon
                 slot="end"
                 className="menu-icon"
-                icon={personCircleOutline} />
-          <h2 className="page-title">Your Profile</h2>  </div>            
-          <IonButton className="secondary-button" onClick={handleEditProfile}>
-            Edit Profile
-          </IonButton>
-        </div>
-     
-        {userData && (
-          <div className="profile-banner">
-            <IonAvatar className="profile-avatar">
-              <IonImg src={userData.profileImageUrl} alt="Profile Picture" />
-            </IonAvatar>
-            <div className="user-info">
-              <h3>{renderFullName()}</h3>
-              <div className = 'location-icon-row'>
-             <IonIcon icon={locationOutline}/> <h4>{userData.address}</h4></div>
-              <h4><strong>Allergens: </strong>{renderAllergens()}</h4>
+                icon={personCircleOutline}
+              />
+              <h2 className="page-title">Your Profile</h2>{" "}
+            </div>
+            <IonButton className="secondary-button" onClick={handleEditProfile}>
+              Edit Profile
+            </IonButton>
+          </div>
+<div className="page-color">
+          {userData && (
+            <div className="profile-banner">
+              <div className="profile-spacer">
+                <IonAvatar className="profile-avatar">
+                  <IonImg
+                    src={userData.profileImageUrl}
+                    alt="Profile Picture"
+                  />
+                </IonAvatar>
+                <div className="user-info">
+                  <h3>{renderFullName()}</h3>
+                  <div className="location-icon-row">
+                    <IonIcon icon={locationSharp} /> <h4>{userData.address}</h4>
+                  </div>
+                  <h4>
+                    <strong>Allergens: </strong>
+                    {renderAllergens()}
+                  </h4>
+                </div>
+              </div>
+            </div>
+          )}</div>
+          <div className="hr-container"></div>
+          <div className="button-row">
+            <div className="button-col">
+              <IonButton
+                className="button"
+                onClick={handleViewPersonalizedMenus}
+              >
+                Your Menus
+              </IonButton>
+            </div>
+            <div className="button-col">
+              <IonButton className="button" onClick={handleNavigateCreate}>
+                Create Menu
+              </IonButton>
             </div>
           </div>
-        )}
-        <div className='hr-container'><hr className="styled-hr"/></div>
-        <div className="button-row">
-          <div className="button-col">
-            <IonButton className="button" onClick={handleViewPersonalizedMenus}>
-              Your Menus
-            </IonButton>
-          </div>
-          <div className="button-col">
-            <IonButton className="button" onClick={handleNavigateCreate}>
-              Create Menu
-            </IonButton>
-          </div>
-        </div>
-
+      
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : userData ? (
-          <IonList>
+          <IonList className = 'prof-list'>
             {Object.keys(userData.preferredLocations).length > 0 ? (
               <div>
-                <h2>Restaurant Locations:</h2>
-                <IonAccordionGroup className = 'loc-acc' >
-                  {Object.entries(userData.preferredLocations).map(([key, location]) => (
-                    <IonAccordion key={key} className =  'rest-acc'>
-                      <IonItem slot="header" lines='none' className = 'loc-items'>
-                        <IonLabel>{location.name}</IonLabel>
-                      </IonItem>
-                      <div className="ion-padding" slot="content" >
-                        {location.photoUrl && <IonImg src={location.photoUrl} alt={location.name} className="location-thumbnail" />}
-                        <p>{location.address}</p>
-                        <IonButton
-                          href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.latitude},${location.coordinates.longitude}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                <h2>Your Restaurant Locations</h2>
+                <IonAccordionGroup className="loc-acc">
+                  {Object.entries(userData.preferredLocations).map(
+                    ([key, location]) => (
+                      <IonAccordion key={key} className="rest-acc">
+                        <IonItem
+                          slot="header"
+                          lines="none"
+                          className="loc-items"
                         >
-                          Directions
-                        </IonButton>
-                        <IonButton color="danger" onClick={() => handleRemovePreferredLocation(key)}>
-                          Remove
-                        </IonButton>
-                      </div>
-                    </IonAccordion>
-                  ))}
+                          <IonLabel>{location.name}</IonLabel>
+                        </IonItem>
+                        <div className="ion-pad" slot="content">
+                          {location.photoUrl && (
+                            <IonImg
+                              src={location.photoUrl}
+                              alt={location.name}
+                              className="location-thumbnail"
+                            />
+                          )}
+                          <p>{location.address}</p>
+                          <IonButton
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.latitude},${location.coordinates.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            Directions
+                          </IonButton>
+                          <IonButton
+                            color="danger"
+                            onClick={() => handleRemovePreferredLocation(key)}
+                          >
+                            Remove
+                          </IonButton>
+                        </div>
+                      </IonAccordion>
+                    )
+                  )}
                 </IonAccordionGroup>
               </div>
             ) : (

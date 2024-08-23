@@ -34,7 +34,7 @@ import { db, auth } from "../firebaseConfig";
 import { fetchFullMenuFromRestaurants } from "../services/restaurantService";
 import { getCoordinatesFromAddress } from "../services/googlePlacesService";
 import { searchOutline, optionsOutline, filterOutline } from "ionicons/icons";
-import '../styles/SearchPage.css';
+import "../styles/SearchPage.css";
 
 interface Place {
   name: string;
@@ -165,16 +165,13 @@ const SearchPage: React.FC = () => {
         restaurantName
       );
       if (userHasCreatedMenu) {
-        history.push(
-          `/restaurant/${encodeURIComponent(restaurantName)}/created`,
-          { place }
-        );
+        history.push(`/restaurant/${decodeURIComponent(restaurantName)}/created`, { place });
         return;
       }
 
       const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
       if (fullMenu.length > 0) {
-        history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`, {
+        history.push(`/restaurant/${decodeURIComponent(restaurantName)}/full`, {
           place,
         });
         return;
@@ -238,32 +235,41 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const checkIfUserHasSavedMenu = async (restaurantName: string): Promise<boolean> => {
+  const checkIfUserHasSavedMenu = async (
+    restaurantName: string
+  ): Promise<boolean> => {
     if (!auth.currentUser) return false;
-  
+
     const encodedRestaurantName = encodeURIComponent(restaurantName);
 
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const savedMenusRef = collection(userDocRef, "savedMenus");
-    const q = query(savedMenusRef, where("restaurantName", "==", encodedRestaurantName));
+    const q = query(
+      savedMenusRef,
+      where("restaurantName", "==", encodedRestaurantName)
+    );
     const querySnapshot = await getDocs(q);
-  
+
     return !querySnapshot.empty;
   };
-  
-  const checkIfUserHasCreatedMenu = async (restaurantName: string): Promise<boolean> => {
-    if (!auth.currentUser) return false;
-    const encodedRestaurantName = encodeURIComponent(restaurantName);
 
-  
+  const checkIfUserHasCreatedMenu = async (
+    restaurantName: string
+  ): Promise<boolean> => {
+    if (!auth.currentUser) return false;
+    const encodedRestaurantName = decodeURIComponent(restaurantName);
+    console.log("Encoded Name", encodedRestaurantName)
+
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const createdMenusRef = collection(userDocRef, "createdMenus");
-    const q = query(createdMenusRef, where("restaurantName", "==", encodedRestaurantName));
+    const q = query(
+      createdMenusRef,
+      where("restaurantName", "==", encodedRestaurantName)
+    );
     const querySnapshot = await getDocs(q);
-  
+
     return !querySnapshot.empty;
   };
-  
 
   return (
     <IonPage>
@@ -276,55 +282,71 @@ const SearchPage: React.FC = () => {
         <div className="page-banner-row">
           <IonIcon slot="end" icon={searchOutline} style={{ color: "black" }} />
           <h2>Search Menus</h2>
-        </div> 
-        <IonItem className = 'search-container' lines='none'>
-         
+        </div>
+        <IonItem className="search-container" lines="none">
           <IonSearchbar
             value={searchQuery}
-            placeholder="Search by restaurant name"
+            placeholder="Search"
             onIonInput={(e: CustomEvent) => setSearchQuery(e.detail.value!)}
             debounce={500}
           />
-          <IonButton className = 'filter-btn' slot="end" fill= 'clear'  onClick={() => setShowFilterModal(true)}>
-            <IonIcon  style={{ color: "var(--ion-color-primary)", paddingLeft: '0' }} className = 'filter-icon' icon={filterOutline} />
+          <IonButton
+            className="filter-btn"
+            slot="end"
+            fill="clear"
+            onClick={() => setShowFilterModal(true)}
+          >
+            <IonIcon
+              style={{ color: "var(--ion-color-primary)", paddingLeft: "0" }}
+              className="filter-icon"
+              icon={filterOutline}
+            />
           </IonButton>
-          
         </IonItem>
-
         <IonButton
-        className = 'search-button'
+          className="search-button"
           expand="block"
           onClick={() => setIsSearching(true)}
           disabled={isSearching}
         >
           {isSearching ? "Searching..." : "Search"}
-        </IonButton>        <IonText className="ion-margin-top">
-          <p className='dist-lbl'>Within: {radius} miles</p>
+        </IonButton>{" "}
+        <IonText className="ion-margin-top">
+          <p className="dist-lbl">Within: {radius} miles</p>
         </IonText>
-        <IonList lines='none'>
+        <IonList lines="none" className="search-list">
           {results.map((place, index) => (
-            <IonItem key={index} className = 'result-item'>
+            <IonItem key={index} className="result-item">
               {place.photoUrl && (
                 <IonThumbnail slot="start">
                   <img src={place.photoUrl} alt={`${place.name}`} />
                 </IonThumbnail>
-              )}<div className = 'result-col'>
-              <IonLabel className = 'result-info'>
-                <h3 className = 'rest-name'>{place.name}</h3>
-                <p className = 'rest-add'>{place.vicinity}</p>
-                <p className = 'rest-dist'>Distance: {place.distance.toFixed(2)} miles</p>
-              </IonLabel>
-              <div className = 'result-btn-row'>
-              <IonButton onClick={() => handleNavigateToRestaurantPage(place)}>
-                View Menu
-              </IonButton>
-              <IonButton className = 'rest-save' onClick={() => handleSetAsPreferredLocation(place)}>
-                Save Location
-              </IonButton></div></div>
+              )}
+              <div className="result-col">
+                <IonLabel className="result-info">
+                  <h3 className="rest-name">{place.name}</h3>
+                  <p className="rest-add">{place.vicinity}</p>
+                  <p className="rest-dist">
+                    Distance: {place.distance.toFixed(2)} miles
+                  </p>
+                </IonLabel>
+                <div className="result-btn-row">
+                  <IonButton
+                    onClick={() => handleNavigateToRestaurantPage(place)}
+                  >
+                    View Menu
+                  </IonButton>
+                  <IonButton
+                    className="rest-save"
+                    onClick={() => handleSetAsPreferredLocation(place)}
+                  >
+                    Save Location
+                  </IonButton>
+                </div>
+              </div>
             </IonItem>
           ))}
         </IonList>
-
         <IonModal
           isOpen={showFilterModal}
           onDidDismiss={() => setShowFilterModal(false)}
@@ -351,25 +373,29 @@ const SearchPage: React.FC = () => {
               >
                 5
               </IonLabel>
-            
-            <IonLabel
-              style={{
-                position: "absolute",
-                right: "0",
-                top: "-20px",
-                color: "black",
-                fontSize: "12px",
-              }}
-              slot="end"
+
+              <IonLabel
+                style={{
+                  position: "absolute",
+                  right: "0",
+                  top: "-20px",
+                  color: "black",
+                  fontSize: "12px",
+                }}
+                slot="end"
+              >
+                50
+              </IonLabel>
+            </IonRange>
+            <IonButton
+              expand="block"
+              className="search-button"
+              onClick={() => setShowFilterModal(false)}
             >
-              50
-            </IonLabel></IonRange>
-            <IonButton expand="block" className = 'search-button' onClick={() => setShowFilterModal(false)}>
               Set Distance
             </IonButton>
           </IonContent>
         </IonModal>
-
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}

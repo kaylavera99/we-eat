@@ -26,7 +26,7 @@ console.log("BEfore: ", encodedRestaurantName);
   const categories: MenuCategory[] = [];
   console.log("Fetching full menu for restaurant:", restaurantName);
   const restaurantsRef = collection(db, 'restaurants');
-  const q = query(restaurantsRef, where("name", "==", encodeURIComponent(restaurantName)));
+  const q = query(restaurantsRef, where("name", "==", restaurantName));
   const querySnapshot = await getDocs(q);
 
   if (!querySnapshot.empty) {

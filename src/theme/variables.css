@@ -13,6 +13,9 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-primary-contrast-rgb: 255,255,255;
 	--ion-color-primary-shade: #284e40;
 	--ion-color-primary-tint: #308C6A;
+  --ion-color-primary-shadow: #9ca8a3;
+
+
 
 	--ion-color-secondary: #29A678;
 	--ion-color-secondary-rgb: 41,166,120;
@@ -210,6 +213,8 @@ ion-content {
       background-color: #02382E; 
     }
   }
+
+
 
 
 .card-title {

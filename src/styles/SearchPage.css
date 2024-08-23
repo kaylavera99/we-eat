@@ -30,7 +30,23 @@ ion-searchbar {
 
 .searchbar-search-icon {
     inset-inline-start:7px!important;
+    
 }
+
+
+.page-banner-row h2 {
+    font-size: calc(1em + 1.5vw)!important;
+
+}
+
+
+.page-banner-row ion-icon {
+    height: calc(1.5em + 1.5vw)!important;
+    width:calc(1.5em + 1.5vw)!important;
+}
+
+
+
 
 .filter-icon  {
     font-size:24px!important;
@@ -69,7 +85,7 @@ ion-searchbar {
 
 .dist-lbl {
     text-align:right!important;
-    font-size:14px;
+    font-size: calc(0.5em + 1vw)!important;
     margin-right:16px;
     font-weight:600;
     font-family:var(--font-family-primary)!important;
@@ -96,6 +112,16 @@ ion-searchbar {
     white-space:normal;
     word-wrap:break-word;
     overflow-wrap: break-word;
+
+}
+
+.secondary-button, .button-row .button {
+  font-size: calc(0.5em + 1vw)!important;
+}
+
+.result-info .rest-dist {
+    font-size: calc(.75em + 1vw)!important;
+
 }
 
 
@@ -107,17 +133,79 @@ ion-searchbar {
 .result-item .result-info h3 {
     font-size: 16px!important;
     font-weight:600;
+    font-size: calc(.85em + 1vw)!important;
+
 }
 
 .result-item .rest-add {
-    font-size:12px!important;
+    font-size: calc(0.5em + 1vw)!important;
 }
+
+.result-item .button {
+    font-size: calc(0.5em + 1vw)!important;
+}
+
 
 .result-item .rest-dist {
     color:black!important;
+    font-size: calc(0.5em + 1vw)!important;
+    font-family:var(--font-family-primary)!important;
+    font-weight:700;
+
 }
 
 .result-btn-row .button {
     margin-top:2px!important;
+}
+
+@media only screen and (max-width: 666px) {
+
+    .search-list {
+        padding-left:10px;
+        padding-right:10px;
+    }
+    .result-item ion-thumbnail {
+        --size: 100px!important;
+    }
+
+
+
+}
+
+
+@media only screen and (min-width:667px){
+    .result-item ion-thumbnail {
+        --size: 100px!important;
+    }
+
+    .result-item {
+        border-bottom: 10px solid var(--background)!important
+    }
+    
+}
+
+
+
+
+
+@media only screen and (min-width:1024px) {
+    .result-info .rest-dist, .result-info .rest-add {
+        padding-left:0px!important;
+    }
+
+
+    .result-item ion-thumbnail {
+        --size: 150px!important;
+    }
+    
+}
+
+@media only screen and (max-width:402px) {
+    .result-col {
+        text-align:center!important;
+
+    }
+
+    
 }
 
