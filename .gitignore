@@ -32,6 +32,6 @@ yarn-debug.log*
 yarn-error.log*
 
 
-
+/google-places-proxy
 # Optional eslint cache
 .eslintcache
