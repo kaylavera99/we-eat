@@ -26,7 +26,7 @@ import { auth, db } from "../firebaseConfig";
 import EditNotesModal from "../components/EditNotesModal";
 import "../styles/SavedMenu.css";
 import useScreenWidth from "../hooks/useScreenWidth";
-import { deleteMenuItemFromSavedMenus } from "../services/menuService"; // Import the delete function
+import { deleteMenuItemFromSavedMenus } from "../services/menuService"; 
 import { closeSharp, createOutline, trashBinOutline, trashSharp } from "ionicons/icons";
 
 interface UserData {
@@ -175,13 +175,14 @@ const SavedMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <div className = 'button-save-row'>
         <IonButton
-          className="secondary-button"
+          className="btn-full"
           expand="block"
           onClick={handleViewFullMenu}
         >
           View Full Menu
-        </IonButton>
+        </IonButton></div>
 
         {(preferredLocation || restaurantThumbnail) && (
           <div className="preferred-location-banner">
@@ -191,13 +192,13 @@ const SavedMenuPage: React.FC = () => {
               className="menu-banner"
             />
             <div className="info-column">
-              <h2>{preferredLocation?.name || restaurantName} </h2>
-              <p className="address-text">
+              <h2 className = 'info-name'>{preferredLocation?.name || restaurantName} </h2>
+              <p className="address-text-save">
                 Preferred Location:{" "}
                 {preferredLocation?.address || "No specific location"}
               </p>{" "}
               {userAllergens.length > 0 && (
-                <p className="allergen-warn" style={{ color: "red" }}>
+                <p className="allergen-warn-save" style={{ color: "red" }}>
                   Menu items with allergens marked in red contain your
                   allergens.
                 </p>
@@ -207,7 +208,7 @@ const SavedMenuPage: React.FC = () => {
         )}
 
         <div className="menu-title-line">
-          <h2>Saved Menu Items</h2>
+          <h2 className = 'save-menu'>Saved Menu Items</h2>
           <IonBadge className="item-badge" color="primary">
             {menuItems.length} Menu Items(s)
           </IonBadge>
@@ -248,10 +249,11 @@ const SavedMenuPage: React.FC = () => {
                     </p>
                   </IonLabel>
                   <div className="create-btn-row">
-                    <IonButton onClick={() => handleViewItem(item)}>
+                    <IonButton onClick={() => handleViewItem(item)} className = 'btn-view'>
                       View Item
                     </IonButton>
                     <IonButton
+                    className = 'btn-delete'
                       color="danger"
                       onClick={() => handleDeleteItem(item)}
                     >

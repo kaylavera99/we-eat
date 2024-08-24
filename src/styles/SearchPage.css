@@ -141,9 +141,6 @@ ion-searchbar {
     font-size: calc(0.5em + 1vw)!important;
 }
 
-.result-item .button {
-    font-size: calc(0.5em + 1vw)!important;
-}
 
 
 .result-item .rest-dist {
@@ -191,8 +188,13 @@ ion-searchbar {
 @media only screen and (min-width:1024px) {
     .result-info .rest-dist, .result-info .rest-add {
         padding-left:0px!important;
+        margin-bottom:10px;
     }
+    .result-btn-row   {
+        margin-top:20px!important;
+    
 
+    }
 
     .result-item ion-thumbnail {
         --size: 150px!important;
@@ -205,7 +207,15 @@ ion-searchbar {
         text-align:center!important;
 
     }
-
+   
     
+}
+
+
+@media only screen and (min-width:403px) and (max-width: 500px) {
+    .result-btn-row  .rest-save, .result-btn-row .rest-view-menu {
+        font-size:12px!important;
+
+    }
 }
 

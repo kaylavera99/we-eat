@@ -180,6 +180,11 @@ const CreatedMenuPage: React.FC = () => {
     }
   };
 
+  const truncateDescription = (description: string, maxLength: number) => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + "...";
+  };
+
   return (
     <IonPage>
       <IonHeader>
@@ -196,13 +201,13 @@ const CreatedMenuPage: React.FC = () => {
               alt={preferredLocation.name}
             />
             <div className="info-column">
-              <h2>{preferredLocation.name}</h2>
-              <p className="address-text">
+              <h2 className = 'info-name'>{preferredLocation.name}</h2>
+              <p className="address-text-save">
                 Address: {preferredLocation.address}
               </p>
 
               {userAllergens.length > 0 && (
-                <p className="allergen-warn" style={{ color: "red" }}>
+                <p className="allergen-warn-save" style={{ color: "red" }}>
                   Menu items with allergens marked in red contain your
                   allergens.
                 </p>
@@ -222,7 +227,7 @@ const CreatedMenuPage: React.FC = () => {
         </IonFab>
 
         <div className="menu-title-line">
-          <h2>Menu Items</h2>
+          <h2 className = 'save-menu' >Menu Items</h2>
           <IonBadge className="item-badge" color="primary">
             {menuItems.length} Menu Item(s)
           </IonBadge>
@@ -234,7 +239,8 @@ const CreatedMenuPage: React.FC = () => {
                 <div className="menu-item-card-col">
                   <IonLabel>
                     <h3 className="item-h3">{item.name}</h3>
-                    <p>{item.description}</p>
+                    <p className="menu-item-description">{" "}
+                    {truncateDescription(item.description, 75)}</p>
                     <p className="allergen-label">
                       <strong>Allergens: </strong>
                       {item.allergens.map((allergen, index) => {
@@ -258,10 +264,11 @@ const CreatedMenuPage: React.FC = () => {
                     </p>
                   </IonLabel>
                   <div className="create-btn-row">
-                    <IonButton onClick={() => setEditingItem(item)}>
+                    <IonButton onClick={() => setEditingItem(item)} className = 'btn-view'> 
                       Edit Item
                     </IonButton>
                     <IonButton
+                    className = 'btn-delete'
                       color="danger"
                       onClick={() => handleDeleteItem(item.id!)}
                     >
@@ -294,7 +301,6 @@ const CreatedMenuPage: React.FC = () => {
             <IonItem
               button
               onClick={() => {
-                //  edit restaurant logic
                 setShowPopover({ isOpen: false, event: undefined });
               }}
             >
@@ -304,7 +310,7 @@ const CreatedMenuPage: React.FC = () => {
               button
               color="danger"
               onClick={() => {
-                // delete menu logic
+               
                 setShowPopover({ isOpen: false, event: undefined });
               }}
             >

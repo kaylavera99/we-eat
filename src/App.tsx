@@ -184,10 +184,7 @@ const AppContent: React.FC = () => {
             <IonIcon icon={homeSharp} />
             <IonLabel className="tab-bar-label">Home</IonLabel>
           </IonTabButton>
-          <IonTabButton tab="profile" href="/profile">
-            <IonIcon icon={person} />
-            <IonLabel className="tab-bar-label">Profile</IonLabel>
-          </IonTabButton>
+
           <IonTabButton tab="search" href="/search">
             <IonIcon icon={searchOutline} />
             <IonLabel className="tab-bar-label">Search</IonLabel>
@@ -195,6 +192,10 @@ const AppContent: React.FC = () => {
           <IonTabButton tab="recommendations" href="/recommendations">
             <IonIcon aria-hidden="true" icon={compassOutline} />
             <IonLabel className="tab-bar-label">Explore</IonLabel>
+          </IonTabButton>
+          <IonTabButton tab="profile" href="/profile">
+            <IonIcon icon={person} />
+            <IonLabel className="tab-bar-label">Profile</IonLabel>
           </IonTabButton>
         </IonTabBar>
       </IonTabs>

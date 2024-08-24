@@ -174,7 +174,7 @@ const CreateMenuPage: React.FC = () => {
           <IonIcon slot="end" icon={createOutline} style={{ color: 'black' }} />
           <h2>Create a Menu</h2>
         </div>
-        <p>First, let's add some information about the restaurant you're creating a menu for:</p>
+        <p className = 'create-menu-desc'>First, let's add some information about the restaurant you're creating a menu for</p>
         <div className='create-menu-container'>
           <IonList>
             <IonLabel position="stacked">Restaurant Name</IonLabel>
@@ -190,7 +190,7 @@ const CreateMenuPage: React.FC = () => {
               <IonInput value={city} onIonChange={e => setCity(e.detail.value!)} />
             </IonItem>
             <IonLabel position="stacked">State</IonLabel>
-            <IonItem  lines='none'>
+            <IonItem className = 'state-item' lines='none' style={{backgroundColor: 'white'}}>
               <IonSelect slot="end" placeholder='Select State' value={state} onIonChange={e => setState(e.detail.value!)} >
                 {states.map((stateObj) => (
                   <IonSelectOption key={stateObj.code} value={stateObj.name} style = {{fontFamily:'--font-family-primary'}}>

@@ -127,8 +127,7 @@ label {
 .card-img-top {
     max-height: 100px!important;
     object-fit: cover;
-    width:150px;
-    height:55px;
+    height:100px;
 
 }
 
@@ -265,10 +264,22 @@ label {
 
   }
   
- 
+  @media (min-width: 1024px) {
+    .card {
+        width: 180px; 
+        height: 220px; 
+    }
+    
+    .card img {
+        height: 150px;
+        object-fit: cover; 
+    }
+}
 
 
-@media only screen and (min-width: 500px) {
+
+
+@media only screen and (min-width: 600px) {
     .card-img-top {
       max-height: 400px!important;
       object-fit: cover;
@@ -310,8 +321,8 @@ label {
       }
 
       .card-body {
-        height:200px;
         padding-left:10px;
+        padding-top: 30px;
       }
 
 
@@ -432,15 +443,15 @@ label {
     }
 
     ion-tab-bar {
-        height:110px;
-        padding-top:10px;
+        height:70px;
         justify-content:space-evenly!important;
         margin-bottom:-5px;
     }
 
     ion-tab-button ion-icon {
         width:100px;
-        font-size:55px;
+        font-size:  calc(1.4em + 1vh)!important;
+
     }
  
     ion-tab-button {
@@ -449,9 +460,9 @@ label {
     }
 
     .tab-bar-label {
-        font-size: 24px!important;
-        padding-top: 10px;
+        font-size:  calc(0.9em + 1vh)!important;
         padding-bottom:10px;
+
     }
    
     

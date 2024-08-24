@@ -3,8 +3,9 @@
     flex-direction:column!important;
 }
 
-
-.page-banner 
+.input-field-profile .ion-label {
+  font-weight:800;
+}
 
 .flex-column {
     display: flex;
@@ -49,7 +50,7 @@
   }
   
   .input-btn {
-    display: none; /* Hiding default file input */
+    display: none; 
   }
 
 

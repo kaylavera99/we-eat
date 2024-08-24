@@ -40,7 +40,7 @@ const SlideMenu: React.FC = () => {
     <IonMenu contentId="main-content" className="custom-menu">
 
       <IonContent className="custom-content">
-      <IonList className="menu-list">
+      <IonList className="menu-list-slide">
           <IonMenuToggle auto-hide="false">
             <IonItem 
               className={`slide-item ${location.pathname === '/home' ? 'active' : ''}`} 

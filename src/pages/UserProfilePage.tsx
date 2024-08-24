@@ -230,7 +230,7 @@ const UserProfilePage: React.FC = () => {
             <div className="page-banner-row-user">
               <IonIcon
                 slot="end"
-                className="menu-icon"
+                className="person-icon"
                 icon={personCircleOutline}
               />
               <h2 className="page-title">Your Profile</h2>{" "}
@@ -250,11 +250,11 @@ const UserProfilePage: React.FC = () => {
                   />
                 </IonAvatar>
                 <div className="user-info">
-                  <h3>{renderFullName()}</h3>
+                  <h3 className = 'user-name'>{renderFullName()}</h3>
                   <div className="location-icon-row">
-                    <IonIcon icon={locationSharp} /> <h4>{userData.address}</h4>
+                    <IonIcon className = 'loc-icon-user' icon={locationSharp} /> <h4 className = 'user-address'>{userData.address}</h4>
                   </div>
-                  <h4>
+                  <h4 className = 'user-all'>
                     <strong>Allergens: </strong>
                     {renderAllergens()}
                   </h4>
@@ -298,14 +298,16 @@ const UserProfilePage: React.FC = () => {
                           <IonLabel>{location.name}</IonLabel>
                         </IonItem>
                         <div className="ion-pad" slot="content">
+                          <div className = 'rest-thumb-img'>
                           {location.photoUrl && (
                             <IonImg
                               src={location.photoUrl}
                               alt={location.name}
                               className="location-thumbnail"
                             />
-                          )}
+                          )}</div>
                           <p>{location.address}</p>
+                          <div className = 'profile-btn-row'>
                           <IonButton
                             href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.latitude},${location.coordinates.longitude}`}
                             target="_blank"
@@ -318,7 +320,7 @@ const UserProfilePage: React.FC = () => {
                             onClick={() => handleRemovePreferredLocation(key)}
                           >
                             Remove
-                          </IonButton>
+                          </IonButton></div>
                         </div>
                       </IonAccordion>
                     )

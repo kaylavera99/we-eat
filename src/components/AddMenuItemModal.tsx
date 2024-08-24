@@ -12,8 +12,8 @@ import {
   IonImg,
   IonTextarea,
 } from "@ionic/react";
-import { collection, doc, setDoc, addDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import { collection, doc, setDoc, addDoc } from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 import { MenuItem } from "../services/menuService";
 import { compressImage, uploadImage } from "../services/storageService";
 import "../styles/ModalStyles.css";
@@ -25,7 +25,8 @@ interface AddMenuItemModalProps {
   restaurantName?: string;
 }
 
-const placeholderImage = "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
+const placeholderImage =
+  "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
 
 const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   isOpen,
@@ -43,11 +44,11 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
 
   useEffect(() => {
     // reset fields when the modal is opened
-    setName('');
-    setDescription('');
+    setName("");
+    setDescription("");
     setAllergens([]);
-    setNote('');
-    setCategory('');
+    setNote("");
+    setCategory("");
     setImageUrl(placeholderImage);
   }, [isOpen]);
 
@@ -105,8 +106,8 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
       const dishesCollectionRef = collection(createdMenusRef, "dishes");
 
       const docRef = await addDoc(dishesCollectionRef, newItem);
-      newItem.id = docRef.id;  
-      
+      newItem.id = docRef.id;
+
       await setDoc(docRef, { id: docRef.id }, { merge: true });
 
       onAddMenuItem(newItem);
@@ -181,14 +182,17 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
           />
         </IonItem>
 
-        <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked" className="add-item-label">
-            Image
-          </IonLabel>
-          {imageUrl && (
-            <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
-          )}
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+        <IonItem lines="none" className="form-item item-upload">
+          {" "}            <IonLabel position="stacked" className="add-item-label">
+              Image
+            </IonLabel>
+          <div className="image-form-wrap">
+
+            {imageUrl && (
+              <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
+            )}
+            <input className = 'img-up-btn' type="file" accept="image/*" onChange={handleImageChange} />
+          </div>
         </IonItem>
 
         <IonButton expand="block" className="modal-button" onClick={handleSave}>
