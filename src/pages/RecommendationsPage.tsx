@@ -143,7 +143,7 @@ const RecommendationsPage: React.FC = () => {
         if (accordionGroup) {
           const boundingRect = accordionGroup.getBoundingClientRect();
           const offsetTop = boundingRect.top + window.scrollY;
-          const scrollToPosition = offsetTop - 56; // Adjust this value based on your header height or layout
+          const scrollToPosition = offsetTop - 56; 
           
           console.log("Offset: ", offsetTop);
           console.log("Scroll: ", scrollToPosition);
@@ -380,6 +380,7 @@ const RecommendationsPage: React.FC = () => {
                                               </IonLabel>
                                               <div className="menu-item-buttons">
                                                 <IonButton
+                                                className = 'rec-view-item'
                                                   onClick={() =>
                                                     handleViewItem(
                                                       item,

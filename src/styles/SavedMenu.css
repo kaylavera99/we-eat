@@ -1,20 +1,20 @@
-/* General Layout */
+
 .ion-page {
   --background: #f7f7f7;
 }
 
 
 
-/* Banner Section */
+
 .preferred-location-banner {
   display:flex!important;
-  justify-content:space-evenly;
-  padding-top: 15px!important;
+  margin-left:auto;
+  margin-top:2%;
 }
 
 .preferred-location-banner .menu-banner  {
-  width: 90%!important;
-  height: 100%!important;
+  width: 40%;
+  height: 100%;
   object-fit: cover!important;
   aspect-ratio: 1 / 1 !important;
 }
@@ -22,18 +22,35 @@
 list-ios {
   --background:var(--ion-page-background)!important;
 }
-.info-column .allergen-warn {
-  font-size:12px!important;
+.info-column .info-name {
+  font-size:calc(1.2em + 1vw)!important;
+  margin-top:0px;
 }
 
-.info-column .address-text {
-  margin-bottom:5px!important;
-  font-size: 15px!important;
+.info-column .address-text-save {
+  margin-bottom:5px;
+  font-size: calc(0.7em + 0.5vw);
+  padding:0px;
+}
+
+.info-column {
+  padding-left:10px;
 }
 
 .info-column p {
   padding-bottom:0!important;
+  padding-left:0px!important;
 }
+
+.info-column .allergen-warn-save {
+    font-weight:500;
+    text-align:left!important;
+    margin-left:0px!important;
+
+}
+
+
+
 
 
 
@@ -51,12 +68,13 @@ list-ios {
 
 
 
-/* List Section */
 .full-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  background-color:var( --ion-page-background)
+  background-color:var( --ion-page-background);
+
+
 }
 
 .created-item {
@@ -92,10 +110,8 @@ list-ios {
   border-radius: 10px;
 }
 
-/* Text Styles */
 .item-h3 {
   font-family: var(--font-family-primary);
-  font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
   color: var(--ion-color-dark);
@@ -103,7 +119,6 @@ list-ios {
 
 .menu-item-description {
   font-family: var(--font-family-secondary);
-  font-size: 12px!important;
   color: var(--ion-color-medium);
   display: -webkit-box;
   -webkit-line-clamp: 2; /* limiting  text to 2 lines */
@@ -139,7 +154,6 @@ list-ios {
 }
 
 .create-btn-row .button {
-  font-size: 10px!important;
   font-weight: 500!important;
   border-radius: 1px!important;
 }
@@ -184,7 +198,7 @@ list-ios {
 
 .item-modal h2 {
   font-family: var(--font-family-primary);
-  font-size: 24px;
+  font-size:calc(1.5em + 1.5vw)!important;
   font-weight: bold;
   margin-bottom: 15px;
   color: var(--ion-color-dark);
@@ -237,3 +251,256 @@ list-ios {
   flex-direction:row;
   align-items: center!important;
 }
+
+
+.button-save-row {
+  display:flex;
+  justify-content:flex-end;
+  width:100%;
+}
+
+
+.menu-title-line {
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+  
+}
+
+.button-save-row .btn-full {
+  --background: var(--ion-color-secondary)!important;
+
+}
+
+@media only screen and (min-width:550px) {
+  .menu-image {
+
+  }
+
+  .created-list {
+    width:95%;
+    margin-left:2.5%;
+  }
+
+  .created-img {
+    height:150px!important;
+    width:150px!important;
+    
+  }
+
+  .item-h3 {
+    font-weight:700!important;
+    font-size:22px!important;
+  }
+
+  .menu-item-card-col {
+    width:85%;
+  }
+}
+
+@media only screen and (min-width:425px) and (max-width:767px) {
+  .preferred-location-banner .menu-banner {
+    width: auto!important;
+    height: 100%!important;
+    object-fit: contain!important;
+    aspect-ratio: 1 / 1 !important;
+
+  }
+
+  .preferred-location-banner, .info-column {
+    height: 100px; 
+    
+
+  }
+
+  .preferred-location-banner {
+    align-items:center;
+    margin-top:14px;
+    margin-bottom: 20px;
+  }
+
+  .allergen-warn-save {
+    font-size:14px!important;
+  }
+
+  .info-name {
+    margin-bottom:5px;
+  }
+
+
+}
+
+
+
+
+@media only screen and (min-width: 768px) {
+
+  .menu-item-description, .note-label {
+    font-size:18px!important;
+    
+  }
+
+  .menu-item-description, .allergen-label, .note-label {
+    padding-left:0px!important;
+    
+  }
+
+  .create-btn-row .btn-save, .btn-delete {
+    font-size:16px!important;
+  }
+
+  .allergen-label {
+    font-size: 20px!important;
+  }
+  
+  .item-h3 {
+    font-size: 22px!important;
+    font-weight:700!important;
+  }
+  .preferred-location-banner, .info-column {
+    height: 200px; 
+
+  }
+
+  .full-list {
+    width:95%;
+    margin-left:2.5%;
+   
+  }
+
+  .save-menu  {
+    font-size: calc(0.7em + 1.2vw)!important;
+    font-weight:500!important;
+    margin-top:40px;
+    margin-left:20px;
+  }
+
+  .item-badge {
+    margin-right:20px;
+    font-size:20px;
+    padding-bottom:5px;
+    height:30px!important;
+    
+  }
+  .info-column {
+    text-align:left;
+    
+
+  }
+
+  .address-text-save, .allergen-warn {
+    padding-left:0!important;
+    margin-right:0;
+    
+  }
+
+  .address-text-save , .allergen-warn-save  {
+    font-size: 16px!important;
+  }
+
+  .info-column {
+    justify-content:center;
+  }
+
+  .preferred-location-banner {
+    padding-left:30px;
+    display:flex;
+    flex-direction:row;
+  }
+
+  .preferred-location-banner .menu-banner {
+    width: auto!important;
+    height: 100%!important;
+    object-fit: contain!important;
+    aspect-ratio: 1 / 1 !important;
+
+  }
+
+  .preferred-location-banner .info-column {
+    display:flex;
+    flex-direction:column;
+    text-align:left!important;
+    
+  }
+
+}
+
+@media only screen and (min-width: 376px) and (max-width: 500px) {
+  .info-column .address-text-save {
+    font-size: 12px!important;
+    margin-bottom:0px!important;
+  }
+
+  .item-h3  {
+    font-weight:600!important;
+    font-size:16px!important;
+  }
+.allergen-label, .note-label  {
+  font-size: 12px!important;
+}
+
+.create-btn-row .button {
+  font-size: 12px!important;
+}
+
+.button-save-row .btn-full  {
+  --height:30px!important;
+  --width:auto!important;
+  --border-radius:7px;
+  font-size:12px;
+  margin-bottom:5px;
+}
+
+}
+@media only screen and (max-width: 375px) {
+.info-column .info-name {
+  margin-top:0px;
+  margin-bottom:5px;
+  font-size:20px!important;
+}
+
+.preferred-location-banner .menu-banner {
+  width:50%;
+}
+.info-column .allergen-warn-save  {
+  margin-bottom:0px!important;
+  padding-bottom:0px!important;
+  font-size:10px;
+  font-weight:500;
+}
+
+.info-column .address-text-save {
+  font-size: 12px!important;
+  margin-bottom:0px!important;
+}
+
+.preferred-location-banner {
+  align-items:center;
+}
+
+.save-menu  {
+  margin-top:0px!important;
+  margin-bottom:0px;
+}
+
+.menu-title-line {
+  margin-top:40px;
+  margin-bottom:10px;
+  align-items:center;
+}
+
+.item-h3 {
+  font-weight:800!important;
+  font-size:16px!important;
+}
+
+.menu-image {
+  width: auto!important;
+  height: 75%!important;
+  object-fit: contain!important;
+  aspect-ratio: 1 / 1 !important;
+}
+}
+
+

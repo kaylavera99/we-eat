@@ -300,7 +300,7 @@ const EditProfilePage: React.FC = () => {
             <IonLabel className="input-field-profile">Peanuts</IonLabel>
           </IonItem>
         </div>
-        <IonButton expand="full" onClick={handleSave}>
+        <IonButton expand="full" className = 'save-edit'onClick={handleSave}>
           Save
         </IonButton>
         <IonLoading isOpen={isLoading} message="Saving profile..." />

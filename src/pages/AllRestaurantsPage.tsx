@@ -1,4 +1,4 @@
-// src/pages/AllRestaurantsPage.tsx
+
 
 import React, { useEffect, useState } from 'react';
 import {

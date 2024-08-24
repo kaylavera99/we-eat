@@ -112,7 +112,6 @@ const PersonalizedMenuPage: React.FC = () => {
             });
           }
 
-          // Fetch created menus
           const createdMenusSnap = await getDocs(
             collection(userDocRef, "createdMenus")
           );
@@ -123,7 +122,7 @@ const PersonalizedMenuPage: React.FC = () => {
 
             let thumbnailUrl = "";
 
-            // Use preferred location coordinates for fetching the thumbnailUrl
+            //  preferred location coordinates for fetching the thumbnailUrl
             const location = locations[decodeURIComponent(data.restaurantName)];
             if (location) {
               const results = await searchRestaurants(
@@ -201,7 +200,7 @@ const PersonalizedMenuPage: React.FC = () => {
           setToastMessage("Menu deleted successfully.");
           setShowToast(true);
 
-          // Update the menu list after deletion
+          // update the menu list after deletion
           const updatedMenus = isCreatedMenu
             ? createdMenus.filter(
                 (menu) => menu.restaurantName !== restaurantName
@@ -241,9 +240,9 @@ const PersonalizedMenuPage: React.FC = () => {
           </IonCardHeader>
           <IonCardContent className="per-card-content">
             <p>{menu.dishCount} Menu Item(s)</p>
-            <div className="per-btn-row" style={{ height: "30px" }}>
+            <div className="per-btn-row" >
               <IonButton
-                className="custom-button"
+                className="custom-button" 
                 color="primary"
                 onClick={() =>
                   handleViewMenu(menu.restaurantName, menu.isCreated)

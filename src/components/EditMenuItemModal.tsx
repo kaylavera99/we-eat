@@ -242,14 +242,15 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
           />
         </IonItem>
 
-        <IonItem lines="none" className="form-item">
+        <IonItem lines="none" className="form-item item-upload">
           <IonLabel position="stacked" className="add-item-label">
             Image
           </IonLabel>
+          <div className="image-form-wrap">
           {imageUrl && (
             <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
           )}
-          <input type="file" accept="image/*" onChange={handleImageChange} />
+          <input type="file" className = 'img-up-btn' accept="image/*" onChange={handleImageChange} /></div>
         </IonItem>
 
         <IonButton expand="block" className="modal-button" onClick={handleSave}>

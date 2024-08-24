@@ -43,7 +43,7 @@
   }
   
   .input-btn {
-    display: none; /* Hiding default file input */
+    display: none;
   }
 
   .page-banner-row-add {

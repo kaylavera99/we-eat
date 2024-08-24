@@ -132,13 +132,14 @@ const RestaurantPage: React.FC = () => {
         <IonCard key={index} className="menu-cards">
           <IonCardHeader>
             <h2 className="item-name">{item.name}</h2>
-          </IonCardHeader>
-          <IonCardContent>
+          
+          
             <div className="image-div">
               {item.imageUrl && (
                 <IonImg className="menu-img" src={item.imageUrl} alt={item.name} />
               )}
-            </div>
+            </div></IonCardHeader><IonCardContent>
+            <div className = 'card-cont-flex'>
             <p>{item.description}</p>
             <p className="allergens">
               <strong>Allergens: </strong>
@@ -156,7 +157,7 @@ const RestaurantPage: React.FC = () => {
                   </span>
                 );
               })}
-            </p>
+            </p></div>
             <IonButton  className = 'secondary-button'onClick={() => handleAddToSavedMenu(item)}>
               Add to Saved Menu
             </IonButton>
@@ -202,7 +203,7 @@ const RestaurantPage: React.FC = () => {
                     Menu items with allergens marked in red contain your allergens.
                   </p>
                 )}
-                <IonBadge color="primary">
+                <IonBadge color="primary" className = 'full-badge'>
                   Menu Items:{" "}
                   {menuCategories.reduce(
                     (acc, category) => acc + category.items.length,

@@ -332,6 +332,7 @@ const SearchPage: React.FC = () => {
                 </IonLabel>
                 <div className="result-btn-row">
                   <IonButton
+                  className="rest-view-menu"
                     onClick={() => handleNavigateToRestaurantPage(place)}
                   >
                     View Menu
