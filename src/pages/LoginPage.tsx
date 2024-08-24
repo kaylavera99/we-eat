@@ -93,7 +93,7 @@ const LoginPage: React.FC = () => {
 </IonText>
             </IonRow>
             <IonButton
-              className="secondary-button"
+              className=" tert-btn"
               style={{ "--background": "var(--ion-color-secondary)" }}
               expand="block"
               type="submit"
@@ -101,6 +101,7 @@ const LoginPage: React.FC = () => {
               Login
             </IonButton>
             <IonButton
+            className = 'tert-btn'
               expand="block"
               style={{ "--background": "var(--ion-color-tertiary-shade" }}
               fill="default"
