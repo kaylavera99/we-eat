@@ -5,6 +5,8 @@ node_modules/
 /.pnp
 .pnp.js
 
+routes/
+
 
 
 # testing
@@ -32,7 +34,7 @@ yarn-debug.log*
 yarn-error.log*
 google-places-proxy/
 
-/google-places-proxy
-routes/
+google-places-proxy
+routes/weeat-1a169-firebase-adminsdk-h7v29-a6434e1825.json
 # Optional eslint cache
 .eslintcache
