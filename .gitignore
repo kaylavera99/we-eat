@@ -5,9 +5,7 @@ node_modules/
 /.pnp
 .pnp.js
 
-google-places-proxy/
-routes/
-.firebase/
+
 
 # testing
 /coverage
@@ -15,9 +13,7 @@ routes/
 # production
 /dist
 
-.firebaserc
 
-proxy-server.cjs
 
 # misc
 .DS_Store
