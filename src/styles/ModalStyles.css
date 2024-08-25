@@ -82,7 +82,7 @@ input[type="text"], textarea, input[type="file"] {
     align-items:center;
   }
 
-  @media (max-width:1440px) {
+  @media (max-width:4000px) {
     .form-item .input-field {
         padding-top:5px!important;
         padding-bottom:8px!important;
