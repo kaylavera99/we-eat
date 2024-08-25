@@ -27,8 +27,6 @@ const LoginPage: React.FC = () => {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
-
-
     if (!email || !password) {
       setToastMessage("Email and password are required.");
       setShowToast(true);
@@ -82,15 +80,15 @@ const LoginPage: React.FC = () => {
               </IonInput>
             </IonItem>
             <IonRow style={{ justifyContent: "flex-end" }}>
-            <IonText
-  className="forgot-password-link"
-  onClick={() => {
-    console.log("Navigating to Password Reset");
-    history.push("/password-reset");
-  }}
->
-  Forgot Password?
-</IonText>
+              <IonText
+                className="forgot-password-link"
+                onClick={() => {
+                  console.log("Navigating to Password Reset");
+                  history.push("/password-reset");
+                }}
+              >
+                Forgot Password?
+              </IonText>
             </IonRow>
             <IonButton
               className=" tert-btn"
@@ -101,13 +99,13 @@ const LoginPage: React.FC = () => {
               Login
             </IonButton>
             <IonButton
-            className = 'tert-btn'
+              className="tert-btn"
               expand="block"
               style={{ "--background": "var(--ion-color-tertiary-shade" }}
               fill="default"
-              onClick={() =>{
+              onClick={() => {
                 console.log("Create account button clicked");
-                history.push("/create-account")
+                history.push("/create-account");
               }}
             >
               Create Account

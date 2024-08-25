@@ -29,11 +29,7 @@ import { useHistory } from "react-router-dom";
 import { searchRestaurants } from "../services/searchService";
 import "../styles/UserProfile.css";
 import "ionicons/icons";
-import {
-  locationOutline,
-  personCircleOutline,
-  locationSharp,
-} from "ionicons/icons";
+import { personCircleOutline, locationSharp } from "ionicons/icons";
 
 interface PreferredLocation {
   address: string;
@@ -225,21 +221,20 @@ const UserProfilePage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding pad">
-        
-          <div className="page-header">
-            <div className="page-banner-row-user">
-              <IonIcon
-                slot="end"
-                className="person-icon"
-                icon={personCircleOutline}
-              />
-              <h2 className="page-title">Your Profile</h2>{" "}
-            </div>
-            <IonButton className="secondary-button" onClick={handleEditProfile}>
-              Edit Profile
-            </IonButton>
+        <div className="page-header">
+          <div className="page-banner-row-user">
+            <IonIcon
+              slot="end"
+              className="person-icon"
+              icon={personCircleOutline}
+            />
+            <h2 className="page-title">Your Profile</h2>{" "}
           </div>
-<div className="page-color">
+          <IonButton className="secondary-button" onClick={handleEditProfile}>
+            Edit Profile
+          </IonButton>
+        </div>
+        <div className="page-color">
           {userData && (
             <div className="profile-banner">
               <div className="profile-spacer">
@@ -250,39 +245,38 @@ const UserProfilePage: React.FC = () => {
                   />
                 </IonAvatar>
                 <div className="user-info">
-                  <h3 className = 'user-name'>{renderFullName()}</h3>
+                  <h3 className="user-name">{renderFullName()}</h3>
                   <div className="location-icon-row">
-                    <IonIcon className = 'loc-icon-user' icon={locationSharp} /> <h4 className = 'user-address'>{userData.address}</h4>
+                    <IonIcon className="loc-icon-user" icon={locationSharp} />{" "}
+                    <h4 className="user-address">{userData.address}</h4>
                   </div>
-                  <h4 className = 'user-all'>
+                  <h4 className="user-all">
                     <strong>Allergens: </strong>
                     {renderAllergens()}
                   </h4>
                 </div>
               </div>
             </div>
-          )}</div>
-          <div className="hr-container"></div>
-          <div className="button-row">
-            <div className="button-col">
-              <IonButton
-                className="button"
-                onClick={handleViewPersonalizedMenus}
-              >
-                Your Menus
-              </IonButton>
-            </div>
-            <div className="button-col">
-              <IonButton className="button" onClick={handleNavigateCreate}>
-                Create Menu
-              </IonButton>
-            </div>
+          )}
+        </div>
+        <div className="hr-container"></div>
+        <div className="button-row">
+          <div className="button-col">
+            <IonButton className="button" onClick={handleViewPersonalizedMenus}>
+              Your Menus
+            </IonButton>
           </div>
-      
+          <div className="button-col">
+            <IonButton className="button" onClick={handleNavigateCreate}>
+              Create Menu
+            </IonButton>
+          </div>
+        </div>
+
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : userData ? (
-          <IonList className = 'prof-list'>
+          <IonList className="prof-list">
             {Object.keys(userData.preferredLocations).length > 0 ? (
               <div>
                 <h2>Your Restaurant Locations</h2>
@@ -298,29 +292,31 @@ const UserProfilePage: React.FC = () => {
                           <IonLabel>{location.name}</IonLabel>
                         </IonItem>
                         <div className="ion-pad" slot="content">
-                          <div className = 'rest-thumb-img'>
-                          {location.photoUrl && (
-                            <IonImg
-                              src={location.photoUrl}
-                              alt={location.name}
-                              className="location-thumbnail"
-                            />
-                          )}</div>
+                          <div className="rest-thumb-img">
+                            {location.photoUrl && (
+                              <IonImg
+                                src={location.photoUrl}
+                                alt={location.name}
+                                className="location-thumbnail"
+                              />
+                            )}
+                          </div>
                           <p>{location.address}</p>
-                          <div className = 'profile-btn-row'>
-                          <IonButton
-                            href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.latitude},${location.coordinates.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Directions
-                          </IonButton>
-                          <IonButton
-                            color="danger"
-                            onClick={() => handleRemovePreferredLocation(key)}
-                          >
-                            Remove
-                          </IonButton></div>
+                          <div className="profile-btn-row">
+                            <IonButton
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${location.coordinates.latitude},${location.coordinates.longitude}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Directions
+                            </IonButton>
+                            <IonButton
+                              color="danger"
+                              onClick={() => handleRemovePreferredLocation(key)}
+                            >
+                              Remove
+                            </IonButton>
+                          </div>
                         </div>
                       </IonAccordion>
                     )

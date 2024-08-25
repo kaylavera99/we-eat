@@ -28,8 +28,6 @@ const CreateAccountPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [passwordError, setPasswordError] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -107,17 +105,15 @@ const CreateAccountPage: React.FC = () => {
       });
 
       const userDocRef = doc(db, "users", user.uid);
-      const userDocSnap = await getDoc(userDocRef); 
+      const userDocSnap = await getDoc(userDocRef);
       await new Promise((resolve) => setTimeout(resolve, 500));
-
-
 
       if (userDocSnap.exists()) {
         history.push("/home");
-    } else {
+      } else {
         setToastMessage("Failed to load user data. Please try again.");
         setShowToast(true);
-    }
+      }
     } catch (error: any) {
       setIsLoading(false);
       setToastMessage(error.message);
@@ -177,7 +173,6 @@ const CreateAccountPage: React.FC = () => {
             value={password}
             onIonChange={(e) => setPassword(e.detail.value!)}
           >
-           
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
         </IonItem>
@@ -189,10 +184,8 @@ const CreateAccountPage: React.FC = () => {
             value={confirmPassword}
             onIonChange={(e) => setConfirmPassword(e.detail.value!)}
           >
-           
             <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
           </IonInput>
-        
         </IonItem>
 
         {passwordError && (
@@ -202,7 +195,6 @@ const CreateAccountPage: React.FC = () => {
         )}
         <IonLabel position="stacked">Address</IonLabel>
         <IonItem lines="none" className="flex-column-item">
-          
           <IonInput
             type="text"
             value={address}
@@ -211,34 +203,41 @@ const CreateAccountPage: React.FC = () => {
         </IonItem>
         <IonLabel position="stacked">Profile Picture</IonLabel>
 
-        
-        <IonItem lines="none" className="flex-item" style = {{display: 'flex', flexDirection: 'column'}}>
-          
-        <div className = 'flex-column'>
-          <div className="image-wrapper">
-            {profileImageUrl && (
-              <IonAvatar
-                style={{ width: "250px", height: "250px", objectFit: "cover" }}
+        <IonItem
+          lines="none"
+          className="flex-item"
+          style={{ display: "flex", flexDirection: "column" }}
+        >
+          <div className="flex-column">
+            <div className="image-wrapper">
+              {profileImageUrl && (
+                <IonAvatar
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    objectFit: "cover",
+                  }}
+                >
+                  <IonImg src={profileImageUrl} alt="Profile Picture" />
+                </IonAvatar>
+              )}
+            </div>
+            <div className="upload-wrapper">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="input-btn"
+                id="fileInput"
+              />
+              <IonButton
+                onClick={() => document.getElementById("fileInput")?.click()}
+                className="custom-upload-btn"
               >
-                <IonImg src={profileImageUrl} alt="Profile Picture" />
-              </IonAvatar>
-            )}
+                Choose File
+              </IonButton>
+            </div>
           </div>
-          <div className="upload-wrapper">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="input-btn"
-              id="fileInput"
-            />
-            <IonButton
-              onClick={() => document.getElementById("fileInput")?.click()}
-              className="custom-upload-btn"
-            >
-              Choose File
-            </IonButton>
-          </div></div>
         </IonItem>
 
         <h3>Allergens</h3>
@@ -254,9 +253,9 @@ const CreateAccountPage: React.FC = () => {
               }}
             >
               <IonCheckbox
-              className = 'check-round'
+                className="check-round"
                 name="wheat"
-                mode = 'ios'
+                mode="ios"
                 checked={allergens.wheat || false}
                 onIonChange={handleAllergenChange}
               />
@@ -387,7 +386,15 @@ const CreateAccountPage: React.FC = () => {
           </p>
         )}
 
-        <IonButton className = 'primary-button' expand="block" onClick={handleRegister}  style={{ "--background": "var(--ion-color-secondary)" , bprderRadius: "20px"}}>
+        <IonButton
+          className="primary-button"
+          expand="block"
+          onClick={handleRegister}
+          style={{
+            "--background": "var(--ion-color-secondary)",
+            bprderRadius: "20px",
+          }}
+        >
           Register
         </IonButton>
         <IonLoading isOpen={isLoading} message="Creating account..." />

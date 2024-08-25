@@ -8,7 +8,6 @@ import {
   IonList,
   IonCard,
   IonCardHeader,
-  IonCardTitle,
   IonCardContent,
   IonLoading,
   IonToast,
@@ -26,7 +25,14 @@ import {
   MenuItem,
 } from "../services/restaurantService";
 import { addMenuItemToSavedMenus } from "../services/menuService";
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 
 interface UserData {
@@ -62,7 +68,10 @@ const RestaurantPage: React.FC = () => {
     };
 
     const fetchRestaurantDetails = async (restaurantName: string) => {
-      const q = query(collection(db, "restaurants"), where("name", "==", restaurantName));
+      const q = query(
+        collection(db, "restaurants"),
+        where("name", "==", restaurantName)
+      );
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const restaurantDoc = querySnapshot.docs[0];
@@ -132,33 +141,42 @@ const RestaurantPage: React.FC = () => {
         <IonCard key={index} className="menu-cards">
           <IonCardHeader>
             <h2 className="item-name">{item.name}</h2>
-          
-          
+
             <div className="image-div">
               {item.imageUrl && (
-                <IonImg className="menu-img" src={item.imageUrl} alt={item.name} />
+                <IonImg
+                  className="menu-img"
+                  src={item.imageUrl}
+                  alt={item.name}
+                />
               )}
-            </div></IonCardHeader><IonCardContent>
-            <div className = 'card-cont-flex'>
-            <p>{item.description}</p>
-            <p className="allergens">
-              <strong>Allergens: </strong>
-              {allergensArray.map((allergen: string, index: number) => {
-                const isUserAllergen = userAllergens.includes(
-                  allergen.toLowerCase().trim()
-                );
-                return (
-                  <span
-                    key={index}
-                    style={{ color: isUserAllergen ? "red" : "black" }}
-                  >
-                    {allergen}
-                    {index < allergensArray.length - 1 ? ", " : ""}
-                  </span>
-                );
-              })}
-            </p></div>
-            <IonButton  className = 'secondary-button'onClick={() => handleAddToSavedMenu(item)}>
+            </div>
+          </IonCardHeader>
+          <IonCardContent>
+            <div className="card-cont-flex">
+              <p>{item.description}</p>
+              <p className="allergens">
+                <strong>Allergens: </strong>
+                {allergensArray.map((allergen: string, index: number) => {
+                  const isUserAllergen = userAllergens.includes(
+                    allergen.toLowerCase().trim()
+                  );
+                  return (
+                    <span
+                      key={index}
+                      style={{ color: isUserAllergen ? "red" : "black" }}
+                    >
+                      {allergen}
+                      {index < allergensArray.length - 1 ? ", " : ""}
+                    </span>
+                  );
+                })}
+              </p>
+            </div>
+            <IonButton
+              className="secondary-button"
+              onClick={() => handleAddToSavedMenu(item)}
+            >
               Add to Saved Menu
             </IonButton>
           </IonCardContent>
@@ -173,7 +191,9 @@ const RestaurantPage: React.FC = () => {
       .map((category, index) => (
         <div key={index} className="list-container">
           <h5>{category.category}</h5>
-          <IonList className="menu-list">{renderMenuItems(category.items)}</IonList>
+          <IonList className="menu-list">
+            {renderMenuItems(category.items)}
+          </IonList>
         </div>
       ));
   };
@@ -182,7 +202,9 @@ const RestaurantPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{restaurantDetails?.name || restaurantName} Full Menu</IonTitle>
+          <IonTitle>
+            {restaurantDetails?.name || restaurantName} Full Menu
+          </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
@@ -200,10 +222,11 @@ const RestaurantPage: React.FC = () => {
                 <h2>{restaurantDetails.name}</h2>
                 {userAllergens.length > 0 && (
                   <p style={{ color: "red" }}>
-                    Menu items with allergens marked in red contain your allergens.
+                    Menu items with allergens marked in red contain your
+                    allergens.
                   </p>
                 )}
-                <IonBadge color="primary" className = 'full-badge'>
+                <IonBadge color="primary" className="full-badge">
                   Menu Items:{" "}
                   {menuCategories.reduce(
                     (acc, category) => acc + category.items.length,
@@ -216,14 +239,18 @@ const RestaurantPage: React.FC = () => {
             <IonSegment
               scrollable
               value={selectedCategory}
-              onIonChange={(e) => setSelectedCategory(e.detail.value!.toString())}
+              onIonChange={(e) =>
+                setSelectedCategory(e.detail.value!.toString())
+              }
             >
               {menuCategories.map((category) => (
                 <IonSegmentButton
                   key={category.category}
                   value={category.category}
                 >
-                  <IonLabel  className = 'seg-button' >{category.category}</IonLabel>
+                  <IonLabel className="seg-button">
+                    {category.category}
+                  </IonLabel>
                 </IonSegmentButton>
               ))}
             </IonSegment>

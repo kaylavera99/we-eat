@@ -15,21 +15,20 @@ interface Place {
 export const setPreferredLocation = async (place: Place): Promise<void> => {
   if (auth.currentUser) {
     try {
-      console.log('Authenticated user:', auth.currentUser.uid); 
       const userDocRef = doc(db, 'users', auth.currentUser.uid);
       const preferredLocationRef = collection(userDocRef, 'preferredLocations');
-      
+
       const q = query(preferredLocationRef, where("name", "==", place.name));
       const querySnapshot = await getDocs(q);
-      
+
       let preferredLocationDocRef;
-      
+
       if (!querySnapshot.empty) {
         preferredLocationDocRef = querySnapshot.docs[0].ref;
       } else {
         preferredLocationDocRef = doc(preferredLocationRef);
       }
-      
+
       await setDoc(preferredLocationDocRef, {
         name: place.name,
         address: place.vicinity,

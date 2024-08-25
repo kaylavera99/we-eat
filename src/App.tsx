@@ -68,8 +68,6 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('User state changed:', user);
-
       setIsLoading(false); 
       if (user) {
        

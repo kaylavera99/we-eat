@@ -63,9 +63,6 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   };
 
   const handleSave = async () => {
-    console.log("Debug Info:");
-    console.log("restaurantName:", restaurantName);
-
     let imageDownloadUrl = imageUrl;
 
     if (imageFile) {
@@ -183,15 +180,20 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
         </IonItem>
 
         <IonItem lines="none" className="form-item item-upload">
-          {" "}            <IonLabel position="stacked" className="add-item-label">
-              Image
-            </IonLabel>
+          {" "}
+          <IonLabel position="stacked" className="add-item-label">
+            Image
+          </IonLabel>
           <div className="image-form-wrap">
-
             {imageUrl && (
               <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
             )}
-            <input className = 'img-up-btn' type="file" accept="image/*" onChange={handleImageChange} />
+            <input
+              className="img-up-btn"
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </div>
         </IonItem>
 

@@ -6,10 +6,6 @@ import {
   IonTitle,
   IonToolbar,
   IonList,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonModal,
   IonItem,
   IonLabel,
@@ -25,9 +21,8 @@ import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import EditNotesModal from "../components/EditNotesModal";
 import "../styles/SavedMenu.css";
-import useScreenWidth from "../hooks/useScreenWidth";
-import { deleteMenuItemFromSavedMenus } from "../services/menuService"; 
-import { closeSharp, createOutline, trashBinOutline, trashSharp } from "ionicons/icons";
+import { deleteMenuItemFromSavedMenus } from "../services/menuService";
+import { closeSharp, createOutline, trashSharp } from "ionicons/icons";
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -63,7 +58,7 @@ const SavedMenuPage: React.FC = () => {
   );
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
-  const [viewingItem, setViewingItem] = useState<MenuItem | null>(null); 
+  const [viewingItem, setViewingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
@@ -145,7 +140,7 @@ const SavedMenuPage: React.FC = () => {
   };
 
   const handleViewItem = (item: MenuItem) => {
-    setViewingItem(item); 
+    setViewingItem(item);
   };
 
   const handleDeleteItem = async (itemToDelete: MenuItem) => {
@@ -175,14 +170,15 @@ const SavedMenuPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div className = 'button-save-row'>
-        <IonButton
-          className="btn-full"
-          expand="block"
-          onClick={handleViewFullMenu}
-        >
-          View Full Menu
-        </IonButton></div>
+        <div className="button-save-row">
+          <IonButton
+            className="btn-full"
+            expand="block"
+            onClick={handleViewFullMenu}
+          >
+            View Full Menu
+          </IonButton>
+        </div>
 
         {(preferredLocation || restaurantThumbnail) && (
           <div className="preferred-location-banner">
@@ -192,7 +188,9 @@ const SavedMenuPage: React.FC = () => {
               className="menu-banner"
             />
             <div className="info-column">
-              <h2 className = 'info-name'>{preferredLocation?.name || restaurantName} </h2>
+              <h2 className="info-name">
+                {preferredLocation?.name || restaurantName}{" "}
+              </h2>
               <p className="address-text-save">
                 Preferred Location:{" "}
                 {preferredLocation?.address || "No specific location"}
@@ -208,7 +206,7 @@ const SavedMenuPage: React.FC = () => {
         )}
 
         <div className="menu-title-line">
-          <h2 className = 'save-menu'>Saved Menu Items</h2>
+          <h2 className="save-menu">Saved Menu Items</h2>
           <IonBadge className="item-badge" color="primary">
             {menuItems.length} Menu Items(s)
           </IonBadge>
@@ -249,11 +247,14 @@ const SavedMenuPage: React.FC = () => {
                     </p>
                   </IonLabel>
                   <div className="create-btn-row">
-                    <IonButton onClick={() => handleViewItem(item)} className = 'btn-view'>
+                    <IonButton
+                      onClick={() => handleViewItem(item)}
+                      className="btn-view"
+                    >
                       View Item
                     </IonButton>
                     <IonButton
-                    className = 'btn-delete'
+                      className="btn-delete"
                       color="danger"
                       onClick={() => handleDeleteItem(item)}
                     >
@@ -292,61 +293,73 @@ const SavedMenuPage: React.FC = () => {
             <div className="item-modal view-mod">
               <IonButton
                 className="close-button"
-                fill="clear" 
+                fill="clear"
                 onClick={() => setViewingItem(null)}
               >
                 <IonIcon
                   icon={closeSharp}
-                  style={{ color: "var(--ion-color-primary)", paddingLeft: '0' }}
+                  style={{
+                    color: "var(--ion-color-primary)",
+                    paddingLeft: "0",
+                  }}
                 />
               </IonButton>
 
-              <IonImg className = 'save-view-img' src={viewingItem?.imageUrl} alt={viewingItem?.name} />
-              <h2 className = 'modal-view-h2'>{viewingItem?.name}</h2>
-              <p className = 'modal-desc'>{viewingItem?.description}</p>
-              <p className = 'allergen-label-view'>
-              <strong>
-                        <span style={{ color: "#02382E" }}>Allergens: </span>
-                      </strong>
+              <IonImg
+                className="save-view-img"
+                src={viewingItem?.imageUrl}
+                alt={viewingItem?.name}
+              />
+              <h2 className="modal-view-h2">{viewingItem?.name}</h2>
+              <p className="modal-desc">{viewingItem?.description}</p>
+              <p className="allergen-label-view">
+                <strong>
+                  <span style={{ color: "#02382E" }}>Allergens: </span>
+                </strong>
                 {viewingItem?.allergens.map((allergen, index) => {
-          const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
-          return (
-            <span
-              key={index}
-              style={{ color: isUserAllergen ? "red" : "black" }}
-            >
-              {allergen}
-              {index < viewingItem.allergens.length - 1 ? ", " : ""}
-            </span>
-          );
-        })}
+                  const isUserAllergen = userAllergens.includes(
+                    allergen.toLowerCase().trim()
+                  );
+                  return (
+                    <span
+                      key={index}
+                      style={{ color: isUserAllergen ? "red" : "black" }}
+                    >
+                      {allergen}
+                      {index < viewingItem.allergens.length - 1 ? ", " : ""}
+                    </span>
+                  );
+                })}
               </p>
               <p>
                 <strong>Note: </strong>
                 {viewingItem?.note}
               </p>
-              <div className = 'modal-btn-row-view'>
-              <IonButton onClick={() => setEditingItem(viewingItem)}>
-              <IonIcon
+              <div className="modal-btn-row-view">
+                <IonButton onClick={() => setEditingItem(viewingItem)}>
+                  <IonIcon
                     slot="start"
                     icon={createOutline}
                     style={{ color: "white" }}
                   />
-                Edit 
-              </IonButton>
-              <IonButton
-                color="danger"
-                onClick={() => {
-                  handleDeleteItem(viewingItem);
-                  setViewingItem(null);
-                }}
-              >                  <IonIcon
-              slot="start"
-              icon={trashSharp}
-              style={{ color: "white" }}
-            />
-                Delete 
-              </IonButton></div>
+                  Edit
+                </IonButton>
+                <IonButton
+                  color="danger"
+                  onClick={() => {
+                    handleDeleteItem(viewingItem);
+                    setViewingItem(null);
+                  }}
+                >
+                  {" "}
+                  <IonIcon
+                    slot="start"
+                    icon={trashSharp}
+                    style={{ color: "white" }}
+                  />
+                  Delete
+                </IonButton>
+              </div>
             </div>
           </IonModal>
         )}
