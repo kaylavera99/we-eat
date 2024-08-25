@@ -289,7 +289,7 @@ const SavedMenuPage: React.FC = () => {
             backdropDismiss={true}
             showBackdrop={true} //  closing  modal by clicking outside
           >
-            <div className="item-modal">
+            <div className="item-modal view-mod">
               <IonButton
                 className="close-button"
                 fill="clear" 
@@ -301,10 +301,10 @@ const SavedMenuPage: React.FC = () => {
                 />
               </IonButton>
 
-              <IonImg src={viewingItem?.imageUrl} alt={viewingItem?.name} />
-              <h2>{viewingItem?.name}</h2>
-              <p>{viewingItem?.description}</p>
-              <p>
+              <IonImg className = 'save-view-img' src={viewingItem?.imageUrl} alt={viewingItem?.name} />
+              <h2 className = 'modal-view-h2'>{viewingItem?.name}</h2>
+              <p className = 'modal-desc'>{viewingItem?.description}</p>
+              <p className = 'allergen-label-view'>
               <strong>
                         <span style={{ color: "#02382E" }}>Allergens: </span>
                       </strong>
@@ -325,7 +325,7 @@ const SavedMenuPage: React.FC = () => {
                 <strong>Note: </strong>
                 {viewingItem?.note}
               </p>
-              <div className = 'modal-btn-row'>
+              <div className = 'modal-btn-row-view'>
               <IonButton onClick={() => setEditingItem(viewingItem)}>
               <IonIcon
                     slot="start"
