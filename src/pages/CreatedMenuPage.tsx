@@ -13,7 +13,6 @@ import {
   IonImg,
   IonBadge,
   IonIcon,
-  IonButtons,
   IonPopover,
   IonFab,
   IonFabButton,
@@ -32,7 +31,7 @@ import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { searchRestaurants } from "../services/searchService";
 import "../styles/CreatedMenu..css";
-import { addOutline, ellipsisVertical } from "ionicons/icons";
+import { addOutline } from "ionicons/icons";
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -65,16 +64,12 @@ const CreatedMenuPage: React.FC = () => {
     event: Event | undefined;
   }>({ isOpen: false, event: undefined });
 
-  const history = useHistory();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = auth.currentUser?.uid;
         if (userId) {
           const userDocRef = doc(db, "users", userId);
-
-          
 
           // Fetch created menus
           const createdMenus = await fetchCreatedMenus();
@@ -201,7 +196,7 @@ const CreatedMenuPage: React.FC = () => {
               alt={preferredLocation.name}
             />
             <div className="info-column">
-              <h2 className = 'info-name'>{preferredLocation.name}</h2>
+              <h2 className="info-name">{preferredLocation.name}</h2>
               <p className="address-text-save">
                 Address: {preferredLocation.address}
               </p>
@@ -227,7 +222,7 @@ const CreatedMenuPage: React.FC = () => {
         </IonFab>
 
         <div className="menu-title-line">
-          <h2 className = 'save-menu' >Menu Items</h2>
+          <h2 className="save-menu">Menu Items</h2>
           <IonBadge className="item-badge" color="primary">
             {menuItems.length} Menu Item(s)
           </IonBadge>
@@ -239,8 +234,10 @@ const CreatedMenuPage: React.FC = () => {
                 <div className="menu-item-card-col">
                   <IonLabel>
                     <h3 className="item-h3">{item.name}</h3>
-                    <p className="menu-item-description">{" "}
-                    {truncateDescription(item.description, 75)}</p>
+                    <p className="menu-item-description">
+                      {" "}
+                      {truncateDescription(item.description, 75)}
+                    </p>
                     <p className="allergen-label">
                       <strong>Allergens: </strong>
                       {item.allergens.map((allergen, index) => {
@@ -264,11 +261,14 @@ const CreatedMenuPage: React.FC = () => {
                     </p>
                   </IonLabel>
                   <div className="create-btn-row">
-                    <IonButton onClick={() => setEditingItem(item)} className = 'btn-view'> 
+                    <IonButton
+                      onClick={() => setEditingItem(item)}
+                      className="btn-view"
+                    >
                       Edit Item
                     </IonButton>
                     <IonButton
-                    className = 'btn-delete'
+                      className="btn-delete"
                       color="danger"
                       onClick={() => handleDeleteItem(item.id!)}
                     >
@@ -310,7 +310,6 @@ const CreatedMenuPage: React.FC = () => {
               button
               color="danger"
               onClick={() => {
-               
                 setShowPopover({ isOpen: false, event: undefined });
               }}
             >

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 import {
   IonContent,
   IonHeader,
@@ -11,16 +11,16 @@ import {
   IonLabel,
   IonButton,
   IonLoading,
-  IonToast
-} from '@ionic/react';
-import { sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+  IonToast,
+} from "@ionic/react";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 
 const PasswordResetPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const history = useHistory();
 
   const handleReset = async () => {
@@ -28,9 +28,9 @@ const PasswordResetPage: React.FC = () => {
     try {
       await sendPasswordResetEmail(auth, email);
       setIsLoading(false);
-      setToastMessage('Password reset email sent!');
+      setToastMessage("Password reset email sent!");
       setShowToast(true);
-      history.push('/login');
+      history.push("/login");
     } catch (error: any) {
       setIsLoading(false);
       setToastMessage(error.message);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   IonContent,
   IonHeader,
@@ -10,11 +10,17 @@ import {
   IonLabel,
   IonLoading,
   IonToast,
-  IonButton
-} from '@ionic/react';
-import { doc, getDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
-import { useParams } from 'react-router-dom';
+  IonButton,
+} from "@ionic/react";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { useParams } from "react-router-dom";
 
 interface MenuItem {
   name: string;
@@ -42,19 +48,19 @@ const FullMenuPage: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchUserAllergens = async () => {
       if (auth.currentUser) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data() as UserData;
           const allergens = Object.keys(userData.allergens)
-            .filter(allergen => userData.allergens[allergen])
-            .map(allergen => allergen.toLowerCase().trim());
+            .filter((allergen) => userData.allergens[allergen])
+            .map((allergen) => allergen.toLowerCase().trim());
           setUserAllergens(allergens);
         }
       }
@@ -63,18 +69,22 @@ const FullMenuPage: React.FC = () => {
     const fetchRestaurantMenu = async () => {
       setIsLoading(true);
       try {
-        const restaurantDocRef = doc(db, 'restaurants', restaurantId);
+        const restaurantDocRef = doc(db, "restaurants", restaurantId);
         const restaurantDocSnap = await getDoc(restaurantDocRef);
         if (restaurantDocSnap.exists()) {
           const restaurantData = restaurantDocSnap.data() as { name: string };
-          const menuSnapshot = await getDocs(collection(db, 'restaurants', restaurantId, 'menu'));
-          const menuCategories: MenuCategory[] = menuSnapshot.docs.map(menuDoc => {
-            const menuData = menuDoc.data();
-            return {
-              category: menuData.category,
-              items: menuData.items,
-            } as MenuCategory;
-          });
+          const menuSnapshot = await getDocs(
+            collection(db, "restaurants", restaurantId, "menu")
+          );
+          const menuCategories: MenuCategory[] = menuSnapshot.docs.map(
+            (menuDoc) => {
+              const menuData = menuDoc.data();
+              return {
+                category: menuData.category,
+                items: menuData.items,
+              } as MenuCategory;
+            }
+          );
           setRestaurant({
             id: restaurantId,
             name: restaurantData.name,
@@ -93,21 +103,29 @@ const FullMenuPage: React.FC = () => {
     fetchRestaurantMenu();
   }, [restaurantId]);
 
-  const handleAddToPersonalizedMenu = async (item: MenuItem, category: string) => {
+  const handleAddToPersonalizedMenu = async (
+    item: MenuItem,
+    category: string
+  ) => {
     try {
       if (auth.currentUser) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const userDocRef = doc(db, "users", auth.currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
-          const preferredLocation = userData.preferredLocations[restaurant?.name || ''];
-          const updatedItems = { ...preferredLocation.menu[category].items, [item.name]: item };
+          const preferredLocation =
+            userData.preferredLocations[restaurant?.name || ""];
+          const updatedItems = {
+            ...preferredLocation.menu[category].items,
+            [item.name]: item,
+          };
 
           await updateDoc(userDocRef, {
-            [`preferredLocations.${restaurant?.name}.menu.${category}.items`]: updatedItems
+            [`preferredLocations.${restaurant?.name}.menu.${category}.items`]:
+              updatedItems,
           });
 
-          setToastMessage('Item added to personalized menu');
+          setToastMessage("Item added to personalized menu");
           setShowToast(true);
         }
       }
@@ -121,12 +139,12 @@ const FullMenuPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>{restaurant?.name || 'Menu'}</IonTitle>
+          <IonTitle>{restaurant?.name || "Menu"}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
         {userAllergens.length > 0 && (
-          <p style={{ color: 'red' }}>
+          <p style={{ color: "red" }}>
             Menu items with allergens marked in red coccccntain your allergens.
           </p>
         )}
@@ -138,33 +156,47 @@ const FullMenuPage: React.FC = () => {
               <div key={index}>
                 <h3>{menuCategory.category}</h3>
                 <IonList>
-                  {Object.entries(menuCategory.items).map(([key, item]: [string, MenuItem]) => (
-                    <IonItem key={key}>
-                      <IonLabel>
-                        <h2>{item.name}</h2>
-                        <p>{item.description}</p>
-                        <p>
-                          Allergens:{' '}
-                          {item.allergens.map((allergen, index) => {
-                            const isUserAllergen = userAllergens.includes(allergen.toLowerCase().trim());
-                            return (
-                              <span
-                                key={index}
-                                style={{ color: isUserAllergen ? 'red' : 'black' }}
-                              >
-                                {allergen}{index < item.allergens.length - 1 ? ', ' : ''}
-                              </span>
-                            );
-                          })}
-                        </p>
-                      </IonLabel>
-                      <IonButton
-                        onClick={() => handleAddToPersonalizedMenu(item, menuCategory.category)}
-                      >
-                        Add to Personalized Menu
-                      </IonButton>
-                    </IonItem>
-                  ))}
+                  {Object.entries(menuCategory.items).map(
+                    ([key, item]: [string, MenuItem]) => (
+                      <IonItem key={key}>
+                        <IonLabel>
+                          <h2>{item.name}</h2>
+                          <p>{item.description}</p>
+                          <p>
+                            Allergens:{" "}
+                            {item.allergens.map((allergen, index) => {
+                              const isUserAllergen = userAllergens.includes(
+                                allergen.toLowerCase().trim()
+                              );
+                              return (
+                                <span
+                                  key={index}
+                                  style={{
+                                    color: isUserAllergen ? "red" : "black",
+                                  }}
+                                >
+                                  {allergen}
+                                  {index < item.allergens.length - 1
+                                    ? ", "
+                                    : ""}
+                                </span>
+                              );
+                            })}
+                          </p>
+                        </IonLabel>
+                        <IonButton
+                          onClick={() =>
+                            handleAddToPersonalizedMenu(
+                              item,
+                              menuCategory.category
+                            )
+                          }
+                        >
+                          Add to Personalized Menu
+                        </IonButton>
+                      </IonItem>
+                    )
+                  )}
                 </IonList>
               </div>
             ))}

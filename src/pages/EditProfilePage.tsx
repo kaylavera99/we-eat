@@ -14,13 +14,13 @@ import {
   IonImg,
   IonInput,
   IonAvatar,
-  IonIcon
+  IonIcon,
 } from "@ionic/react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { uploadImage, compressImage } from "../services/storageService";
 import "../styles/EditProfilePage.css";
-import {personCircleSharp} from 'ionicons/icons';
+import { personCircleSharp } from "ionicons/icons";
 
 interface AllergenState {
   eggs: boolean;
@@ -163,40 +163,50 @@ const EditProfilePage: React.FC = () => {
         <IonToolbar></IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-      <div className='page-banner-row'>
-          <IonIcon slot="end" icon={personCircleSharp} style={{ color: 'black' }} />
+        <div className="page-banner-row">
+          <IonIcon
+            slot="end"
+            icon={personCircleSharp}
+            style={{ color: "black" }}
+          />
           <h2>Edit Profile</h2>
         </div>
         <IonLabel position="stacked" className="input-field-profile">
           Profile Picture
         </IonLabel>
         <IonItem lines="none" className="flex-column">
-          <div className = 'profile-container'>
-  <div className="image-wrapper">
-    {profileImageUrl && (
-      <IonAvatar style={{ width: "100px", height: "100px", objectFit: "cover" }}>
-        <IonImg src={profileImageUrl} alt="Profile Picture" />
-      </IonAvatar>
-    )}
-  </div>
-  <div className="upload-wrapper">
-    <input
-      type="file"
-      accept="image/*"
-      onChange={handleImageChange}
-      className="input-btn"
-      id="fileInput"
-      style={{ display: "none" }}
-    />
-    <IonButton
-      onClick={() => document.getElementById("fileInput")?.click()}
-      className="custom-upload-btn"
-    >
-      Choose File
-    </IonButton>
-  </div></div>
-</IonItem>
-
+          <div className="profile-container">
+            <div className="image-wrapper">
+              {profileImageUrl && (
+                <IonAvatar
+                  style={{
+                    width: "100px",
+                    height: "100px",
+                    objectFit: "cover",
+                  }}
+                >
+                  <IonImg src={profileImageUrl} alt="Profile Picture" />
+                </IonAvatar>
+              )}
+            </div>
+            <div className="upload-wrapper">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="input-btn"
+                id="fileInput"
+                style={{ display: "none" }}
+              />
+              <IonButton
+                onClick={() => document.getElementById("fileInput")?.click()}
+                className="custom-upload-btn"
+              >
+                Choose File
+              </IonButton>
+            </div>
+          </div>
+        </IonItem>
         <IonLabel position="stacked" className="input-field-profile">
           First Name
         </IonLabel>
@@ -300,7 +310,7 @@ const EditProfilePage: React.FC = () => {
             <IonLabel className="input-field-profile">Peanuts</IonLabel>
           </IonItem>
         </div>
-        <IonButton expand="full" className = 'save-edit'onClick={handleSave}>
+        <IonButton expand="full" className="save-edit" onClick={handleSave}>
           Save
         </IonButton>
         <IonLoading isOpen={isLoading} message="Saving profile..." />

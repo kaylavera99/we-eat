@@ -8,7 +8,6 @@ import {
   IonList,
   IonCard,
   IonCardHeader,
-  IonCardTitle,
   IonCardContent,
   IonButton,
   IonLoading,
@@ -17,8 +16,6 @@ import {
   IonAccordionGroup,
   IonAccordion,
   IonItem,
-  IonLabel,
-  IonBadge,
   IonIcon,
 } from "@ionic/react";
 import { useHistory } from "react-router-dom";
@@ -88,9 +85,6 @@ const PersonalizedMenuPage: React.FC = () => {
           const fetchedSavedMenus: Menu[] = [];
           for (const menuDoc of savedMenusSnap.docs) {
             const dishesSnap = await getDocs(collection(menuDoc.ref, "dishes"));
-            console.log(
-              `Saved Menu: ${menuDoc.id}, Dishes: ${dishesSnap.size}`
-            );
             const data = menuDoc.data() as Menu;
 
             const restaurantQuery = query(
@@ -186,7 +180,6 @@ const PersonalizedMenuPage: React.FC = () => {
       const userId = auth.currentUser?.uid;
       if (userId) {
         const encodedRestaurantName = decodeURIComponent(restaurantName);
-        console.log(encodedRestaurantName)
         const userDocRef = doc(db, "users", userId);
         const menuCollection = isCreatedMenu ? "createdMenus" : "savedMenus";
         const menuQuery = query(
@@ -240,9 +233,9 @@ const PersonalizedMenuPage: React.FC = () => {
           </IonCardHeader>
           <IonCardContent className="per-card-content">
             <p>{menu.dishCount} Menu Item(s)</p>
-            <div className="per-btn-row" >
+            <div className="per-btn-row">
               <IonButton
-                className="custom-button" 
+                className="custom-button"
                 color="primary"
                 onClick={() =>
                   handleViewMenu(menu.restaurantName, menu.isCreated)
@@ -288,24 +281,23 @@ const PersonalizedMenuPage: React.FC = () => {
             </IonButton>
             <div className="page-banner-row-menus">
               <IonIcon
-                  slot="end"
-                  className="menu-icon"
-                  icon={restaurantOutline}
-                /><h2 className = 'per-h2'>
-               
-                
-                Your Menus
-              </h2>
+                slot="end"
+                className="menu-icon"
+                icon={restaurantOutline}
+              />
+              <h2 className="per-h2">Your Menus</h2>
             </div>
-            <IonAccordionGroup className = 'per-acc'>
+            <IonAccordionGroup className="per-acc">
               <IonAccordion value="created" className="item-expanded">
                 <IonItem slot="header" className="item-lbl">
                   <div className="item-banner">
-                    <h4 className = 'acc-lbl' >Created Menus</h4>
-                    <p className="title-exp">These are the menus you created.</p>
+                    <h4 className="acc-lbl">Created Menus</h4>
+                    <p className="title-exp">
+                      These are the menus you created.
+                    </p>
                   </div>
                 </IonItem>
-                <IonList slot="content" className='list-flx'>
+                <IonList slot="content" className="list-flx">
                   {createdMenus.length > 0 ? (
                     createdMenus.map((menu) => renderMenuCard(menu))
                   ) : (
@@ -316,18 +308,19 @@ const PersonalizedMenuPage: React.FC = () => {
 
               <IonAccordion
                 value="saved"
-                style={{ backgroundColor: "#f2efef" }}  className="item-expanded"
+                style={{ backgroundColor: "#f2efef" }}
+                className="item-expanded"
               >
                 <IonItem slot="header" className="item-lbl">
                   <div className="item-banner">
-                    <h4 className = 'acc-lbl'>Saved Menus</h4>
+                    <h4 className="acc-lbl">Saved Menus</h4>
                     <p className="title-exp">
                       These are the menus in which you've saved items from on
                       WeEat.
                     </p>
                   </div>
                 </IonItem>
-                <IonList slot="content" className = 'list-flx'>
+                <IonList slot="content" className="list-flx">
                   {savedMenus.length > 0 ? (
                     savedMenus.map((menu) => renderMenuCard(menu))
                   ) : (

@@ -29,7 +29,8 @@ interface Dish {
   note: string;
   imageUrl?: string;
 }
-const placeholderImage = "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
+const placeholderImage =
+  "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
 const AddDishesPage: React.FC = () => {
   const { menuId } = useParams<{ menuId: string }>(); //  menuId from URL
   const [category, setCategory] = useState("");
@@ -40,11 +41,11 @@ const AddDishesPage: React.FC = () => {
   const [image, setImage] = useState<File | null>(null); // new state for dish image
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(placeholderImage);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(
+    placeholderImage
+  );
 
   const history = useHistory();
-
-
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -68,9 +69,6 @@ const AddDishesPage: React.FC = () => {
           `profilePictures/${auth.currentUser.uid}/createdMenus/${menuId}/menuItems/${name}`
         );
       }
-
-      console.log('This is the image Url', imageUrl)
-
       const dish: Dish = {
         category,
         name,
@@ -85,8 +83,6 @@ const AddDishesPage: React.FC = () => {
         const createdMenusRef = collection(userDocRef, "createdMenus");
         const newMenuDocRef = doc(createdMenusRef, menuId);
         const dishesRef = collection(newMenuDocRef, "dishes");
-
-        console.log('Dish to be added:', dish);
 
         await addDoc(dishesRef, dish);
       }
@@ -152,15 +148,22 @@ const AddDishesPage: React.FC = () => {
             Notes
           </IonLabel>
           <IonItem className="dishes-item">
-            <IonInput value={note} onIonChange={(e) => setNote(e.detail.value!)} />
+            <IonInput
+              value={note}
+              onIonChange={(e) => setNote(e.detail.value!)}
+            />
           </IonItem>
           <IonLabel className="dishes-lbl" position="stacked">
             Image
           </IonLabel>
           <div className="dish-image-wrapper">
-          {imagePreviewUrl && (
+            {imagePreviewUrl && (
               <div className="dish-img-item">
-                <IonImg className="dish-img" src={imagePreviewUrl} alt="Dish Image Preview" />
+                <IonImg
+                  className="dish-img"
+                  src={imagePreviewUrl}
+                  alt="Dish Image Preview"
+                />
               </div>
             )}
             <div className="upload-wrapper">
@@ -181,7 +184,11 @@ const AddDishesPage: React.FC = () => {
             </div>
           </div>
         </IonList>
-        <IonButton expand="block" className="secondary-button" onClick={handleSubmit}>
+        <IonButton
+          expand="block"
+          className="secondary-button"
+          onClick={handleSubmit}
+        >
           Submit
         </IonButton>
         <IonToast

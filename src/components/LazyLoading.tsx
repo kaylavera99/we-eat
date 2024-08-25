@@ -1,7 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { IonImg } from '@ionic/react';
+import React, { useEffect, useRef, useState } from "react";
+import { IonImg } from "@ionic/react";
 
-const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperties }> = ({ src, alt, style }) => {
+const LazyImage: React.FC<{
+  src: string;
+  alt?: string;
+  style?: React.CSSProperties;
+}> = ({ src, alt, style }) => {
   const [isInView, setIsInView] = useState(false);
   const imgRef = useRef<HTMLIonImgElement | null>(null);
 
@@ -14,7 +18,7 @@ const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperti
         }
       },
       {
-        rootMargin: '50px', 
+        rootMargin: "50px",
         threshold: 0.1,
       }
     );
@@ -25,7 +29,7 @@ const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperti
 
     return () => {
       if (imgRef.current) {
-        observer.unobserve(imgRef.current as unknown as Element); 
+        observer.unobserve(imgRef.current as unknown as Element);
       }
     };
   }, []);
@@ -33,7 +37,7 @@ const LazyImage: React.FC<{ src: string, alt?: string, style?: React.CSSProperti
   return (
     <IonImg
       ref={imgRef}
-      src={isInView ? src : undefined} 
+      src={isInView ? src : undefined}
       alt={alt}
       style={style}
     />

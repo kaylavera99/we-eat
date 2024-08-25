@@ -5,7 +5,6 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonInput,
   IonButton,
   IonList,
   IonItem,
@@ -33,7 +32,7 @@ import {
 import { db, auth } from "../firebaseConfig";
 import { fetchFullMenuFromRestaurants } from "../services/restaurantService";
 import { getCoordinatesFromAddress } from "../services/googlePlacesService";
-import { searchOutline, optionsOutline, filterOutline } from "ionicons/icons";
+import { searchOutline, filterOutline } from "ionicons/icons";
 import "../styles/SearchPage.css";
 
 interface Place {
@@ -165,7 +164,10 @@ const SearchPage: React.FC = () => {
         restaurantName
       );
       if (userHasCreatedMenu) {
-        history.push(`/restaurant/${decodeURIComponent(restaurantName)}/created`, { place });
+        history.push(
+          `/restaurant/${decodeURIComponent(restaurantName)}/created`,
+          { place }
+        );
         return;
       }
 
@@ -258,8 +260,6 @@ const SearchPage: React.FC = () => {
   ): Promise<boolean> => {
     if (!auth.currentUser) return false;
     const encodedRestaurantName = decodeURIComponent(restaurantName);
-    console.log("Encoded Name", encodedRestaurantName)
-
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const createdMenusRef = collection(userDocRef, "createdMenus");
     const q = query(
@@ -332,7 +332,7 @@ const SearchPage: React.FC = () => {
                 </IonLabel>
                 <div className="result-btn-row">
                   <IonButton
-                  className="rest-view-menu"
+                    className="rest-view-menu"
                     onClick={() => handleNavigateToRestaurantPage(place)}
                   >
                     View Menu

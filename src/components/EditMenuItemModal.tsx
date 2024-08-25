@@ -12,8 +12,16 @@ import {
   IonImg,
   IonTextarea,
 } from "@ionic/react";
-import { doc, setDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import {
+  doc,
+  setDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { db, auth } from "../firebaseConfig";
 import { MenuItem } from "../services/menuService";
 import { compressImage, uploadImage } from "../services/storageService";
 import "../styles/ModalStyles.css";
@@ -22,11 +30,12 @@ interface EditMenuItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSaveItem: (updatedItem: MenuItem) => void;
-  initialItem?: MenuItem; 
+  initialItem?: MenuItem;
   restaurantName?: string;
 }
 
-const placeholderImage = "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
+const placeholderImage =
+  "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
 
 const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   isOpen,
@@ -55,25 +64,23 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
       setName(initialItem.name);
       setDescription(initialItem.description);
       setAllergens(initialItem.allergens);
-      setNote(initialItem.note || '');
+      setNote(initialItem.note || "");
       setCategory(initialItem.category);
       setImageUrl(initialItem.imageUrl || placeholderImage);
 
       nameRef.current = initialItem.name;
       descriptionRef.current = initialItem.description;
       allergensRef.current = initialItem.allergens;
-      noteRef.current = initialItem.note || '';
+      noteRef.current = initialItem.note || "";
       categoryRef.current = initialItem.category;
       imageUrlRef.current = initialItem.imageUrl || placeholderImage;
     } else {
-      setName('');
-      setDescription('');
+      setName("");
+      setDescription("");
       setAllergens([]);
-      setNote('');
-      setCategory('');
+      setNote("");
+      setCategory("");
       setImageUrl(placeholderImage);
-
-
     }
   }, [initialItem]);
 
@@ -90,7 +97,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
 
   const handleSave = async () => {
     let imageDownloadUrl = imageUrlRef.current;
-  
+
     if (imageFile) {
       try {
         const compressedFile = await compressImage(imageFile);
@@ -102,12 +109,14 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
         return;
       }
     }
-  
+
     if (!restaurantName || !initialItem?.id) {
-      console.error("Required values (restaurantName, initialItem.id) are undefined.");
+      console.error(
+        "Required values (restaurantName, initialItem.id) are undefined."
+      );
       return;
     }
-  
+
     //   updated item with  fields using refs
     const updatedItem = {
       ...initialItem,
@@ -118,40 +127,35 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
       category: categoryRef.current,
       imageUrl: imageUrlRef.current,
     };
-  
+
     try {
       const userUid = auth.currentUser?.uid;
-  
+
       if (!userUid) {
         console.error("User not authenticated.");
         return;
       }
-  
+
       const userDocRef = doc(db, "users", userUid);
       const createdMenusRef = collection(userDocRef, "createdMenus");
 
       const encodedRestaurantName = decodeURIComponent(restaurantName);
-      console.log(encodedRestaurantName);
-      console.log(restaurantName)
 
-  
-      const q = query(createdMenusRef, where("restaurantName", "==", encodedRestaurantName));
+      const q = query(
+        createdMenusRef,
+        where("restaurantName", "==", encodedRestaurantName)
+      );
       const querySnapshot = await getDocs(q);
-  
+
       if (querySnapshot.empty) {
         throw new Error("Restaurant menu not found.");
       }
-  
+
       const restaurantDocRef = querySnapshot.docs[0].ref;
       const dishesCollectionRef = collection(restaurantDocRef, "dishes");
       const menuItemDocRef = doc(dishesCollectionRef, initialItem.id!);
-  
-      console.log("Updating document at path:", menuItemDocRef.path);
-      console.log("Updated item:", updatedItem);
-  
+
       await updateDoc(menuItemDocRef, updatedItem);
-  
-      console.log("Item updated successfully");
       onSaveItem(updatedItem);
       onClose();
     } catch (error) {
@@ -205,7 +209,9 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
             className="input-field"
             value={allergens.join(", ")}
             onIonChange={(e) => {
-              const newAllergens = e.detail.value!.split(",").map((a) => a.trim());
+              const newAllergens = e.detail
+                .value!.split(",")
+                .map((a) => a.trim());
               setAllergens(newAllergens);
               allergensRef.current = newAllergens;
             }}
@@ -247,10 +253,16 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
             Image
           </IonLabel>
           <div className="image-form-wrap">
-          {imageUrl && (
-            <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
-          )}
-          <input type="file" className = 'img-up-btn' accept="image/*" onChange={handleImageChange} /></div>
+            {imageUrl && (
+              <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
+            )}
+            <input
+              type="file"
+              className="img-up-btn"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </div>
         </IonItem>
 
         <IonButton expand="block" className="modal-button" onClick={handleSave}>

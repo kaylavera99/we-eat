@@ -33,6 +33,10 @@
 
   }
 
+  .user-all, .user-name {
+    text-align:center;
+  }
+
   .profile-banner .user-info h3 {
     font-size: calc(.85em + 2vw)!important;
         font-weight:700;

@@ -1,4 +1,4 @@
-import {  collection, doc, writeBatch, GeoPoint, getDocs, query, where, setDoc, updateDoc} from 'firebase/firestore';
+import { collection, doc, writeBatch, GeoPoint, getDocs, query, where, setDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { fetchRestaurantsFromGooglePlaces, getCoordinatesFromAddress } from './googlePlacesService';
 import { searchRestaurants } from './searchService';
@@ -74,16 +74,16 @@ export const addPreferredLocation = async (restaurantName: string, address: stri
       await updateDoc(docRef, {
         address,
         coordinates: geoPoint,
-        photoUrl: restaurantData.photoUrl || photoUrl, 
+        photoUrl: restaurantData.photoUrl || photoUrl,
       });
     } else {
       const newLocationDocRef = doc(preferredLocationsRef);
       await setDoc(newLocationDocRef, {
         name: restaurantName,
-        restaurantId: restaurantDoc.id, 
+        restaurantId: restaurantDoc.id,
         address,
         coordinates: geoPoint,
-        photoUrl: restaurantData.photoUrl || photoUrl 
+        photoUrl: restaurantData.photoUrl || photoUrl
       });
     }
   } else {
@@ -184,8 +184,8 @@ export const fetchZipCode = async (street: string, city: string, state: string):
     { name: 'Wisconsin', code: 'WI' },
     { name: 'Wyoming', code: 'WY' }
   ];
-  
-  
+
+
   try {
     const address = `${street}, ${city}, ${state}`;
     const coordinates = await getCoordinatesFromAddress(address);
@@ -204,8 +204,6 @@ export const fetchZipCode = async (street: string, city: string, state: string):
       const postalCodeComponent = addressComponents.find((component: any) =>
         component.types.includes('postal_code')
       );
-
-      console.log("PC", postalCodeComponent)
 
       return postalCodeComponent ? postalCodeComponent.long_name : null;
     } else {

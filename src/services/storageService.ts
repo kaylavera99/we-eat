@@ -1,6 +1,6 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import imageCompression from 'browser-image-compression';
-import { storage } from '../firebaseConfig'; 
+import { storage } from '../firebaseConfig';
 
 export const uploadImage = async (file: File, userID: string) => {
     const storageRef = ref(storage, `profilePictures/${userID}/${file.name}`);
