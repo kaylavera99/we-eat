@@ -17,7 +17,6 @@ WeEat is designed to provide a personalized dining experience. Users can create 
 - User authentication and profile management
 - Create, save, and manage menus
 - Search for restaurants using the Google Places API
-- Leave reviews for restaurants
 - View personalized recommendations based on preferences and reviews
 - Real-time updates with Firebase Firestore
 
