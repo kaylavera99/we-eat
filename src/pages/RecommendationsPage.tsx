@@ -130,26 +130,17 @@ const RecommendationsPage: React.FC = () => {
 
   useEffect(() => {
     const accordions = document.querySelectorAll(".rec-accordion");
-    console.log("Accordions found: ", accordions.length);
-
     accordions.forEach((accordion) => {
-      console.log("Attaching event to: ", accordion);
-
       accordion.addEventListener("ionAccordionDidExpand", () => {
-        console.log("Accordion expanded ");
-        accordion.classList.add("expanded"); 
-        const accordionGroup = accordion.closest('.rest-acc-list');
-      
+        accordion.classList.add("expanded");
+        const accordionGroup = accordion.closest(".rest-acc-list");
+
         if (accordionGroup) {
           const boundingRect = accordionGroup.getBoundingClientRect();
           const offsetTop = boundingRect.top + window.scrollY;
-          const scrollToPosition = offsetTop - 56; 
-          
-          console.log("Offset: ", offsetTop);
-          console.log("Scroll: ", scrollToPosition);
-          console.log("Bound: ", boundingRect);
-          
-          window.scrollTo({ top: scrollToPosition, behavior: 'smooth' });
+          const scrollToPosition = offsetTop - 56;
+
+          window.scrollTo({ top: scrollToPosition, behavior: "smooth" });
         }
       });
       accordion.addEventListener("ionAccordionDidCollapse", () => {
@@ -230,36 +221,25 @@ const RecommendationsPage: React.FC = () => {
     return filterMenuItemsByAllergens(items, userAllergens);
   };
 
-  const handleAccordionClick = (event: React.MouseEvent<HTMLIonItemElement, MouseEvent>) => {
-    console.log("Accordion clicked")
+  const handleAccordionClick = (
+    event: React.MouseEvent<HTMLIonItemElement, MouseEvent>
+  ) => {
     const accordion = event.currentTarget;
-    console.log("Accordion: " , accordion)
 
-    const accordionGroup = accordion.closest('.rec-accordion');
-    console.log("accordion group: ", accordionGroup)
+    const accordionGroup = accordion.closest(".rec-accordion");
 
     if (accordionGroup) {
       const boundingRect = accordion.getBoundingClientRect();
-      console.log("Bounding : ", boundingRect)
-      console.log("Bounding Rect: ", boundingRect.top)
-      
-      console.log("Window: ", window.scrollY)
-      const offsetTop = boundingRect.top + window.scrollY;
-      console.log("Offset Top: ", offsetTop)
-      const scrollToPosition = boundingRect.height - 200; 
-      console.log("Scroll: ", scrollToPosition)
+      const scrollToPosition = boundingRect.height - 200;
 
-      window.scrollTo(0,scrollToPosition);
+      window.scrollTo(0, scrollToPosition);
 
-      
-
-
-      const itemElem = accordion.querySelector('.rest-rec-title');
+      const itemElem = accordion.querySelector(".rest-rec-title");
       if (itemElem) {
-        console.log("Element found: ", itemElem);
-        itemElem.scrollTo(0, scrollToPosition)
-      }window.scrollTo({ top: scrollToPosition, behavior: 'auto' });
-    } 
+        itemElem.scrollTo(0, scrollToPosition);
+      }
+      window.scrollTo({ top: scrollToPosition, behavior: "auto" });
+    }
   };
 
   return (
@@ -285,7 +265,7 @@ const RecommendationsPage: React.FC = () => {
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
           <IonList className="rest-rec-list">
-            <IonAccordionGroup className = 'rest-acc-list'>
+            <IonAccordionGroup className="rest-acc-list">
               {recommendedRestaurants.map((restaurant) => (
                 <IonAccordion
                   key={`${restaurant.id}-${restaurant.name}`}
@@ -296,7 +276,7 @@ const RecommendationsPage: React.FC = () => {
                     lines="none"
                     slot="header"
                     className="rest-rec-items"
-                    onClick= {handleAccordionClick}
+                    onClick={handleAccordionClick}
                   >
                     <div className="restaurant-thumbnail-container">
                       <Suspense fallback={<div>Loading image...</div>}>
@@ -329,7 +309,6 @@ const RecommendationsPage: React.FC = () => {
                                 key={`${restaurant.id}-${menuCategory.category}-${categoryIndex}`}
                                 value={`category-${restaurant.id}-${categoryIndex}`}
                                 className="category-accordion"
-                                
                               >
                                 <IonItem lines="none" slot="header">
                                   <IonLabel>{menuCategory.category}</IonLabel>
@@ -380,7 +359,7 @@ const RecommendationsPage: React.FC = () => {
                                               </IonLabel>
                                               <div className="menu-item-buttons">
                                                 <IonButton
-                                                className = 'rec-view-item'
+                                                  className="rec-view-item"
                                                   onClick={() =>
                                                     handleViewItem(
                                                       item,

@@ -165,6 +165,7 @@ list-ios {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  margin-top:10px;
   background: #ffffff;
   border-radius: 15px;
   max-width: 90%;
@@ -198,7 +199,7 @@ list-ios {
 
 .item-modal h2 {
   font-family: var(--font-family-primary);
-  font-size:calc(1.5em + 1.5vw)!important;
+  font-size:calc(1.5em + 1vh)!important;
   font-weight: bold;
   margin-bottom: 15px;
   color: var(--ion-color-dark);
@@ -317,7 +318,7 @@ list-ios {
   .preferred-location-banner {
     align-items:center;
     margin-top:14px;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 
   .allergen-warn-save {
@@ -332,10 +333,54 @@ list-ios {
 }
 
 
+@media only screen and (min-width:1023px) {
+  .view-mod h2 {
+    font-size:calc(1.2em + 1.5vw)!important;
+  }
 
+  ion-modal {
+    --height: 100%;
+    --width: 100%;
+    --max-height: 100%;
+    --max-width: 100%;
+    --border-radius: 0;
+    --margin-top: 0;
+    --margin-bottom: 0;
+    --margin-left: 0;
+    --margin-right: 0;
+    --box-shadow: none;
+  }
+
+  .modal-content {
+    width: 100%;
+    height: 100%;
+  }
+
+  .save-view-img {
+    height:95%;
+  }
+
+
+
+  .modal-btn-row-view {
+    margin-bottom:20px!important;
+  }
+  .modal-desc {
+    font-size:18px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+}
 
 @media only screen and (min-width: 768px) {
 
+  .view-mod {
+    width:100%;
+  }
+
+  .save-view-img {
+    max-width:50%;
+  }
   .menu-item-description, .note-label {
     font-size:18px!important;
     
@@ -346,13 +391,18 @@ list-ios {
     
   }
 
-  .create-btn-row .btn-save, .btn-delete {
+  .create-btn-row .btn-save, .create-button-row .btn-delete {
     font-size:16px!important;
   }
 
-  .allergen-label {
+  .allergen-label-view {
     font-size: 20px!important;
   }
+
+
+
+
+
   
   .item-h3 {
     font-size: 22px!important;

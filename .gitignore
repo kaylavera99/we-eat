@@ -15,6 +15,12 @@ routes/
 # production
 /dist
 
+src/firebaseConfig.ts
+.firebaserc
+
+src/services/googlePlacesService.ts
+
+proxy-server.cjs
 
 
 # misc

@@ -1,12 +1,12 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import { fetchSavedMenus,  MenuItem } from './menuService';
+import { fetchSavedMenus, MenuItem } from './menuService';
 
 export interface MenuCategory {
   id: string;
   category: string;
   items: MenuItem[];
-  index:number;
+  index: number;
 }
 
 export interface Restaurant {
@@ -31,14 +31,13 @@ export const fetchUserData = async (): Promise<string[]> => {
         .filter(allergen => userData.allergens[allergen])
         .map(allergen => allergen.toLowerCase().trim());
       allergens.push(...userAllergens);
-      console.log("Allergens:", allergens);
     }
   }
   return allergens;
 };
 
-export const fetchAllRestaurants = async (): Promise<{ id: string; name: string; thumbnailUrl:string; }[]> => {
-  const restaurants: { id: string; name: string; thumbnailUrl:string; }[] = [];
+export const fetchAllRestaurants = async (): Promise<{ id: string; name: string; thumbnailUrl: string; }[]> => {
+  const restaurants: { id: string; name: string; thumbnailUrl: string; }[] = [];
   const querySnapshot = await getDocs(collection(db, 'restaurants'));
   querySnapshot.forEach((doc) => {
     const data = doc.data();
@@ -53,7 +52,6 @@ export const fetchAllRestaurants = async (): Promise<{ id: string; name: string;
 
 export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Promise<MenuCategory[]> => {
   const categories: MenuCategory[] = [];
-  console.log("Fetching full menu for restaurant ID:", restaurantId);
   const restaurantDocRef = doc(db, 'restaurants', restaurantId);
   const menuCollectionRef = collection(restaurantDocRef, 'menu');
   const menuSnapshot = await getDocs(menuCollectionRef);
@@ -73,7 +71,7 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
           allergens: itemData.allergens,
           note: itemData.note,
           category: categoryData.category,
-          imageUrl: itemData.imageUrl  
+          imageUrl: itemData.imageUrl
         };
       });
 
@@ -84,7 +82,6 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
         index: categoryData.index
       });
     }
-    console.log("Fetched categories:", categories);
   } else {
     console.log("No menu found for restaurant:", restaurantId);
   }
@@ -96,8 +93,6 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
   const menus: { [key: string]: Restaurant } = {};
   for (const id of restaurantIds) {
     const categories: MenuCategory[] = [];
-    console.log("Fetching full menu for restaurant ID:", id);
-
     const restaurantDocRef = doc(db, 'restaurants', id);
     const menuCollectionRef = collection(restaurantDocRef, 'menu');
     const menuSnapshot = await getDocs(menuCollectionRef);
@@ -117,7 +112,7 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
             allergens: itemData.allergens,
             note: itemData.note,
             category: categoryData.category,
-            imageUrl: itemData.imageUrl  
+            imageUrl: itemData.imageUrl
           };
         });
 
@@ -128,7 +123,6 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
           index: categoryData.index
         });
       }
-      console.log("Fetched categories for restaurant ID:", id, categories);
     } else {
       console.log("No menu found for restaurant:", id);
     }
@@ -139,7 +133,7 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
 };
 
 export const filterAndRankRestaurants = (
-  restaurants: { id: string; name: string; thumbnailUrl: string;}[],
+  restaurants: { id: string; name: string; thumbnailUrl: string; }[],
   menus: { [key: string]: Restaurant },
   userAllergens: string[],
   userMenuItems: MenuItem[]
@@ -153,18 +147,17 @@ export const filterAndRankRestaurants = (
         )
       )
     );
-    console.log("Has safe items", hasSafeItems)
     return hasSafeItems;
   });
 };
 
-export const getRecommendedMenus = async (): Promise<{ id: string; name: string, thumbnailUrl: string;}[]> => {
+export const getRecommendedMenus = async (): Promise<{ id: string; name: string, thumbnailUrl: string; }[]> => {
   const userAllergens = await fetchUserData();
   const allRestaurants = await fetchAllRestaurants();
   const restaurantIds = allRestaurants.map(r => r.id);
   const menus = await fetchRestaurantMenus(restaurantIds);
   const userMenuItems = await fetchSavedMenus();
-  
+
   return filterAndRankRestaurants(allRestaurants, menus, userAllergens, userMenuItems.flatMap(menu => menu.dishes));
 };
 

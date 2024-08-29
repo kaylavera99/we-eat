@@ -12,7 +12,6 @@ import {
   IonFabButton,
   IonIcon,
   IonItem,
-  IonLabel,
   IonInput,
 } from "@ionic/react";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
@@ -66,7 +65,6 @@ const HomePage: React.FC = () => {
           const userData = await fetchUserDataWithRetry(user.uid);
           if (userData) {
             setFirstName(userData.firstName || "Guest");
-            console.log(userData.firstName);
           } else {
             setFirstName("Else Guest");
           }
