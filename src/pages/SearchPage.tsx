@@ -149,12 +149,15 @@ const SearchPage: React.FC = () => {
 
   const handleNavigateToRestaurantPage = async (place: Place) => {
     const restaurantName = encodeURIComponent(place.name);
+    console.log(restaurantName)
+
+    console.log(decodeURIComponent(restaurantName))
 
     try {
-      const userHasSavedMenu = await checkIfUserHasSavedMenu(restaurantName);
+      const userHasSavedMenu = await checkIfUserHasSavedMenu(decodeURIComponent(restaurantName));
       if (userHasSavedMenu) {
         history.push(
-          `/restaurant/${encodeURIComponent(restaurantName)}/saved`,
+          `/restaurant/${decodeURIComponent(restaurantName)}/saved`,
           { place }
         );
         return;
@@ -242,7 +245,7 @@ const SearchPage: React.FC = () => {
   ): Promise<boolean> => {
     if (!auth.currentUser) return false;
 
-    const encodedRestaurantName = encodeURIComponent(restaurantName);
+    const encodedRestaurantName = decodeURIComponent(restaurantName);
 
     const userDocRef = doc(db, "users", auth.currentUser.uid);
     const savedMenusRef = collection(userDocRef, "savedMenus");
