@@ -11,13 +11,13 @@ WeEat is a web application designed to help users create, save, and discover res
 
 ## Overview
 
-WeEat is designed to provide a personalized dining experience. Users can create their own menus, save their favorite dishes, search for restaurants, and view personalized recommendations. Additionally, users can leave reviews for restaurants, enhancing the community-driven aspect of the application.
+WeEat is designed to provide a personalized dining experience. Users can create their own menus, save their favorite dishes, search for restaurants, and view personalized menus tailored to their food allergies or sensitivities. 
 
 ## Features
 - User authentication and profile management
 - Create, save, and manage menus
 - Search for restaurants using the Google Places API
-- View personalized recommendations based on preferences and reviews
+- View personalized recommendations based on food allergies
 - Real-time updates with Firebase Firestore
 
 ## Tech Stack
