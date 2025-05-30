@@ -1,2 +1,4 @@
 /build/*
 !/build/.npmkeep
+
+weeat-release-key.jks/
