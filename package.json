@@ -12,13 +12,13 @@
     "lint": "eslint \"src/**/*.{js,ts,tsx}\""
   },
   "dependencies": {
-    "@capacitor/android": "6.1.0",
+    "@capacitor/android": "^6.1.0",
     "@capacitor/app": "6.0.0",
     "@capacitor/camera": "^6.1.0",
-    "@capacitor/core": "6.1.0",
+    "@capacitor/core": "^6.1.0",
     "@capacitor/geolocation": "^6.1.0",
     "@capacitor/haptics": "6.0.0",
-    "@capacitor/ios": "6.1.0",
+    "@capacitor/ios": "^6.1.0",
     "@capacitor/keyboard": "6.0.1",
     "@capacitor/status-bar": "6.0.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
@@ -31,9 +31,8 @@
     "bootstrap": "^5.3.3",
     "browser-image-compression": "^2.0.2",
     "express": "^4.19.2",
-    "firebase": "^10.12.2",
+    "firebase": "^11.8.1",
     "firebase-admin": "^12.2.0",
-    "firebase-analytics": "^1.0.1",
     "firebase-tools": "^13.13.0",
     "http-proxy-middleware": "^3.0.0",
     "ionicons": "^7.4.0",
@@ -45,7 +44,7 @@
     "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
-    "@capacitor/cli": "6.1.0",
+    "@capacitor/cli": "^6.1.0",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^14.0.0",
