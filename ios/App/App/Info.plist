@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>we-eat</string>
+        <string>we-eat</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,12 +22,6 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>WeEat needs access to your camera to take photos of menu items.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>WeEat needs access to your location in order to show nearby restaurants.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>WeEat needs access to your photos to upload photos of menu items.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
