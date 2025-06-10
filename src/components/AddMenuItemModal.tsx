@@ -15,7 +15,8 @@ import {
 import { collection, doc, setDoc, addDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import { MenuItem } from "../services/menuService";
-import { compressImage, uploadImage } from "../services/storageService";
+import { useImageUpload } from "../hooks/useImageUpload";
+import { uploadImage } from "../services/storageService";
 import "../styles/ModalStyles.css";
 
 interface AddMenuItemModalProps {
@@ -23,6 +24,7 @@ interface AddMenuItemModalProps {
   onClose: () => void;
   onAddMenuItem: (item: MenuItem) => void;
   restaurantName?: string;
+  menuDocId: string;
 }
 
 const placeholderImage =
@@ -33,14 +35,17 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
   onClose,
   onAddMenuItem,
   restaurantName,
+  menuDocId
+  
 }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [allergens, setAllergens] = useState<string[]>([]);
   const [note, setNote] = useState("");
   const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState(placeholderImage);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  
+
+  const { file: imageFile, previewUrl: imageUrl, handleFileChange } = useImageUpload();
 
   useEffect(() => {
     // reset fields when the modal is opened
@@ -49,37 +54,26 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
     setAllergens([]);
     setNote("");
     setCategory("");
-    setImageUrl(placeholderImage);
+    handleFileChange({ target: { files: [] } } as any);
   }, [isOpen]);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setImageFile(file);
 
-      const previewUrl = URL.createObjectURL(file);
-      setImageUrl(previewUrl);
-    }
-  };
 
   const handleSave = async () => {
-    let imageDownloadUrl = imageUrl;
+    let imageDownloadUrl = imageUrl || placeholderImage;
 
     if (imageFile) {
       try {
-        const compressedFile = await compressImage(imageFile);
-        imageDownloadUrl = await uploadImage(compressedFile, "menu_items");
-        setImageUrl(imageDownloadUrl);
+        imageDownloadUrl = await uploadImage(
+          imageFile,
+          `profilePictures/${auth.currentUser!.uid}/createdMenus/${menuDocId}/${name}`
+        );
       } catch (error) {
         console.error("Error uploading image:", error);
         return;
       }
     }
 
-    if (!restaurantName) {
-      console.error("Required value (restaurantName) is undefined.");
-      return;
-    }
 
     const newItem: MenuItem = {
       name,
@@ -93,13 +87,13 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
     try {
       const userUid = auth.currentUser?.uid;
 
-      if (!userUid || !restaurantName) {
+      if (!userUid) {
         console.error("Undefined values detected, cannot proceed with saving.");
         return;
       }
 
       const userDocRef = doc(db, "users", userUid);
-      const createdMenusRef = doc(userDocRef, "createdMenus", restaurantName);
+      const createdMenusRef = doc(userDocRef, "createdMenus", menuDocId);
       const dishesCollectionRef = collection(createdMenusRef, "dishes");
 
       const docRef = await addDoc(dishesCollectionRef, newItem);
@@ -186,13 +180,13 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
           </IonLabel>
           <div className="image-form-wrap">
             {imageUrl && (
-              <IonImg src={imageUrl} alt="Menu item" className="modal-image" />
+              <IonImg src={imageUrl || placeholderImage} alt="Menu item" className="modal-image" />
             )}
             <input
               className="img-up-btn"
               type="file"
               accept="image/*"
-              onChange={handleImageChange}
+              onChange={handleFileChange}
             />
           </div>
         </IonItem>
