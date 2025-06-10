@@ -16,13 +16,19 @@ import {
   IonIcon,
 } from "@ionic/react";
 import { useParams, useHistory } from "react-router-dom";
-import { fetchSavedMenus, MenuItem } from "../services/menuService";
-import { doc, getDoc, getDocs, collection } from "firebase/firestore";
+import { MenuItem } from "../services/menuService";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+} from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import EditNotesModal from "../components/EditNotesModal";
 import "../styles/SavedMenu.css";
 import { deleteMenuItemFromSavedMenus } from "../services/menuService";
 import { closeSharp, createOutline, trashSharp } from "ionicons/icons";
+import SearchBar from "../components/SearchBar";
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -37,89 +43,123 @@ interface PreferredLocation {
 
 const truncateDescription = (
   description: string,
-  smallScreenMaxLength: number,
-  largeScreenMaxLength: number,
-  screenWidth: number
+  maxLength: number
 ) => {
-  const maxLength =
-    screenWidth < 768 ? smallScreenMaxLength : largeScreenMaxLength;
-
   if (description.length <= maxLength) return description;
   return description.substring(0, maxLength) + "...";
 };
 
 const SavedMenuPage: React.FC = () => {
-  const { restaurantName: encodedRestaurantName } = useParams<{
-    restaurantName: string;
-  }>();
-  const restaurantName = decodeURIComponent(encodedRestaurantName);
-  const [restaurantThumbnail, setRestaurantThumbnail] = useState<string | null>(
-    null
-  );
+  const { savedMenuDocId } = useParams<{ savedMenuDocId: string }>();
+  const [restaurantName, setRestaurantName] = useState<string>("");
+  const [restaurantThumbnail, setRestaurantThumbnail] = useState<string | null>(null);
+  const [restaurantId, setRestaurantId] = useState<string | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [filteredItems, setFilteredItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [viewingItem, setViewingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
-  const [preferredLocation, setPreferredLocation] =
-    useState<PreferredLocation | null>(null);
+  const [preferredLocation, setPreferredLocation] = useState<PreferredLocation | null>(null);
   const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = auth.currentUser?.uid;
-        if (userId) {
-          const userDocRef = doc(db, "users", userId);
+        if (!userId) return;
 
-          const savedMenus = await fetchSavedMenus();
-          const savedMenu = savedMenus.find(
-            (menu) => menu.restaurantName === restaurantName
-          );
-          if (savedMenu) {
-            setMenuItems(savedMenu.dishes);
-          }
+        const menuDocRef = doc(db, "users", userId, "savedMenus", savedMenuDocId);
+        const menuDocSnap = await getDoc(menuDocRef);
 
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data() as UserData;
-            const allergens = Object.keys(userData.allergens)
-              .filter((allergen) => userData.allergens[allergen])
-              .map((allergen) => allergen.toLowerCase().trim());
-            setUserAllergens(allergens);
-          }
+        if (menuDocSnap.exists()) {
+          const data = menuDocSnap.data();
+          setRestaurantName(data.restaurantName);
+          setRestaurantId(data.restaurantId);
+          const dishesSnap = await getDocs(collection(menuDocRef, "dishes"));
+          const dishes: MenuItem[] = dishesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem));
+          setMenuItems(dishes);
+          setFilteredItems(dishes);
 
-          const preferredLocationsSnap = await getDocs(
-            collection(userDocRef, "preferredLocations")
-          );
-          preferredLocationsSnap.forEach((doc) => {
-            const data = doc.data() as PreferredLocation;
-            if (data.name === restaurantName) {
-              setPreferredLocation(data);
+          if (data.restaurantId) {
+            const restaurantDoc = await getDoc(doc(db, "restaurants", data.restaurantId));
+            if (restaurantDoc.exists()) {
+              const restaurantData = restaurantDoc.data();
+              setRestaurantThumbnail(restaurantData.thumbnailUrl || null);
             }
-          });
-
-          const querySnapshot = await getDocs(collection(db, "restaurants"));
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            if (data.name === restaurantName) {
-              setRestaurantThumbnail(data.thumbnailUrl || null);
-            }
-          });
+          }
         }
+
+        const userDocRef = doc(db, "users", userId);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data() as UserData;
+          const allergens = Object.keys(userData.allergens)
+            .filter(key => userData.allergens[key])
+            .map(key => key.toLowerCase().trim());
+          setUserAllergens(allergens);
+        }
+
+        const preferredLocationsSnap = await getDocs(collection(userDocRef, "preferredLocations"));
+        preferredLocationsSnap.forEach((doc) => {
+          const data = doc.data() as PreferredLocation;
+          if (data.name === restaurantName) {
+            setPreferredLocation(data);
+          }
+        });
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
       }
     };
     fetchData();
-  }, [restaurantName]);
+  }, [savedMenuDocId]);
+
+  const handleSearch = (query: string) => {
+    const filtered = menuItems.filter((item) =>
+      item.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredItems(filtered);
+  };
+
+  const handleViewFullMenu = () => {
+    if (restaurantId) {
+      history.push(`/restaurants/${restaurantId}/full`);
+    } else {
+      setToastMessage("Error: Restaurant ID not found.");
+      setShowToast(true);
+    }
+  };
+
+  const handleViewItem = (item: MenuItem) => {
+    setViewingItem(item);
+  };
+
+ const handleDeleteItem = async (itemToDelete: MenuItem) => {
+  try {
+    if (itemToDelete.id && savedMenuDocId) {
+      await deleteMenuItemFromSavedMenus(itemToDelete.id, savedMenuDocId);
+      const updatedItems = menuItems.filter((item) => item.id !== itemToDelete.id);
+      setMenuItems(updatedItems);
+      setFilteredItems(updatedItems);
+      setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
+      setShowToast(true);
+    } else {
+      setToastMessage(`Error: Missing item ID or saved menu ID.`);
+      setShowToast(true);
+    }
+  } catch (error) {
+    setToastMessage(`Error: ${(error as Error).message}`);
+    setShowToast(true);
+  }
+};
+
 
   const handleSaveNotes = (updatedItem: MenuItem) => {
-    setMenuItems(
-      menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item))
-    );
+    const updatedItems = menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item));
+    setMenuItems(updatedItems);
+    setFilteredItems(updatedItems);
 
     if (viewingItem && viewingItem.id === updatedItem.id) {
       setViewingItem(updatedItem);
@@ -128,38 +168,6 @@ const SavedMenuPage: React.FC = () => {
     setShowToast(true);
     setEditingItem(null);
     setViewingItem(null);
-  };
-
-  const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length <= maxLength) return description;
-    return description.substring(0, maxLength) + "...";
-  };
-
-  const handleViewFullMenu = () => {
-    history.push(`/restaurant/${encodeURIComponent(restaurantName)}/full`);
-  };
-
-  const handleViewItem = (item: MenuItem) => {
-    setViewingItem(item);
-  };
-
-  const handleDeleteItem = async (itemToDelete: MenuItem) => {
-    try {
-      if (itemToDelete.id && restaurantName) {
-        await deleteMenuItemFromSavedMenus(itemToDelete.id, restaurantName);
-
-        setMenuItems(menuItems.filter((item) => item.id !== itemToDelete.id));
-
-        setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
-        setShowToast(true);
-      } else {
-        setToastMessage(`Error: Missing item ID or restaurant name.`);
-        setShowToast(true);
-      }
-    } catch (error) {
-      setToastMessage(`Error: ${(error as Error).message}`);
-      setShowToast(true);
-    }
   };
 
   return (

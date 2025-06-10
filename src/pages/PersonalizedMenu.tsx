@@ -32,14 +32,27 @@ import "../styles/PersonalizedMenu.css";
 import { searchRestaurants } from "../services/searchService";
 import { restaurantOutline } from "ionicons/icons";
 
-interface Menu {
+interface BaseMenu {
   restaurantName: string;
   dishes: any[];
-  isCreated: boolean;
   photoUrl?: string;
   thumbnailUrl?: string;
   dishCount?: number;
+  isCreated: boolean;
 }
+
+interface CreatedMenu extends BaseMenu {
+  menuDocId: string;
+  isCreated: true;
+}
+
+interface SavedMenu extends BaseMenu {
+  savedMenuDocId: string;
+  restaurantId: string;
+  isCreated: false;
+}
+
+type Menu = CreatedMenu | SavedMenu;
 
 interface PreferredLocation {
   name: string;
@@ -52,8 +65,8 @@ interface PreferredLocation {
 }
 
 const PersonalizedMenuPage: React.FC = () => {
-  const [createdMenus, setCreatedMenus] = useState<Menu[]>([]);
-  const [savedMenus, setSavedMenus] = useState<Menu[]>([]);
+  const [createdMenus, setCreatedMenus] = useState<CreatedMenu[]>([]);
+  const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -82,10 +95,10 @@ const PersonalizedMenuPage: React.FC = () => {
           const savedMenusSnap = await getDocs(
             collection(userDocRef, "savedMenus")
           );
-          const fetchedSavedMenus: Menu[] = [];
+          const fetchedSavedMenus: SavedMenu[] = [];
           for (const menuDoc of savedMenusSnap.docs) {
             const dishesSnap = await getDocs(collection(menuDoc.ref, "dishes"));
-            const data = menuDoc.data() as Menu;
+            const data = menuDoc.data();
 
             const restaurantQuery = query(
               collection(db, "restaurants"),
@@ -99,24 +112,26 @@ const PersonalizedMenuPage: React.FC = () => {
             }
 
             fetchedSavedMenus.push({
-              ...data,
+              savedMenuDocId: menuDoc.id,
+              restaurantId: data.restaurantId,
+              restaurantName: data.restaurantName,
+              dishes: data.dishes || [],
               isCreated: false,
               dishCount: dishesSnap.size,
               photoUrl: thumbnailUrl,
+              thumbnailUrl,
             });
           }
 
           const createdMenusSnap = await getDocs(
             collection(userDocRef, "createdMenus")
           );
-          const fetchedCreatedMenus: Menu[] = [];
+          const fetchedCreatedMenus: CreatedMenu[] = [];
           for (const menuDoc of createdMenusSnap.docs) {
             const dishesSnap = await getDocs(collection(menuDoc.ref, "dishes"));
-            const data = menuDoc.data() as Menu;
-
+            const data = menuDoc.data();
             let thumbnailUrl = "";
 
-            //  preferred location coordinates for fetching the thumbnailUrl
             const location = locations[decodeURIComponent(data.restaurantName)];
             if (location) {
               const results = await searchRestaurants(
@@ -136,10 +151,13 @@ const PersonalizedMenuPage: React.FC = () => {
             }
 
             fetchedCreatedMenus.push({
-              ...data,
+              menuDocId: menuDoc.id,
+              restaurantName: data.restaurantName,
+              dishes: data.dishes || [],
               isCreated: true,
               dishCount: dishesSnap.size,
               photoUrl: thumbnailUrl,
+              thumbnailUrl,
             });
           }
 
@@ -161,10 +179,10 @@ const PersonalizedMenuPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleViewMenu = (restaurantName: string, isCreatedMenu: boolean) => {
-    const path = isCreatedMenu
-      ? `/restaurant/${encodeURIComponent(restaurantName)}/created`
-      : `/restaurant/${encodeURIComponent(restaurantName)}/saved`;
+  const handleViewMenu = (menu: Menu) => {
+    const path = menu.isCreated
+      ? `/created-menus/${menu.menuDocId}`
+      : `/saved-menus/${menu.savedMenuDocId}`;
     history.push(path);
   };
 
@@ -172,41 +190,32 @@ const PersonalizedMenuPage: React.FC = () => {
     history.push("/create-menu");
   };
 
-  const handleDeleteMenu = async (
-    restaurantName: string,
-    isCreatedMenu: boolean
-  ) => {
+  const handleDeleteMenu = async (menu: Menu) => {
     try {
       const userId = auth.currentUser?.uid;
-      if (userId) {
-        const encodedRestaurantName = decodeURIComponent(restaurantName);
-        const userDocRef = doc(db, "users", userId);
-        const menuCollection = isCreatedMenu ? "createdMenus" : "savedMenus";
-        const menuQuery = query(
-          collection(userDocRef, menuCollection),
-          where("restaurantName", "==", encodedRestaurantName)
-        );
-        const querySnapshot = await getDocs(menuQuery);
+      if (!userId) return;
 
-        if (!querySnapshot.empty) {
-          await deleteDoc(querySnapshot.docs[0].ref);
-          setToastMessage("Menu deleted successfully.");
-          setShowToast(true);
+      const userDocRef = doc(db, "users", userId);
+      const menuCollection = menu.isCreated ? "createdMenus" : "savedMenus";
+      const menuQuery = query(
+        collection(userDocRef, menuCollection),
+        where("restaurantName", "==", decodeURIComponent(menu.restaurantName))
+      );
+      const querySnapshot = await getDocs(menuQuery);
 
-          // update the menu list after deletion
-          const updatedMenus = isCreatedMenu
-            ? createdMenus.filter(
-                (menu) => menu.restaurantName !== restaurantName
-              )
-            : savedMenus.filter(
-                (menu) => menu.restaurantName !== restaurantName
-              );
+      if (!querySnapshot.empty) {
+        await deleteDoc(querySnapshot.docs[0].ref);
+        setToastMessage("Menu deleted successfully.");
+        setShowToast(true);
 
-          if (isCreatedMenu) {
-            setCreatedMenus(updatedMenus);
-          } else {
-            setSavedMenus(updatedMenus);
-          }
+        if (menu.isCreated) {
+          setCreatedMenus((prev) =>
+            prev.filter((m) => m.menuDocId !== (menu as CreatedMenu).menuDocId)
+          );
+        } else {
+          setSavedMenus((prev) =>
+            prev.filter((m) => m.savedMenuDocId !== (menu as SavedMenu).savedMenuDocId)
+          );
         }
       }
     } catch (error) {
@@ -215,49 +224,43 @@ const PersonalizedMenuPage: React.FC = () => {
     }
   };
 
-  const renderMenuCard = (menu: Menu) => {
-    return (
-      <IonCard key={menu.restaurantName} className="rest-per-card">
-        <h2 className="per-card-title">{menu.restaurantName}</h2>
-        <div className="card-flex-content">
-          <IonCardHeader className="personal-header">
-            {menu.photoUrl ? (
-              <IonImg
-                src={menu.photoUrl}
-                alt={menu.restaurantName}
-                className="restaurant-thumbnail"
-              />
-            ) : (
-              <div className="no-image-placeholder">No Image Available</div>
-            )}
-          </IonCardHeader>
-          <IonCardContent className="per-card-content">
-            <p>{menu.dishCount} Menu Item(s)</p>
-            <div className="per-btn-row">
-              <IonButton
-                className="custom-button"
-                color="primary"
-                onClick={() =>
-                  handleViewMenu(menu.restaurantName, menu.isCreated)
-                }
-              >
-                View
-              </IonButton>
-              <IonButton
-                className="custom-button"
-                color="danger"
-                onClick={() =>
-                  handleDeleteMenu(menu.restaurantName, menu.isCreated)
-                }
-              >
-                Delete
-              </IonButton>
-            </div>
-          </IonCardContent>
-        </div>
-      </IonCard>
-    );
-  };
+  const renderMenuCard = (menu: Menu) => (
+    <IonCard key={menu.isCreated ? (menu as CreatedMenu).menuDocId : (menu as SavedMenu).savedMenuDocId} className="rest-per-card">
+      <h2 className="per-card-title">{menu.restaurantName}</h2>
+      <div className="card-flex-content">
+        <IonCardHeader className="personal-header">
+          {menu.photoUrl ? (
+            <IonImg
+              src={menu.photoUrl}
+              alt={menu.restaurantName}
+              className="restaurant-thumbnail"
+            />
+          ) : (
+            <div className="no-image-placeholder">No Image Available</div>
+          )}
+        </IonCardHeader>
+        <IonCardContent className="per-card-content">
+          <p>{menu.dishCount} Menu Item(s)</p>
+          <div className="per-btn-row">
+            <IonButton
+              className="custom-button"
+              color="primary"
+              onClick={() => handleViewMenu(menu)}
+            >
+              View
+            </IonButton>
+            <IonButton
+              className="custom-button"
+              color="danger"
+              onClick={() => handleDeleteMenu(menu)}
+            >
+              Delete
+            </IonButton>
+          </div>
+        </IonCardContent>
+      </div>
+    </IonCard>
+  );
 
   return (
     <IonPage>
@@ -280,11 +283,7 @@ const PersonalizedMenuPage: React.FC = () => {
               Create a Menu
             </IonButton>
             <div className="page-banner-row-menus">
-              <IonIcon
-                slot="end"
-                className="menu-icon"
-                icon={restaurantOutline}
-              />
+              <IonIcon slot="end" className="menu-icon" icon={restaurantOutline} />
               <h2 className="per-h2">Your Menus</h2>
             </div>
             <IonAccordionGroup className="per-acc">
@@ -292,9 +291,7 @@ const PersonalizedMenuPage: React.FC = () => {
                 <IonItem slot="header" className="item-lbl">
                   <div className="item-banner">
                     <h4 className="acc-lbl">Created Menus</h4>
-                    <p className="title-exp">
-                      These are the menus you created.
-                    </p>
+                    <p className="title-exp">These are the menus you created.</p>
                   </div>
                 </IonItem>
                 <IonList slot="content" className="list-flx">
@@ -315,8 +312,7 @@ const PersonalizedMenuPage: React.FC = () => {
                   <div className="item-banner">
                     <h4 className="acc-lbl">Saved Menus</h4>
                     <p className="title-exp">
-                      These are the menus in which you've saved items from on
-                      WeEat.
+                      These are the menus in which you've saved items from on WeEat.
                     </p>
                   </div>
                 </IonItem>

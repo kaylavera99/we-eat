@@ -15,6 +15,7 @@ export interface MenuItem {
 export interface SavedMenu {
   restaurantName: string;
   dishes: MenuItem[];
+  restaurantId?: string;
   thumbnailUrl?: string;
 }
 
@@ -296,28 +297,20 @@ export const fetchCreatedMenus = async (): Promise<SavedMenu[]> => {
 };
 
 // SAVED MENUS
-export const deleteMenuItemFromSavedMenus = async (itemId: string, restaurantName: string) => {
+export const deleteMenuItemFromSavedMenus = async (itemId: string, savedMenuDocId: string) => {
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
   }
 
   const userDocRef = doc(db, 'users', auth.currentUser.uid);
-  const savedMenusRef = collection(userDocRef, 'savedMenus');
+  const savedMenuRef = doc(userDocRef, 'savedMenus', savedMenuDocId);
+  const dishDocRef = doc(savedMenuRef, 'dishes', itemId);
+  console.log("Deleting dish at path:", dishDocRef.path);
 
-  const q = query(savedMenusRef, where("restaurantName", "==", restaurantName));
-  const querySnapshot = await getDocs(q);
-
-  if (querySnapshot.empty) {
-    throw new Error(`Restaurant ${restaurantName} does not exist in saved menus.`);
-  }
-
-  const menuDocRef = querySnapshot.docs[0].ref;
-  const dishesCollectionRef = collection(menuDocRef, 'dishes');
-
-  const dishDocRef = doc(dishesCollectionRef, itemId);
 
   await deleteDoc(dishDocRef);
 };
+
 
 export const updateNotesInSavedMenus = async (itemId: string, newNotes: string, restaurantName: string) => {
   if (!auth.currentUser) {
@@ -418,15 +411,51 @@ export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: st
   const querySnapshot = await getDocs(q);
 
   let menuDocRef: any = null;
-  if (!querySnapshot.empty) {
-    menuDocRef = querySnapshot.docs[0].ref;
-  } else {
-    menuDocRef = await addDoc(savedMenusRef, { restaurantName });
-  }
 
-  const dishesRef = collection(menuDocRef, 'dishes');
-  await addDoc(dishesRef, { ...item });
+  if (!querySnapshot.empty) {
+    // Menu already exists
+    menuDocRef = querySnapshot.docs[0].ref;
+
+    // Check for duplicate item
+    const dishesRef = collection(menuDocRef, 'dishes');
+    const existingQuery = query(dishesRef, where("name", "==", item.name));
+    const existingSnapshot = await getDocs(existingQuery);
+
+    if (!existingSnapshot.empty) {
+      console.log("Item already exists in saved menu");
+      return;
+    }
+
+    // Add new item
+    const { id, ...itemWithoutId } = item;
+    await addDoc(dishesRef, itemWithoutId);
+  } else {
+    // Menu does not exist yet — create it
+    const restaurantQuery = query(
+      collection(db, "restaurants"),
+      where("name", "==", restaurantName)
+    );
+    const restaurantSnapshot = await getDocs(restaurantQuery);
+
+    if (restaurantSnapshot.empty) {
+      throw new Error(`Restaurant ${restaurantName} not found in database.`);
+    }
+
+    const restaurantId = restaurantSnapshot.docs[0].id;
+
+    // Create new saved menu with restaurantId
+    menuDocRef = await addDoc(savedMenusRef, {
+      restaurantName,
+      restaurantId,
+    });
+
+    // Add first item
+    const dishesRef = collection(menuDocRef, 'dishes');
+    await addDoc(dishesRef, { ...item });
+  }
 };
+
+
 
 export const fetchSavedMenus = async (): Promise<SavedMenu[]> => {
   const savedMenus: SavedMenu[] = [];

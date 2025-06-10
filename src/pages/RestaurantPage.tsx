@@ -17,6 +17,7 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
+  IonIcon
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
 import {
@@ -34,6 +35,8 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
+import SearchBar from '../components/SearchBar';
+import { searchOutline } from "ionicons/icons";
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -41,7 +44,11 @@ interface UserData {
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();
+  const { restaurantId } = useParams<{ restaurantId: string }>();
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
+  const [filteredCategories, setFilteredCategories] = useState<MenuCategory[]>([]); //filteredCategories state
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -67,29 +74,28 @@ const RestaurantPage: React.FC = () => {
       }
     };
 
-    const fetchRestaurantDetails = async (restaurantName: string) => {
-      const q = query(
-        collection(db, "restaurants"),
-        where("name", "==", restaurantName)
-      );
-      const querySnapshot = await getDocs(q);
-      if (!querySnapshot.empty) {
-        const restaurantDoc = querySnapshot.docs[0];
-        return restaurantDoc.data();
-      } else {
-        throw new Error(`No data found for restaurant: ${restaurantName}`);
-      }
-    };
+    const fetchRestaurantDetails = async (restaurantId: string) => {
+    const restaurantDocRef = doc(db, "restaurants", restaurantId);
+    const restaurantSnap = await getDoc(restaurantDocRef);
+    console.log("This is the rest snap", restaurantSnap);
+
+    if (restaurantSnap.exists()) {
+      return restaurantSnap.data();
+    } else {
+      throw new Error(`No data found for restaurant with ID: ${restaurantId}`);
+    }
+  };
 
     const fetchData = async () => {
       setIsLoading(true);
       try {
         await fetchUserAllergens();
 
-        const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
+        const fullMenu = await fetchFullMenuFromRestaurants(restaurantId);
         setMenuCategories(fullMenu);
+        setFilteredCategories(fullMenu); // set initial filtered categories to full menu
 
-        const restaurantData = await fetchRestaurantDetails(restaurantName);
+        const restaurantData = await fetchRestaurantDetails(restaurantId);
         setRestaurantDetails({
           name: restaurantData.name,
           thumbnailUrl: restaurantData.thumbnailUrl,
@@ -108,7 +114,7 @@ const RestaurantPage: React.FC = () => {
     };
 
     fetchData();
-  }, [restaurantName]);
+  }, [restaurantId]);
 
   const handleAddToSavedMenu = async (item: MenuItem) => {
     const convertedItem: import("../services/menuService").MenuItem = {
@@ -119,7 +125,7 @@ const RestaurantPage: React.FC = () => {
     };
 
     try {
-      await addMenuItemToSavedMenus(convertedItem, restaurantName);
+      await addMenuItemToSavedMenus(convertedItem, restaurantDetails?.name || "");
       setToastMessage("Menu item added to saved menu successfully!");
       setShowToast(true);
     } catch (error) {
@@ -127,6 +133,34 @@ const RestaurantPage: React.FC = () => {
       setToastMessage(`Error adding menu item: ${(error as Error).message}`);
       setShowToast(true);
     }
+  };
+
+  const handleSearch = (query: string) => {
+  setSearchQuery(query);
+
+  if (query.trim() === "") {
+    setFilteredCategories(menuCategories); // show all items
+  } else {
+    const filtered = menuCategories.map((category) => {
+      const filteredItems = category.items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(query.toLowerCase()) ||
+          item.description.toLowerCase().includes(query.toLowerCase())
+      );
+
+      return {
+        ...category,
+        items: filteredItems,
+      };
+    });
+
+    setFilteredCategories(filtered);
+  }
+};
+
+
+  const handleSearchButtonClick = () => {
+    handleSearch(searchQuery); // Trigger search when button is clicked
   };
 
   const renderMenuItems = (items: MenuItem[]) => {
@@ -192,7 +226,13 @@ const RestaurantPage: React.FC = () => {
         <div key={index} className="list-container">
           <h5>{category.category}</h5>
           <IonList className="menu-list">
-            {renderMenuItems(category.items)}
+            {category.items.length > 0 ? (
+    renderMenuItems(category.items)
+  ) : ( 
+  
+      <h4 style = {{color: "#585858", textAlign: "center", fontWeight: "normal"}}>No menu items found</h4>
+
+  )}
           </IonList>
         </div>
       ));
@@ -222,8 +262,7 @@ const RestaurantPage: React.FC = () => {
                 <h2>{restaurantDetails.name}</h2>
                 {userAllergens.length > 0 && (
                   <p style={{ color: "red" }}>
-                    Menu items with allergens marked in red contain your
-                    allergens.
+                    Menu items with allergens marked in red contain your allergens.
                   </p>
                 )}
                 <IonBadge color="primary" className="full-badge">
@@ -235,6 +274,17 @@ const RestaurantPage: React.FC = () => {
                 </IonBadge>
               </div>
             )}
+
+            <SearchBar onSearch={handleSearch} />
+
+            <IonButton 
+              className="search-button"
+              expand="block"
+              onClick={handleSearchButtonClick} 
+            >
+              <IonIcon slot="start" icon={searchOutline} />
+              Search
+            </IonButton>
 
             <IonSegment
               scrollable
@@ -255,7 +305,7 @@ const RestaurantPage: React.FC = () => {
               ))}
             </IonSegment>
 
-            {renderMenuCategories(menuCategories)}
+            {renderMenuCategories(filteredCategories)} 
           </div>
         )}
         <IonToast
