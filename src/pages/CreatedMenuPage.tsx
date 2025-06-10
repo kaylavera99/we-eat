@@ -22,13 +22,11 @@ import {
   MenuItem,
   updateMenuItemInCreatedMenus,
   deleteMenuItemFromCreatedMenus,
-  addMenuItemToCreatedMenus,
 } from "../services/menuService";
 import EditMenuItemModal from "../components/EditMenuItemModal";
 import AddMenuItemModal from "../components/AddMenuItemModal";
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
-import { searchRestaurants } from "../services/searchService";
 import "../styles/CreatedMenu..css";
 import { addOutline } from "ionicons/icons";
 
@@ -102,7 +100,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleSaveItem = async (updatedItem: MenuItem) => {
     try {
-      await updateMenuItemInCreatedMenus(updatedItem, restaurantName, updatedItem.id!);
+      await updateMenuItemInCreatedMenus(updatedItem, menuDocId, updatedItem.id!);
       setMenuItems(menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
       setToastMessage("Item updated successfully!");
       setShowToast(true);
@@ -115,7 +113,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteMenuItemFromCreatedMenus(itemId, restaurantName);
+      await deleteMenuItemFromCreatedMenus(itemId, menuDocId);
       setMenuItems(menuItems.filter((item) => item.id !== itemId));
       setToastMessage("Item deleted successfully!");
       setShowToast(true);
@@ -125,13 +123,12 @@ const CreatedMenuPage: React.FC = () => {
     }
   };
 
-  const handleAddMenuItem = async (newItem: MenuItem) => {
+  const handleAddMenuItem =  (newItem: MenuItem) => {
     try {
-      await addMenuItemToCreatedMenus(newItem, restaurantName);
-      setMenuItems([...menuItems, newItem]);
+      setMenuItems((items) => [...items, newItem]);
       setToastMessage("Item added successfully!");
       setShowToast(true);
-      setShowAddMenuItemModal(false);
+    setShowAddMenuItemModal(false);;
     } catch (error) {
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
@@ -294,13 +291,15 @@ const CreatedMenuPage: React.FC = () => {
             onSaveItem={handleSaveItem}
             initialItem={editingItem}
             restaurantName={restaurantName}
+            menuDocId={menuDocId}
           />
         )}
         <AddMenuItemModal
           isOpen={showAddMenuItemModal}
           onClose={() => setShowAddMenuItemModal(false)}
           onAddMenuItem={handleAddMenuItem}
-          restaurantName={restaurantName}
+          
+          menuDocId={menuDocId}
         />
       </IonContent>
     </IonPage>
