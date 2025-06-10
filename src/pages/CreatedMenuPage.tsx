@@ -17,9 +17,8 @@ import {
   IonFab,
   IonFabButton,
 } from "@ionic/react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
-  fetchCreatedMenus,
   MenuItem,
   updateMenuItemInCreatedMenus,
   deleteMenuItemFromCreatedMenus,
@@ -48,99 +47,63 @@ interface PreferredLocation {
 }
 
 const CreatedMenuPage: React.FC = () => {
-  const { restaurantName } = useParams<{ restaurantName: string }>();
-  const decodedRestaurantName = decodeURIComponent(restaurantName); // decoding the restaurant name
-
+  const { menuDocId } = useParams<{ menuDocId: string }>();
+  const [restaurantName, setRestaurantName] = useState<string>("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
-  const [preferredLocation, setPreferredLocation] =
-    useState<PreferredLocation | null>(null);
+  const [preferredLocation, setPreferredLocation] = useState<PreferredLocation | null>(null);
   const [showAddMenuItemModal, setShowAddMenuItemModal] = useState(false);
-  const [showPopover, setShowPopover] = useState<{
-    isOpen: boolean;
-    event: Event | undefined;
-  }>({ isOpen: false, event: undefined });
+  const [showPopover, setShowPopover] = useState({ isOpen: false, event: undefined as Event | undefined });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userId = auth.currentUser?.uid;
-        if (userId) {
-          const userDocRef = doc(db, "users", userId);
+        if (!userId) return;
 
-          // Fetch created menus
-          const createdMenus = await fetchCreatedMenus();
-          const createdMenu = createdMenus.find(
-            (menu) => menu.restaurantName === decodedRestaurantName
-          );
-          if (createdMenu) {
-            setMenuItems(createdMenu.dishes);
-          }
+        const menuDocRef = doc(db, "users", userId, "createdMenus", menuDocId);
+        const menuDocSnap = await getDoc(menuDocRef);
 
-          // fetch user allergens
-          const userDocSnap = await getDoc(userDocRef);
-          if (userDocSnap.exists()) {
-            const userData = userDocSnap.data() as UserData;
-            const allergens = Object.keys(userData.allergens)
-              .filter((allergen) => userData.allergens[allergen])
-              .map((allergen) => allergen.toLowerCase().trim());
-            setUserAllergens(allergens);
-          }
-
-          // fetch preferred locations and their photos
-          const preferredLocationsSnap = await getDocs(
-            collection(userDocRef, "preferredLocations")
-          );
-          const locations: { [key: string]: PreferredLocation } = {};
-          const locationPromises = preferredLocationsSnap.docs.map(
-            async (doc) => {
-              const location = doc.data() as PreferredLocation;
-              if (location.name === decodedRestaurantName) {
-                locations[doc.id] = location;
-
-                // fetch photo URL for the location
-                const results = await searchRestaurants(
-                  `${location.coordinates.latitude},${location.coordinates.longitude}`,
-                  5,
-                  location.name,
-                  {
-                    lat: location.coordinates.latitude,
-                    lng: location.coordinates.longitude,
-                  }
-                );
-                if (results.length > 0) {
-                  location.photoUrl = results[0].photoUrl;
-                  setPreferredLocation(location);
-                }
-              }
-            }
-          );
-
-          await Promise.all(locationPromises);
+        if (menuDocSnap.exists()) {
+          const data = menuDocSnap.data();
+          setRestaurantName(data.restaurantName);
+          const dishesSnap = await getDocs(collection(menuDocRef, "dishes"));
+          const dishes: MenuItem[] = dishesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem));
+          setMenuItems(dishes);
         }
+
+        const userDocRef = doc(db, "users", userId);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data() as UserData;
+          const allergens = Object.keys(userData.allergens)
+            .filter((key) => userData.allergens[key])
+            .map((key) => key.toLowerCase().trim());
+          setUserAllergens(allergens);
+        }
+
+        const preferredLocationsSnap = await getDocs(collection(userDocRef, "preferredLocations"));
+        preferredLocationsSnap.forEach((doc) => {
+          const data = doc.data() as PreferredLocation;
+          if (data.name === restaurantName) {
+            setPreferredLocation(data);
+          }
+        });
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
       }
     };
     fetchData();
-  }, [decodedRestaurantName]);
+  }, [menuDocId, restaurantName]);
 
   const handleSaveItem = async (updatedItem: MenuItem) => {
     try {
-      await updateMenuItemInCreatedMenus(
-        updatedItem,
-        decodedRestaurantName,
-        updatedItem.id!
-      );
-      setMenuItems(
-        menuItems.map((item) =>
-          item.id === updatedItem.id ? updatedItem : item
-        )
-      );
+      await updateMenuItemInCreatedMenus(updatedItem, restaurantName, updatedItem.id!);
+      setMenuItems(menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
       setToastMessage("Item updated successfully!");
       setShowToast(true);
       setEditingItem(null);
@@ -152,7 +115,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     try {
-      await deleteMenuItemFromCreatedMenus(itemId, decodedRestaurantName);
+      await deleteMenuItemFromCreatedMenus(itemId, restaurantName);
       setMenuItems(menuItems.filter((item) => item.id !== itemId));
       setToastMessage("Item deleted successfully!");
       setShowToast(true);
@@ -164,7 +127,7 @@ const CreatedMenuPage: React.FC = () => {
 
   const handleAddMenuItem = async (newItem: MenuItem) => {
     try {
-      await addMenuItemToCreatedMenus(newItem, decodedRestaurantName);
+      await addMenuItemToCreatedMenus(newItem, restaurantName);
       setMenuItems([...menuItems, newItem]);
       setToastMessage("Item added successfully!");
       setShowToast(true);
@@ -176,8 +139,7 @@ const CreatedMenuPage: React.FC = () => {
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
-    if (description.length <= maxLength) return description;
-    return description.substring(0, maxLength) + "...";
+    return description.length <= maxLength ? description : description.substring(0, maxLength) + "...";
   };
 
   return (

@@ -70,8 +70,7 @@ const AppContent: React.FC = () => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoading(false); 
       if (user) {
-       
-        if (location.pathname === '/login' || location.pathname==='/create-account') {
+        if (location.pathname === '/login' || location.pathname === '/create-account') {
           history.push('/home');
         }
       } else {
@@ -152,9 +151,9 @@ const AppContent: React.FC = () => {
             <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
             <Route exact path="/add-dishes/:menuId" component={AddDishesPage} />
             <Route exact path="/personalized-menu" component={PersonalizedMenuPage} />
-            <PrivateRoute path="/restaurant/:restaurantName/full" component={RestaurantPage} exact />
-            <PrivateRoute path="/restaurant/:restaurantName/saved" component={SavedMenuPage} exact />
-            <PrivateRoute path="/restaurant/:restaurantName/created" component={CreatedMenuPage} exact />
+            <PrivateRoute path="/restaurants/:restaurantId/full" component={RestaurantPage} exact />
+            <PrivateRoute path="/saved-menus/:savedMenuDocId" component={SavedMenuPage} exact />
+            <PrivateRoute path="/created-menus/:menuDocId" component={CreatedMenuPage} exact />
             <PrivateRoute path="/search" component={SearchPage} exact />
             <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
             <Route path="/restaurant/:restaurantName/create" component={CreateMenuPage} />

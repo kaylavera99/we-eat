@@ -108,8 +108,8 @@ const HomePage: React.FC = () => {
     history.push("/all-restaurants");
   };
 
-  const handleRestaurantClick = (restaurantName: string) => {
-    history.push(`/restaurant/${restaurantName}/full`);
+  const handleRestaurantClick = (restaurantId: string) => {
+    history.push(`/restaurants/${restaurantId}/full`);
   };
 
   const goToExploreMenusPage = () => {
@@ -269,7 +269,7 @@ const HomePage: React.FC = () => {
                   className="card m-2"
                   style={{}}
                   key={restaurant.id}
-                  onClick={() => handleRestaurantClick(restaurant.name)}
+                  onClick={() => handleRestaurantClick(restaurant.id)}
                 >
                   <img
                     src={restaurant.thumbnailUrl}
@@ -302,7 +302,7 @@ const HomePage: React.FC = () => {
                   className="card m-2"
                   style={{ cursor: "pointer" }}
                   key={restaurant.id}
-                  onClick={() => handleRestaurantClick(restaurant.name)}
+                  onClick={() => handleRestaurantClick(restaurant.id)}
                 >
                   <img
                     src={restaurant.thumbnailUrl}
