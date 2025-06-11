@@ -25,6 +25,8 @@ import { auth, db } from "../firebaseConfig";
 import { doc, collection, setDoc } from "firebase/firestore";
 import { createOutline } from "ionicons/icons";
 import "../styles/CreateMenu.css";
+import { searchRestaurants } from "../services/searchService";
+
 
 const states = [
   { name: "Alabama", code: "AL" },
@@ -93,75 +95,79 @@ const CreateMenuPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState("");
   const history = useHistory();
 
-  useEffect(() => {
-    if (place) {
-      setRestaurantName(place.name);
-      parseAddress(place.vicinity);
-    }
-  }, [place]);
-
-  const parseAddress = (vicinity: string) => {
-    const addressParts = vicinity.split(", ");
-    if (addressParts.length === 2) {
-      setStreetAddress(addressParts[0]);
-      setCity(addressParts[1]);
-    }
-  };
-
-  const handleAddressChange = async () => {
-    console.log("Address changed:", streetAddress, city, state);
-    if (streetAddress && city && state) {
-      const fetchedZipCode = await fetchZipCode(streetAddress, city, state);
-      if (fetchedZipCode) {
-        setZipCode(fetchedZipCode);
-      } else {
-        console.log("Failed to fetch ZIP code");
-      }
-    }
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       setThumbnail(event.target.files[0]);
     }
   };
 
-  const handleSubmit = async () => {
-    const fullAddress = `${streetAddress}, ${city}, ${state}, ${zipCode}`;
-
-    try {
-      let thumbnailUrl = "";
-      if (thumbnail && auth.currentUser) {
-        const compressedImage = await compressImage(thumbnail);
-        thumbnailUrl = await uploadImage(
-          compressedImage,
-          `profilePictures/${auth.currentUser.uid}/createdMenus/${restaurantName}`
-        );
-      } else if (!thumbnail && place?.photoUrl) {
-        thumbnailUrl = place.photoUrl;
-      }
-
-      if (auth.currentUser) {
-        const userDocRef = doc(db, "users", auth.currentUser.uid);
-        const createdMenusRef = collection(userDocRef, "createdMenus");
-        const newMenuDocRef = doc(createdMenusRef);
-        await setDoc(newMenuDocRef, { restaurantName, thumbnailUrl });
-
-        await addPreferredLocationForCreatedMenu(restaurantName, fullAddress);
-        setShowToast(true);
-        setToastMessage("Restaurant details added successfully!");
-        history.push(`/add-dishes/${newMenuDocRef.id}`);
-      }
-    } catch (error) {
-      setShowToast(true);
-      setToastMessage(`Error: ${(error as Error).message}`);
-    }
-  };
-
   useEffect(() => {
-    handleAddressChange();
-  }, [streetAddress, city, state]);
+    if (place) {
+      setRestaurantName(place.name);
+      const parts = place.vicinity?.split(", ");
+      if (parts?.length === 2) {
+        setStreetAddress(parts[0]);
+        setCity(parts[1]);
+      }
+    }
+  }, [place]);
 
+  const handleSubmit = async () => {
+  const fullAddress = `${streetAddress}, ${city}, ${state}, ${zipCode}`;
+
+   try {
+    // 1) Create the Firestore doc to get its ID
+    const userDocRef = doc(db, "users", auth.currentUser!.uid);
+    const createdMenusRef = collection(userDocRef, "createdMenus");
+    const newMenuDocRef = doc(createdMenusRef);
+
+    // 2) Prepare the thumbnailUrl
+    let thumbnailUrl = "";
+
+    if (thumbnail) {
+      // user‐picked file
+      const compressed = await compressImage(thumbnail);
+      thumbnailUrl = await uploadImage(
+        compressed,
+        `profilePictures/${auth.currentUser!.uid}/createdMenus/${newMenuDocRef.id}/thumbnail.jpg`
+      );
+    } else if (place?.geometry && place.name) {
+      // no file → fetch once from Google via proxy
+      const results = await searchRestaurants(
+        `${place.geometry.location.lat},${place.geometry.location.lng}`,
+        1,
+        place.name,
+        { lat: place.geometry.location.lat, lng: place.geometry.location.lng }
+      );
+      if (results.length > 0 && results[0].photoReference) {
+        // build the proxy URL
+        const proxyUrl = `https://proxy-server-we-eat-e24e32c11d10.herokuapp.com/photo?photoreference=${results[0].photoReference}&maxwidth=400`;
+        // fetch the image bytes
+        const res = await fetch(proxyUrl);
+        const blob = await res.blob();
+        // wrap in a File so uploadImage works
+        const file = new File([blob], "thumbnail.jpg", { type: blob.type });
+        // upload into your menuDocId folder
+        thumbnailUrl = await uploadImage(
+          file,
+          `profilePictures/${auth.currentUser!.uid}/createdMenus/${newMenuDocRef.id}/thumbnail.jpg`
+        );
+      }
+    }
+
+    // 3) Persist your menu doc with that URL
+    await setDoc(newMenuDocRef, { restaurantName, thumbnailUrl });
+
+    // 4) Save preferred location & navigate
+    await addPreferredLocationForCreatedMenu(restaurantName, fullAddress);
+    setToastMessage("Restaurant details added successfully!");
+    setShowToast(true);
+    history.push(`/add-dishes/${newMenuDocRef.id}`);
+  } catch (e: any) {
+    setToastMessage(`Error: ${e.message}`);
+    setShowToast(true);
+  }
+};
   return (
     <IonPage>
       <IonHeader>

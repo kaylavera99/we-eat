@@ -81,7 +81,8 @@ export const searchRestaurants = async (location: string, radius: number, search
       geometry: result.geometry,
       distance,
       icon: result.icon,
-      photoUrl
+      photoUrl,
+      photoReference
     };
   }).filter(result => !isNaN(result.distance) && result.distance <= (radius + 1)); // margin of error
 
