@@ -18,7 +18,8 @@ import {
 } from "@ionic/react";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
-import { uploadImage, compressImage } from "../services/storageService";
+import { uploadImage } from "../services/storageService";
+import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/EditProfilePage.css";
 import { personCircleSharp } from "ionicons/icons";
 
@@ -46,7 +47,7 @@ const EditProfilePage: React.FC = () => {
     peanuts: false,
     gluten: false,
   });
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const { file: profileImage, previewUrl: profilePreview, handleFileChange} = useImageUpload();
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -101,7 +102,7 @@ const EditProfilePage: React.FC = () => {
     }));
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+/*   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setProfileImage(file);
@@ -109,7 +110,7 @@ const EditProfilePage: React.FC = () => {
       const localImageUrl = URL.createObjectURL(file);
       setProfileImageUrl(localImageUrl);
     }
-  };
+  }; */
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -118,11 +119,8 @@ const EditProfilePage: React.FC = () => {
         let updatedProfileImageUrl = profileImageUrl;
 
         if (profileImage) {
-          const compressedImage = await compressImage(profileImage);
-          updatedProfileImageUrl = await uploadImage(
-            compressedImage,
-            auth.currentUser.uid
-          );
+          updatedProfileImageUrl = await uploadImage(profileImage, `profilePictures/${auth.currentUser.uid}/profile-jpg`)
+
         }
 
         const updatedAllergens = {
@@ -185,7 +183,7 @@ const EditProfilePage: React.FC = () => {
                     objectFit: "cover",
                   }}
                 >
-                  <IonImg src={profileImageUrl} alt="Profile Picture" />
+                  <IonImg src ={profilePreview || profileImageUrl } alt="Profile Picture" />
                 </IonAvatar>
               )}
             </div>
@@ -193,7 +191,7 @@ const EditProfilePage: React.FC = () => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={handleFileChange}
                 className="input-btn"
                 id="fileInput"
                 style={{ display: "none" }}

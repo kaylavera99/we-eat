@@ -20,7 +20,8 @@ import {
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
-import { uploadImage, compressImage } from "../services/storageService";
+import { uploadImage } from "../services/storageService";
+import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/CreateAccountPage.css";
 import useCustomPadding from "../hooks/useCustomPadding";
 
@@ -33,13 +34,14 @@ const CreateAccountPage: React.FC = () => {
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [allergens, setAllergens] = useState<{ [key: string]: boolean }>({});
-  const [profileImage, setProfileImage] = useState<File | null>(null);
+  //const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
+  const {file: profileImage, previewUrl: profilePreview, handleFileChange } = useImageUpload();
   const history = useHistory();
 
   const handleAllergenChange = (e: any) => {
@@ -50,7 +52,7 @@ const CreateAccountPage: React.FC = () => {
     }));
   };
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  /* const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setProfileImage(file);
@@ -58,7 +60,7 @@ const CreateAccountPage: React.FC = () => {
       const localImageUrl = URL.createObjectURL(file);
       setProfileImageUrl(localImageUrl);
     }
-  };
+  }; */
 
   const handleRegister = async () => {
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -91,8 +93,8 @@ const CreateAccountPage: React.FC = () => {
       let profileImageUrl = "";
 
       if (profileImage) {
-        const compressedImage = await compressImage(profileImage);
-        profileImageUrl = await uploadImage(compressedImage, user.uid);
+        
+        profileImageUrl = await uploadImage(profileImage, `profilePictures/${user.uid}/profile-jpg`);
       }
 
       await setDoc(doc(db, "users", user.uid), {
@@ -210,15 +212,15 @@ const CreateAccountPage: React.FC = () => {
         >
           <div className="flex-column">
             <div className="image-wrapper">
-              {profileImageUrl && (
-                <IonAvatar
-                  style={{
+              {( profilePreview || profileImageUrl) &&  (
+                <IonAvatar className = "profile-picture"   style={{
                     width: "250px",
                     height: "250px",
                     objectFit: "cover",
-                  }}
-                >
-                  <IonImg src={profileImageUrl} alt="Profile Picture" />
+                  }}>
+
+                
+                <IonImg src={profilePreview || profileImageUrl!  } alt="Profile Picture" />
                 </IonAvatar>
               )}
             </div>
@@ -226,7 +228,7 @@ const CreateAccountPage: React.FC = () => {
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={handleFileChange}
                 className="input-btn"
                 id="fileInput"
               />
