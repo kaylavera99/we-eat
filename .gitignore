@@ -1,4 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
 
 # dependencies
 node_modules/
@@ -19,7 +19,7 @@ src/firebaseConfig.ts
 .firebaserc
 
 src/services/googlePlacesService.ts
-
+src/services/geocodingService.ts
 proxy-server.cjs
 
 
@@ -44,3 +44,5 @@ google-places-proxy
 routes/weeat-1a169-firebase-adminsdk-h7v29-a6434e1825.json
 # Optional eslint cache
 .eslintcache
+
+weeat-release-key.jks
