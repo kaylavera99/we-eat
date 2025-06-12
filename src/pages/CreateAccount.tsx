@@ -24,6 +24,8 @@ import { uploadImage } from "../services/storageService";
 import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/CreateAccountPage.css";
 import useCustomPadding from "../hooks/useCustomPadding";
+import { PROFILE_PLACEHOLDER } from "../constants";
+
 
 const CreateAccountPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -34,14 +36,13 @@ const CreateAccountPage: React.FC = () => {
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
   const [allergens, setAllergens] = useState<{ [key: string]: boolean }>({});
-  //const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
-  const {file: profileImage, previewUrl: profilePreview, handleFileChange } = useImageUpload();
+  const {file: profileFile, previewUrl: profilePreview, handleFileChange: handleProfileChange } = useImageUpload();
   const history = useHistory();
 
   const handleAllergenChange = (e: any) => {
@@ -52,15 +53,7 @@ const CreateAccountPage: React.FC = () => {
     }));
   };
 
-  /* const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setProfileImage(file);
 
-      const localImageUrl = URL.createObjectURL(file);
-      setProfileImageUrl(localImageUrl);
-    }
-  }; */
 
   const handleRegister = async () => {
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -92,9 +85,9 @@ const CreateAccountPage: React.FC = () => {
       const user = userCredential.user;
       let profileImageUrl = "";
 
-      if (profileImage) {
+      if (profileFile) {
         
-        profileImageUrl = await uploadImage(profileImage, `profilePictures/${user.uid}/profile-jpg`);
+        profileImageUrl = await uploadImage(profileFile, `profilePictures/${user.uid}/profile-jpg`);
       }
 
       await setDoc(doc(db, "users", user.uid), {
@@ -212,7 +205,7 @@ const CreateAccountPage: React.FC = () => {
         >
           <div className="flex-column">
             <div className="image-wrapper">
-              {( profilePreview || profileImageUrl) &&  (
+              
                 <IonAvatar className = "profile-picture"   style={{
                     width: "250px",
                     height: "250px",
@@ -220,15 +213,15 @@ const CreateAccountPage: React.FC = () => {
                   }}>
 
                 
-                <IonImg src={profilePreview || profileImageUrl!  } alt="Profile Picture" />
+                <IonImg src={profilePreview || PROFILE_PLACEHOLDER} alt="Profile Picture" />
                 </IonAvatar>
-              )}
+              
             </div>
             <div className="upload-wrapper">
               <input
                 type="file"
                 accept="image/*"
-                onChange={handleFileChange}
+                onChange={handleProfileChange}
                 className="input-btn"
                 id="fileInput"
               />

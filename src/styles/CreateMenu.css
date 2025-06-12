@@ -102,3 +102,61 @@ font-family: var(--font-family-primary);
   background-color: white !important;
   --background-hover: white!important;
 }
+
+
+.image-form-wrap { 
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content: center!important;
+  padding-top: 15px;
+  
+}
+
+.preview-wrap {
+  margin: 1.5rem 0;
+}
+
+
+.preview-wrap .image-form-wrap {
+  display: flex;
+  justify-content: center;
+  --inner-padding-top: 0;
+  --inner-padding-bottom: 0;
+}
+
+.preview-avatar {
+  margin: 0 auto;
+  width: 200px;
+  height: 200px;
+}
+
+
+
+.preview-wrap .preview-avatar {
+  width: 150px;
+  height: 150px;
+  margin: 10 auto;
+  padding-top:px;
+}
+
+
+.upload-btn-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.upload-btn-wrap .img-up-btn {
+  --background:var(--ion-color-secondary);
+}
+
+ion-select {
+  padding-left:16px;
+}
+
+ion-radio-group .md {
+  font-size: 13px!important;
+  font-weight: 500;
+  --color-checked:var(--ion-color-secondary)!important;
+}
