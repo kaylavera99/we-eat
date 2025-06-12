@@ -41,7 +41,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   onClose,
   onSaveItem,
   initialItem,
-  restaurantName,
+
   menuDocId
 }) => {
   const [name, setName] = useState("");
@@ -90,57 +90,57 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   const handleSave = async () => {
      let imageDownloadUrl = previewUrl || initialItem?.imageUrl || placeholderImage;
 
-    if (imageFile) {
+    if (imageFile && initialItem?.id) {
       try {
+        const userUid = auth.currentUser!.uid;
+        const dishId = initialItem.id;
+
+   
+        const storagePath = 
+          `profilePictures/${userUid}/createdMenus/${menuDocId}/dishes/${dishId}/${dishId}.jpg`;
+
         imageDownloadUrl = await uploadImage(
-          imageFile, `profilePictures/${auth.currentUser!.uid}/createdMenus/${restaurantName}/${initialItem!.id}/menuItem.jpg`
-          
+          imageFile,
+          storagePath
         );
-        imageUrlRef.current = imageDownloadUrl;
-       
-      } catch (error) {
-        console.error("Error uploading image:", error);
+      } catch (err) {
+        console.error("Error uploading image:", err);
         return;
       }
     }
 
-    if ( !initialItem?.id || !menuDocId) {
-      console.error(
-        "Missing initialItem or menuDocId"
-      );
-      return;
-    }
 
-    const updatedItem = {
+    if (!initialItem?.id) return;
+    const updatedItem: MenuItem = {
       ...initialItem,
-      name: nameRef.current,
-      description: descriptionRef.current,
-      allergens: allergensRef.current,
-      note: noteRef.current,
-      category: categoryRef.current,
-      imageUrl:    imageUrlRef.current,
+      name,
+      description,
+      allergens,
+      note,
+      category,
+      imageUrl: imageDownloadUrl,
     };
 
+
     try {
-      const userUid = auth.currentUser?.uid;
+      const userUid = auth.currentUser!.uid;
+      const menuDocRef = doc(db, "users", userUid, "createdMenus", menuDocId);
+      const dishDocRef = doc(menuDocRef, "dishes", initialItem.id);
 
-      if (!userUid) {
-        console.error("User not authenticated.");
-        return;
-      }
+      await updateDoc(dishDocRef, {
+        name:         updatedItem.name,
+        description:  updatedItem.description,
+        allergens:    updatedItem.allergens,
+        note:         updatedItem.note,
+        category:     updatedItem.category,
+        imageUrl:     updatedItem.imageUrl,
+      });
 
-      const userDocRef = doc(db, "users", userUid);
 
-
-      const restaurantDocRef = doc(db, "users", userUid, "createdMenus", menuDocId);
-      const dishesCollectionRef = collection(restaurantDocRef, "dishes");
-      const menuItemDocRef = doc(dishesCollectionRef, initialItem.id!);
-
-      await updateDoc(menuItemDocRef, updatedItem);
       onSaveItem(updatedItem);
       onClose();
-    } catch (error) {
-      console.error("Error saving menu item to Firestore:", error);
+    } catch (err) {
+      console.error("Error saving menu item to Firestore:", err);
     }
   };
 
