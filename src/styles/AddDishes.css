@@ -15,7 +15,7 @@
 
 
 
-.dish-image-wrapper {
+.dish-image-wrap ion-item {
     display:flex!important;
     flex-direction:column!important;
     justify-content:center!important;
@@ -29,14 +29,21 @@
 }
 
 .upload-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex!important;
+    flex-direction: column!important;
+    align-items: center!important;
     margin-top: 1rem;
+   background-color:white!important;
   }
   
+  .upload-wrapper ion-item {
+  
+    display:flex;
+    flex-direction:column;
+    align-items:center!important;
+  }
   .custom-upload-btn {
-    --background: var(--ion-color-primary);
+    --background: var(--ion-color-secondary);
     --color: white;
     --padding: 10px 20px;
     --border-radius: 5px;
@@ -61,3 +68,55 @@
     margin-right: 10px;
     margin-top: 8px;
   }
+
+
+.dish-preview-wrap {
+  margin: 1.5rem 0;
+}
+
+.dish-preview-wrap .dish-avatar-wrap {
+  display: flex!important;
+
+  flex-direction: column!important;
+  justify-content: center!important;
+  --inner-padding-top: 0;
+  --inner-padding-bottom: 0;
+}
+
+.upload-wrapper{
+  display:flex!important;
+  flex-direction: column!important;
+  justify-content: center!important;;
+  width:100%;
+}
+
+.dish-avatar {
+  width: 150px;
+  height: 150px;
+  margin: 0 auto;
+  object-fit: cover;
+  justify-content: center!important;
+}
+
+.dish-upload-btn {
+  display: flex;
+  justify-content: center!important;
+  align-self: center!important;
+  margin-top: 0.75rem;
+  
+}
+.dish-upload-btn ion-button {
+  --background: var(--ion-color-secondary);
+
+  
+}
+
+.add-dishes-page ion-item {
+  padding-top:5px;
+  padding-bottom:8px;
+}
+
+.add-dishes-page .dishes-lbl {
+    padding-top:5px;
+  padding-bottom:3px;
+}
