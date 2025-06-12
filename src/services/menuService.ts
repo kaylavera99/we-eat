@@ -24,7 +24,7 @@ export interface UserData {
   email: string;
   allergens: { [key: string]: boolean };
 }
-
+// Used in fetchMenuData, fetchSavedMenus
 const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
   const dishesSnapshot = await getDocs(collection(menuDocRef, 'dishes'));
   return dishesSnapshot.docs.map(dishDoc => {
@@ -41,6 +41,8 @@ const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
   });
 };
 
+
+// REVAL  - used in getRecommendations
 export const fetchMenuData = async (): Promise<{ savedMenus: SavedMenu[], createdMenus: SavedMenu[] }> => {
   const savedMenus: SavedMenu[] = [];
   const createdMenus: SavedMenu[] = [];
@@ -76,6 +78,7 @@ export const fetchMenuData = async (): Promise<{ savedMenus: SavedMenu[], create
 
 
 // Utility function to get all menu items by category
+// Used in getMenuItemsByCategory
 const getAllMenuItemsByCategory = (menu: { [category: string]: { dishes: MenuItem[] } } | undefined, category: string): MenuItem[] => {
   if (!menu) return [];
   return Object.entries(menu).reduce((acc: MenuItem[], [cat, value]) => {
@@ -87,6 +90,7 @@ const getAllMenuItemsByCategory = (menu: { [category: string]: { dishes: MenuIte
 };
 
 // GETTING MENU BY CATEGORY
+// Used in getRecommendations
 export const getMenuByCategory = async (category: string): Promise<SavedMenu[]> => {
   const menusRef = collection(db, 'restaurants');
   const snapshot = await getDocs(menusRef);
@@ -105,6 +109,8 @@ export const getMenuByCategory = async (category: string): Promise<SavedMenu[]> 
   });
   return matchingMenus;
 };
+
+
 
 // GET RECOMMENDATIONS
 export const getRecommendations = async (): Promise<SavedMenu[]> => {

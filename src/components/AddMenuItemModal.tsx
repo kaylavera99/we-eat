@@ -126,25 +126,26 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
       <IonContent className="ion-padding modal-content">
       
         <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked">Name</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Name</IonLabel>
           <IonInput
             value={name}
             onIonChange={(e) => setName(e.detail.value!)}
+            className = "input-field"
           />
         </IonItem>
 
       
         <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked">Description</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Description</IonLabel>
           <IonTextarea
             value={description}
             onIonChange={(e) => setDescription(e.detail.value!)}
+            className = "input-field"
           />
         </IonItem>
 
-        {/* Allergens */}
         <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked">Allergens (comma-separated)</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Allergens (comma-separated)</IonLabel>
           <IonInput
             value={allergens.join(", ")}
             onIonChange={(e) =>
@@ -155,30 +156,33 @@ const AddMenuItemModal: React.FC<AddMenuItemModalProps> = ({
                   .filter(Boolean)
               )
             }
+            className = "input-field"
           />
         </IonItem>
 
        
         <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked">Note</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Note</IonLabel>
           <IonTextarea
             value={note}
             onIonChange={(e) => setNote(e.detail.value!)}
+            className = "input-field"
           />
         </IonItem>
 
     
         <IonItem lines="none" className="form-item">
-          <IonLabel position="stacked">Category</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Category</IonLabel>
           <IonInput
             value={category}
             onIonChange={(e) => setCategory(e.detail.value!)}
+            className = "input-field"
           />
         </IonItem>
 
    
         <IonItem lines="none" className="form-item item-upload">
-          <IonLabel position="stacked">Image</IonLabel>
+          <IonLabel position="stacked" className= "add-item-label">Image</IonLabel>
           <div className="image-form-wrap">
             <IonAvatar style={{ width: 100, height: 100, margin: "0 auto" }}>
               <IonImg src={imagePreview} alt="Preview" />
