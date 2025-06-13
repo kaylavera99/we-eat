@@ -31,15 +31,9 @@ import { db, auth } from "../firebaseConfig";
 import "../styles/PersonalizedMenu.css";
 import { searchRestaurants } from "../services/searchService";
 import { restaurantOutline } from "ionicons/icons";
+import { BaseMenu } from "../types/menu";
+import { PreferredLocation } from "../types/user";
 
-interface BaseMenu {
-  restaurantName: string;
-  dishes: any[];
-  photoUrl?: string;
-  thumbnailUrl?: string;
-  dishCount?: number;
-  isCreated: boolean;
-}
 
 interface CreatedMenu extends BaseMenu {
   menuDocId: string;
@@ -54,15 +48,7 @@ interface SavedMenu extends BaseMenu {
 
 type Menu = CreatedMenu | SavedMenu;
 
-interface PreferredLocation {
-  name: string;
-  address: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  photoUrl?: string;
-}
+
 
 const PersonalizedMenuPage: React.FC = () => {
   const [createdMenus, setCreatedMenus] = useState<CreatedMenu[]>([]);

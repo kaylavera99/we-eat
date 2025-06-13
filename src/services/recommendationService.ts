@@ -1,25 +1,13 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { fetchSavedMenus } from './menuService';
-import {MenuItem} from '../types/menu'
+import {MenuItem, MenuCategory,} from '../types/menu'
+import {UserData} from '../types/user'
+import { Restaurant } from '../types/menu';
 
-export interface MenuCategory {
-  id: string;
-  category: string;
-  items: MenuItem[];
-  index: number;
-}
 
-export interface Restaurant {
-  id: string;
-  name: string;
-  menu: MenuCategory[];
-  thumbnailUrl: string;
-}
 
-interface UserData {
-  allergens: { [key: string]: boolean };
-}
+
 
 export const fetchUserData = async (): Promise<string[]> => {
   const allergens: string[] = [];

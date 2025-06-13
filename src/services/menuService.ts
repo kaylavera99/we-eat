@@ -1,7 +1,7 @@
 import { collection, getDocs, doc, addDoc, deleteDoc, query, where, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import { MenuCategory } from './restaurantService';
-import {MenuItem} from '../types/menu'
+import {MenuItem, MenuCategory} from '../types/menu'
+import {UserData} from '../types/user'
 
 
 export interface SavedMenu {
@@ -11,11 +11,11 @@ export interface SavedMenu {
   thumbnailUrl?: string;
 }
 
-export interface UserData {
+/* export interface  {
   name: string;
   email: string;
   allergens: { [key: string]: boolean };
-}
+} */
 // Used in fetchMenuData, fetchSavedMenus
 const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
   const dishesSnapshot = await getDocs(collection(menuDocRef, 'dishes'));
@@ -141,7 +141,6 @@ export const updateMenuItemInCreatedMenus = async (item: MenuItem, menuDocId: st
   if (!auth.currentUser) {
     throw new Error("No user is currently logged in.");
   }
-
 
   const userDocRef = doc(db, 'users', auth.currentUser!.uid);
   const menuDocRef = doc(userDocRef, 'createdMenus', menuDocId);

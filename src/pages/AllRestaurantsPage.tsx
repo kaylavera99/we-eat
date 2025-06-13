@@ -16,18 +16,12 @@ import { db } from "../firebaseConfig";
 import { useHistory } from "react-router-dom";
 import "../styles/AllRestaurantsPage.css";
 import { fastFoodOutline, search } from "ionicons/icons";
+import { Restaurant } from "../types/menu";
 
-interface Restaurant {
-  id: string;
-  name: string;
-  thumbnailUrl: string;
-}
 
 const AllRestaurantsPage: React.FC = () => {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>(
-    []
-  );
+  const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);

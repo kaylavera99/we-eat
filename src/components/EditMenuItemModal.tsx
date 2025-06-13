@@ -15,8 +15,6 @@ import {
 import {
   doc,
   updateDoc,
-  collection,
-
 } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import { MenuItem } from "../types/menu";
@@ -41,7 +39,6 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   onClose,
   onSaveItem,
   initialItem,
-
   menuDocId
 }) => {
   const [name, setName] = useState("");
@@ -50,8 +47,6 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   const [note, setNote] = useState("");
   const [category, setCategory] = useState("");
   const { file: imageFile, previewUrl, handleFileChange } = useImageUpload();
-
-
   const nameRef = useRef(name);
   const descriptionRef = useRef(description);
   const allergensRef = useRef(allergens);

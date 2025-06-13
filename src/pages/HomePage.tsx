@@ -24,12 +24,9 @@ import { arrowForward, search } from "ionicons/icons";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { Restaurant } from "../types/menu";
 
-interface Restaurant {
-  id: string;
-  name: string;
-  thumbnailUrl: string;
-}
+
 
 const HomePage: React.FC = () => {
   const [firstName, setFirstName] = useState("");

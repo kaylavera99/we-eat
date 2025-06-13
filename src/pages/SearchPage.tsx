@@ -147,50 +147,58 @@ const SearchPage: React.FC = () => {
     }
   };
 
-  const handleNavigateToRestaurantPage = async (place: Place) => {
-    const restaurantName = encodeURIComponent(place.name);
-    console.log(restaurantName)
+// replace your full-menu branch:
+const handleNavigateToRestaurantPage = async (place: Place) => {
+  const rawName     = place.name;
+  const encodedName = encodeURIComponent(rawName);
 
-    console.log(decodeURIComponent(restaurantName))
-
-    try {
-      const userHasSavedMenu = await checkIfUserHasSavedMenu(decodeURIComponent(restaurantName));
-      if (userHasSavedMenu) {
-        history.push(
-          `/restaurant/${decodeURIComponent(restaurantName)}/saved`,
-          { place }
-        );
-        return;
-      }
-
-      const userHasCreatedMenu = await checkIfUserHasCreatedMenu(
-        restaurantName
-      );
-      if (userHasCreatedMenu) {
-        history.push(
-          `/restaurant/${decodeURIComponent(restaurantName)}/created`,
-          { place }
-        );
-        return;
-      }
-
-      const fullMenu = await fetchFullMenuFromRestaurants(restaurantName);
-      if (fullMenu.length > 0) {
-        history.push(`/restaurant/${decodeURIComponent(restaurantName)}/full`, {
-          place,
-        });
-        return;
-      }
-
-      setSelectedPlace(place);
-      setShowAlert(true);
-    } catch (error) {
-      setToastMessage(
-        `Error navigating to ${place.name}: ${(error as Error).message}`
-      );
-      setShowToast(true);
+  try {
+    // 1) Saved menus (doc under users/…/savedMenus)
+    if (await checkIfUserHasSavedMenu(rawName)) {
+      const userRef    = doc(db, "users", auth.currentUser!.uid);
+      const savedRef   = collection(userRef, "savedMenus");
+      const q          = query(savedRef, where("restaurantName", "==", rawName));
+      const snap       = await getDocs(q);
+      const savedDocId = snap.docs[0].id;
+      history.push(`/saved-menus/${savedDocId}`);
+      return;
     }
-  };
+
+    // 2) Created menus (doc under users/…/createdMenus)
+    if (await checkIfUserHasCreatedMenu(rawName)) {
+      const userRef      = doc(db, "users", auth.currentUser!.uid);
+      const createdRef   = collection(userRef, "createdMenus");
+      const q            = query(createdRef, where("restaurantName", "==", rawName));
+      const snap         = await getDocs(q);
+      const createdDocId = snap.docs[0].id;
+      history.push(`/created-menus/${createdDocId}`);
+      return;
+    }
+
+    // 3) Full restaurant menu (doc under /restaurants)
+    const fullMenu = await fetchFullMenuFromRestaurants(encodedName);
+    if (fullMenu.length > 0) {
+      // look up the restaurant doc by name
+      const restRef = collection(db, "restaurants");
+      const q2      = query(restRef, where("name", "==", rawName));
+      const snap2   = await getDocs(q2);
+      if (!snap2.empty) {
+        const restDocId = snap2.docs[0].id;
+        history.push(`/restaurants/${restDocId}/full`, { place });
+        return;
+      }
+    }
+
+    // 4) otherwise show “create menu?” prompt
+    setSelectedPlace(place);
+    setShowAlert(true);
+
+  } catch (err) {
+    setToastMessage(`Error: ${(err as Error).message}`);
+    setShowToast(true);
+  }
+};
+
 
   const handleSetAsPreferredLocation = async (place: Place) => {
     try {

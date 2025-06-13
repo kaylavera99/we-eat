@@ -30,33 +30,9 @@ import { searchRestaurants } from "../services/searchService";
 import "../styles/UserProfile.css";
 import "ionicons/icons";
 import { personCircleOutline, locationSharp } from "ionicons/icons";
+import { PreferredLocation, UserData } from "../types/user";
 
-interface PreferredLocation {
-  address: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  name: string;
-  photoUrl?: string;
-}
 
-interface UserData {
-  name: string;
-  lastName: string;
-  email: string;
-  allergens: {
-    [key: string]: boolean;
-  };
-  preferredLocations: {
-    [key: string]: PreferredLocation;
-  };
-  createdMenus: {
-    [key: string]: any;
-  };
-  profileImageUrl?: string;
-  address: string;
-}
 
 const UserProfilePage: React.FC = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -277,11 +253,11 @@ const UserProfilePage: React.FC = () => {
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : userData ? (
           <IonList className="prof-list">
-            {Object.keys(userData.preferredLocations).length > 0 ? (
+            {Object.keys(userData?.preferredLocations ?? {}).length > 0 ? (
               <div>
                 <h2>Your Restaurant Locations</h2>
                 <IonAccordionGroup className="loc-acc">
-                  {Object.entries(userData.preferredLocations).map(
+                  {Object.entries(userData?.preferredLocations ?? {}).map(
                     ([key, location]) => (
                       <IonAccordion key={key} className="rest-acc">
                         <IonItem

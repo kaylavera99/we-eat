@@ -20,27 +20,16 @@ import {
   IonIcon
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
-import {
-  fetchFullMenuFromRestaurants,
-  MenuCategory,
-} from "../services/restaurantService";
+import {fetchFullMenuFromRestaurants} from "../services/restaurantService";
 import { addMenuItemToSavedMenus } from "../services/menuService";
-import {
-  doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { doc, getDoc} from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import SearchBar from '../components/SearchBar';
 import { searchOutline } from "ionicons/icons";
-import {MenuItem} from '../types/menu';
+import {MenuItem, MenuCategory} from '../types/menu';
+import {UserData} from '../types/user';
 
-interface UserData {
-  allergens: { [key: string]: boolean };
-}
+
 
 const RestaurantPage: React.FC = () => {
   const { restaurantName } = useParams<{ restaurantName: string }>();

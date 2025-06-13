@@ -17,33 +17,20 @@ import {
   IonToast,
 } from "@ionic/react";
 import { useHistory, useParams } from "react-router-dom";
-import {
-  doc,
-  collection,
-  addDoc,
-  setDoc
-} from "firebase/firestore";
+import {doc, collection, addDoc, setDoc} from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
 import { uploadImage } from "../services/storageService";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { DISH_PLACEHOLDER } from "../constants";
 import { pizzaOutline } from "ionicons/icons";
 import "../styles/AddDishes.css"
+import { Dish } from "../types/menu";
 
-interface Dish {
-  id?: string;
-  category: string;
-  name: string;
-  description: string;
-  allergens: string[];
-  note: string;
-  imageUrl?: string;
-}
+
 
 const AddDishesPage: React.FC = () => {
   const { menuId } = useParams<{ menuId: string }>();
   const history = useHistory();
-
   const [category, setCategory] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

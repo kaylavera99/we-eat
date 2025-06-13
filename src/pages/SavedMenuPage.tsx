@@ -17,29 +17,15 @@ import {
 } from "@ionic/react";
 import { useParams, useHistory } from "react-router-dom";
 import { MenuItem } from "../types/menu";
-import {
-  doc,
-  getDoc,
-  getDocs,
-  collection,
-} from "firebase/firestore";
+import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import EditNotesModal from "../components/EditNotesModal";
 import "../styles/SavedMenu.css";
 import { deleteMenuItemFromSavedMenus } from "../services/menuService";
 import { closeSharp, createOutline, trashSharp } from "ionicons/icons";
+import { PreferredLocation, UserData } from "../types/user";
 import SearchBar from "../components/SearchBar";
 
-interface UserData {
-  allergens: { [key: string]: boolean };
-}
-
-interface PreferredLocation {
-  name: string;
-  address: string;
-  coordinates: any;
-  photoUrl?: string;
-}
 
 const truncateDescription = (
   description: string,
@@ -62,6 +48,10 @@ const SavedMenuPage: React.FC = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
   const [preferredLocation, setPreferredLocation] = useState<PreferredLocation | null>(null);
+
+  // ← NEW: “are we still waiting on Firestore to tell us about preferredLocation?”
+  const [loadingPrefs, setLoadingPrefs] = useState(true);
+
   const history = useHistory();
 
   useEffect(() => {
@@ -70,6 +60,7 @@ const SavedMenuPage: React.FC = () => {
         const userId = auth.currentUser?.uid;
         if (!userId) return;
 
+        // 1) load saved-menu doc
         const menuDocRef = doc(db, "users", userId, "savedMenus", savedMenuDocId);
         const menuDocSnap = await getDoc(menuDocRef);
 
@@ -78,10 +69,14 @@ const SavedMenuPage: React.FC = () => {
           setRestaurantName(data.restaurantName);
           setRestaurantId(data.restaurantId);
           const dishesSnap = await getDocs(collection(menuDocRef, "dishes"));
-          const dishes: MenuItem[] = dishesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem));
+          const dishes: MenuItem[] = dishesSnap.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          } as MenuItem));
           setMenuItems(dishes);
           setFilteredItems(dishes);
 
+          // 2) load restaurant thumbnail if we have its ID
           if (data.restaurantId) {
             const restaurantDoc = await getDoc(doc(db, "restaurants", data.restaurantId));
             if (restaurantDoc.exists()) {
@@ -91,6 +86,7 @@ const SavedMenuPage: React.FC = () => {
           }
         }
 
+        // 3) load user-allergens
         const userDocRef = doc(db, "users", userId);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
@@ -101,9 +97,12 @@ const SavedMenuPage: React.FC = () => {
           setUserAllergens(allergens);
         }
 
-        const preferredLocationsSnap = await getDocs(collection(userDocRef, "preferredLocations"));
-        preferredLocationsSnap.forEach((doc) => {
-          const data = doc.data() as PreferredLocation;
+        // 4) load preferredLocations subcollection
+        const preferredLocationsSnap = await getDocs(
+          collection(userDocRef, "preferredLocations")
+        );
+        preferredLocationsSnap.forEach((docSnap) => {
+          const data = docSnap.data() as PreferredLocation;
           if (data.name === restaurantName) {
             setPreferredLocation(data);
           }
@@ -111,13 +110,17 @@ const SavedMenuPage: React.FC = () => {
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
+      } finally {
+        // ← NEW: whether we found one or not, we’re done loading
+        setLoadingPrefs(false);
       }
     };
+
     fetchData();
-  }, [savedMenuDocId]);
+  }, [savedMenuDocId, restaurantName]);
 
   const handleSearch = (query: string) => {
-    const filtered = menuItems.filter((item) =>
+    const filtered = menuItems.filter(item =>
       item.name.toLowerCase().includes(query.toLowerCase())
     );
     setFilteredItems(filtered);
@@ -136,31 +139,31 @@ const SavedMenuPage: React.FC = () => {
     setViewingItem(item);
   };
 
- const handleDeleteItem = async (itemToDelete: MenuItem) => {
-  try {
-    if (itemToDelete.id && savedMenuDocId) {
-      await deleteMenuItemFromSavedMenus(itemToDelete.id, savedMenuDocId);
-      const updatedItems = menuItems.filter((item) => item.id !== itemToDelete.id);
-      setMenuItems(updatedItems);
-      setFilteredItems(updatedItems);
-      setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
-      setShowToast(true);
-    } else {
-      setToastMessage(`Error: Missing item ID or saved menu ID.`);
+  const handleDeleteItem = async (itemToDelete: MenuItem) => {
+    try {
+      if (itemToDelete.id && savedMenuDocId) {
+        await deleteMenuItemFromSavedMenus(itemToDelete.id, savedMenuDocId);
+        const updated = menuItems.filter(item => item.id !== itemToDelete.id);
+        setMenuItems(updated);
+        setFilteredItems(updated);
+        setToastMessage(`${itemToDelete.name} removed from your saved menu.`);
+        setShowToast(true);
+      } else {
+        setToastMessage(`Error: Missing item ID or saved menu ID.`);
+        setShowToast(true);
+      }
+    } catch (error) {
+      setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
     }
-  } catch (error) {
-    setToastMessage(`Error: ${(error as Error).message}`);
-    setShowToast(true);
-  }
-};
-
+  };
 
   const handleSaveNotes = (updatedItem: MenuItem) => {
-    const updatedItems = menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item));
-    setMenuItems(updatedItems);
-    setFilteredItems(updatedItems);
-
+    const updated = menuItems.map(item =>
+      item.id === updatedItem.id ? updatedItem : item
+    );
+    setMenuItems(updated);
+    setFilteredItems(updated);
     if (viewingItem && viewingItem.id === updatedItem.id) {
       setViewingItem(updatedItem);
     }
@@ -179,16 +182,16 @@ const SavedMenuPage: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding">
         <div className="button-save-row">
-          <IonButton
-            className="btn-full"
-            expand="block"
-            onClick={handleViewFullMenu}
-          >
+          <IonButton className="btn-full" expand="block" onClick={handleViewFullMenu}>
             View Full Menu
           </IonButton>
         </div>
 
-        {(preferredLocation || restaurantThumbnail) && (
+        {/*
+          Don’t render *anything* here until loadingPrefs===false.
+          Then fall back to your existing (preferredLocation||restaurantThumbnail)
+        */}
+        {!loadingPrefs && (preferredLocation || restaurantThumbnail) && (
           <div className="preferred-location-banner">
             <IonImg
               src={preferredLocation?.photoUrl || restaurantThumbnail!}
@@ -205,8 +208,7 @@ const SavedMenuPage: React.FC = () => {
               </p>{" "}
               {userAllergens.length > 0 && (
                 <p className="allergen-warn-save" style={{ color: "red" }}>
-                  Menu items with allergens marked in red contain your
-                  allergens.
+                  Menu items with allergens marked in red contain your allergens.
                 </p>
               )}
             </div>
@@ -219,6 +221,7 @@ const SavedMenuPage: React.FC = () => {
             {menuItems.length} Menu Items(s)
           </IonBadge>
         </div>
+
         <IonList className="full-list" lines="none">
           <div className="created-list">
             {menuItems.map((item, index) => (
@@ -227,24 +230,23 @@ const SavedMenuPage: React.FC = () => {
                   <IonLabel>
                     <h3 className="item-h3">{item.name}</h3>
                     <p className="menu-item-description">
-                      {" "}
                       {truncateDescription(item.description, 75)}
                     </p>
                     <p className="allergen-label">
                       <strong>
                         <span style={{ color: "#02382E" }}>Allergens: </span>
                       </strong>
-                      {item.allergens.map((allergen, index) => {
+                      {item.allergens.map((allergen, i) => {
                         const isUserAllergen = userAllergens.includes(
                           allergen.toLowerCase().trim()
                         );
                         return (
                           <span
-                            key={index}
+                            key={i}
                             style={{ color: isUserAllergen ? "red" : "black" }}
                           >
                             {allergen}
-                            {index < item.allergens.length - 1 ? ", " : ""}
+                            {i < item.allergens.length - 1 ? ", " : ""}
                           </span>
                         );
                       })}
@@ -255,10 +257,7 @@ const SavedMenuPage: React.FC = () => {
                     </p>
                   </IonLabel>
                   <div className="create-btn-row">
-                    <IonButton
-                      onClick={() => handleViewItem(item)}
-                      className="btn-view"
-                    >
+                    <IonButton onClick={() => handleViewItem(item)} className="btn-view">
                       View Item
                     </IonButton>
                     <IonButton
@@ -272,12 +271,8 @@ const SavedMenuPage: React.FC = () => {
                 </div>
                 <div className="created-img">
                   {item.imageUrl && (
-                    <IonImg
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="menu-image"
-                    />
-                  )}{" "}
+                    <IonImg src={item.imageUrl} alt={item.name} className="menu-image" />
+                  )}
                 </div>
               </IonItem>
             ))}
@@ -295,8 +290,8 @@ const SavedMenuPage: React.FC = () => {
           <IonModal
             isOpen={!!viewingItem}
             onDidDismiss={() => setViewingItem(null)}
-            backdropDismiss={true}
-            showBackdrop={true} //  closing  modal by clicking outside
+            backdropDismiss
+            showBackdrop
           >
             <div className="item-modal view-mod">
               <IonButton
@@ -306,13 +301,9 @@ const SavedMenuPage: React.FC = () => {
               >
                 <IonIcon
                   icon={closeSharp}
-                  style={{
-                    color: "var(--ion-color-primary)",
-                    paddingLeft: "0",
-                  }}
+                  style={{ color: "var(--ion-color-primary)" }}
                 />
               </IonButton>
-
               <IonImg
                 className="save-view-img"
                 src={viewingItem?.imageUrl}
@@ -324,17 +315,17 @@ const SavedMenuPage: React.FC = () => {
                 <strong>
                   <span style={{ color: "#02382E" }}>Allergens: </span>
                 </strong>
-                {viewingItem?.allergens.map((allergen, index) => {
+                {viewingItem?.allergens.map((allergen, i) => {
                   const isUserAllergen = userAllergens.includes(
                     allergen.toLowerCase().trim()
                   );
                   return (
                     <span
-                      key={index}
+                      key={i}
                       style={{ color: isUserAllergen ? "red" : "black" }}
                     >
                       {allergen}
-                      {index < viewingItem.allergens.length - 1 ? ", " : ""}
+                      {i < viewingItem.allergens.length - 1 ? ", " : ""}
                     </span>
                   );
                 })}
@@ -345,11 +336,7 @@ const SavedMenuPage: React.FC = () => {
               </p>
               <div className="modal-btn-row-view">
                 <IonButton onClick={() => setEditingItem(viewingItem)}>
-                  <IonIcon
-                    slot="start"
-                    icon={createOutline}
-                    style={{ color: "white" }}
-                  />
+                  <IonIcon slot="start" icon={createOutline} />
                   Edit
                 </IonButton>
                 <IonButton
@@ -359,12 +346,7 @@ const SavedMenuPage: React.FC = () => {
                     setViewingItem(null);
                   }}
                 >
-                  {" "}
-                  <IonIcon
-                    slot="start"
-                    icon={trashSharp}
-                    style={{ color: "white" }}
-                  />
+                  <IonIcon slot="start" icon={trashSharp} />
                   Delete
                 </IonButton>
               </div>
