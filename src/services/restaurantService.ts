@@ -1,7 +1,8 @@
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import {MenuItem} from '../types/menu'
 
-export interface MenuItem {
+/* export interface MenuItem {
   id?: string;
   name: string;
   description: string;
@@ -10,7 +11,7 @@ export interface MenuItem {
   category: string;
   imageUrl?: string;
 }
-
+ */
 
 export interface MenuCategory {
   id: string;

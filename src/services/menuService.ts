@@ -1,16 +1,8 @@
 import { collection, getDocs, doc, addDoc, deleteDoc, query, where, updateDoc, setDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { MenuCategory } from './restaurantService';
+import {MenuItem} from '../types/menu'
 
-export interface MenuItem {
-  id?: string;
-  name: string;
-  description: string;
-  allergens: string[];
-  note?: string;
-  category: string;
-  imageUrl?: string;
-}
 
 export interface SavedMenu {
   restaurantName: string;
@@ -42,7 +34,6 @@ const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
 };
 
 
-// REVAL  - used in getRecommendations
 export const fetchMenuData = async (): Promise<{ savedMenus: SavedMenu[], createdMenus: SavedMenu[] }> => {
   const savedMenus: SavedMenu[] = [];
   const createdMenus: SavedMenu[] = [];
@@ -389,11 +380,11 @@ export const addMenuItemToSavedMenus = async (item: MenuItem, restaurantName: st
       return;
     }
 
-    // Add new item
+    // Add new item > AddDish
     const { id, ...itemWithoutId } = item;
     await addDoc(dishesRef, itemWithoutId);
   } else {
-    // Menu does not exist yet — create it
+    // Menu does not exist yet — create it > CreateMenu
     const restaurantQuery = query(
       collection(db, "restaurants"),
       where("name", "==", restaurantName)

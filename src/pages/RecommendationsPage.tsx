@@ -20,11 +20,8 @@ import {
   IonAccordionGroup,
   IonIcon,
 } from "@ionic/react";
-import {
-  addMenuItemToSavedMenus,
-  MenuItem,
-  fetchSavedMenus,
-} from "../services/menuService";
+import {addMenuItemToSavedMenus,fetchSavedMenus,} from "../services/menuService";
+import { MenuItem } from "../types/menu";
 import {
   fetchUserData,
   fetchRestaurantMenus,

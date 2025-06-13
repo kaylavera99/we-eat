@@ -1,26 +1,29 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { AllergenState } from "../types/user";
 
-export type AllergenState = Record<string, boolean>;
-
-// checkbox list (CreateAccount)
-export function useAllergensCheckbox(initial: AllergenState) {
+export function useAllergens(initial: AllergenState) {
   const [allergens, setAllergens] = useState<AllergenState>(initial);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setAllergens(prev => ({ ...prev, [name]: checked }));
-  };
+  const setAllergen = useCallback(
+    (key: keyof AllergenState, value: boolean) => {
+      setAllergens(prev => ({
+        ...prev,
+        [key]: value,
+      }));
+    },
+    []
+  );
 
-  return { allergens, handleChange, setAllergens };
-}
+  const toggleAllergen = useCallback((key: keyof AllergenState) => {
+    setAllergens(prev => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }, []);
 
-// toggle list (EditProfile)
-export function useAllergensToggle(initial: AllergenState) {
-  const [allergens, setAllergens] = useState<AllergenState>(initial);
+  const resetAllergens = useCallback((state: AllergenState) => {
+    setAllergens(state);
+  }, []);
 
-  const handleToggle = (key: string) => {
-    setAllergens(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  return { allergens, handleToggle, setAllergens };
+  return { allergens, setAllergen, toggleAllergen, resetAllergens };
 }

@@ -19,10 +19,10 @@ import {
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
 import {
-  MenuItem,
   updateMenuItemInCreatedMenus,
   deleteMenuItemFromCreatedMenus,
 } from "../services/menuService";
+import { MenuItem } from "../types/menu";
 import EditMenuItemModal from "../components/EditMenuItemModal";
 import AddMenuItemModal from "../components/AddMenuItemModal";
 import { doc, getDoc, getDocs, collection } from "firebase/firestore";

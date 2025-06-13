@@ -16,7 +16,7 @@ import {
   IonIcon,
 } from "@ionic/react";
 import { useParams, useHistory } from "react-router-dom";
-import { MenuItem } from "../services/menuService";
+import { MenuItem } from "../types/menu";
 import {
   doc,
   getDoc,
