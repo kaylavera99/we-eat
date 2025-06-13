@@ -1,24 +1,7 @@
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs} from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import {MenuItem} from '../types/menu'
+import {MenuItem, MenuCategory} from '../types/menu'
 
-/* export interface MenuItem {
-  id?: string;
-  name: string;
-  description: string;
-  allergens: string[] | string;
-  note?: string;
-  category: string;
-  imageUrl?: string;
-}
- */
-
-export interface MenuCategory {
-  id: string;
-  category: string;
-  items: MenuItem[];
-  index: number;
-}
 
 export const fetchFullMenuFromRestaurants = async (restaurantId: string): Promise<MenuCategory[]> => {
   const categories: MenuCategory[] = [];

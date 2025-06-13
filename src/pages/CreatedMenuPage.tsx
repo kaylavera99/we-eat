@@ -29,20 +29,10 @@ import { doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import "../styles/CreatedMenu..css";
 import { addOutline } from "ionicons/icons";
+import { PreferredLocation, UserData } from "../types/user";
 
-interface UserData {
-  allergens: { [key: string]: boolean };
-}
 
-interface PreferredLocation {
-  name: string;
-  address: string;
-  coordinates: {
-    latitude: number;
-    longitude: number;
-  };
-  photoUrl?: string;
-}
+
 
 const CreatedMenuPage: React.FC = () => {
   const { menuDocId } = useParams<{ menuDocId: string }>();

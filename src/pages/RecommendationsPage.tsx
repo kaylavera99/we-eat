@@ -21,25 +21,20 @@ import {
   IonIcon,
 } from "@ionic/react";
 import {addMenuItemToSavedMenus,fetchSavedMenus,} from "../services/menuService";
-import { MenuItem } from "../types/menu";
+import { MenuItem, MenuCategory, Restaurant} from "../types/menu";
 import {
   fetchUserData,
   fetchRestaurantMenus,
   filterAndRankRestaurants,
   fetchAllRestaurants,
   filterMenuItemsByAllergens,
-  Restaurant,
 } from "../services/recommendationService";
 import "../styles/RecommendationsPage.css";
 import { compassOutline, bookmarkOutline, close } from "ionicons/icons";
 import LazyImage from "../components/LazyLoading";
 import useScreenWidth from "../hooks/useScreenWidth";
+ 
 
-interface MenuCategory {
-  category: string;
-  items: MenuItem[];
-  index: number;
-}
 
 const truncateDescription = (
   description: string,
