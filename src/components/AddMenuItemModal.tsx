@@ -16,14 +16,14 @@ import {
 } from "@ionic/react";
 import { doc, collection, addDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
-import { MenuItem } from "../services/menuService";
+import { MenuItem } from "../types/menu";
 import { useImageUpload } from "../hooks/useImageUpload";
 import { uploadImage } from "../services/storageService";
 import "../styles/ModalStyles.css";
+import { DISH_PLACEHOLDER } from "../constants";
 
-const placeholderImage =
-  "https://firebasestorage.googleapis.com/v0/b/weeat-1a169.appspot.com/o/restaurants%2Fplaceholder%20(1).webp?alt=media&token=0754de15-1a71-4da8-9ad0-8e88fffc0875";
-
+const placeholderImage = DISH_PLACEHOLDER;
+ 
 interface AddMenuItemModalProps {
   isOpen: boolean;
   onClose: () => void;

@@ -1,6 +1,7 @@
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import { fetchSavedMenus, MenuItem } from './menuService';
+import { fetchSavedMenus } from './menuService';
+import {MenuItem} from '../types/menu'
 
 export interface MenuCategory {
   id: string;

@@ -4,7 +4,6 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
   IonToolbar,
   IonInput,
   IonItem,
@@ -25,6 +24,8 @@ import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/CreateAccountPage.css";
 import useCustomPadding from "../hooks/useCustomPadding";
 import { PROFILE_PLACEHOLDER } from "../constants";
+import { DEFAULT_ALLERGENS_STATE } from "../types/user";
+import {useAllergens} from '../hooks/useAllergens';
 
 
 const CreateAccountPage: React.FC = () => {
@@ -35,25 +36,15 @@ const CreateAccountPage: React.FC = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [address, setAddress] = useState("");
-  const [allergens, setAllergens] = useState<{ [key: string]: boolean }>({});
+  const {allergens,setAllergen} = useAllergens(DEFAULT_ALLERGENS_STATE);
 
   const [isLoading, setIsLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
-  const {file: profileFile, previewUrl: profilePreview, handleFileChange: handleProfileChange } = useImageUpload();
+  const {file: profileFile, previewUrl: profilePreview, handleFileChange: handleProfileChange } = useImageUpload(PROFILE_PLACEHOLDER);
   const history = useHistory();
-
-  const handleAllergenChange = (e: any) => {
-    const { name, checked } = e.target;
-    setAllergens((prev) => ({
-      ...prev,
-      [name]: checked,
-    }));
-  };
-
-
 
   const handleRegister = async () => {
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
@@ -83,7 +74,7 @@ const CreateAccountPage: React.FC = () => {
         password
       );
       const user = userCredential.user;
-      let profileImageUrl = "";
+      let profileImageUrl = PROFILE_PLACEHOLDER;
 
       if (profileFile) {
         
@@ -252,7 +243,7 @@ const CreateAccountPage: React.FC = () => {
                 name="wheat"
                 mode="ios"
                 checked={allergens.wheat || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("wheat", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Wheat</IonLabel>
             </div>
@@ -263,7 +254,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="dairy"
                 checked={allergens.dairy || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("dairy", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Dairy</IonLabel>
             </div>
@@ -274,7 +265,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="tree_nuts"
                 checked={allergens.tree_nuts || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("tree_nuts", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Tree Nuts</IonLabel>
             </div>
@@ -285,7 +276,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="shellfish"
                 checked={allergens.shellfish || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("shellfish", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Shellfish</IonLabel>
             </div>
@@ -296,7 +287,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="fish"
                 checked={allergens.fish || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("fish", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Fish</IonLabel>
             </div>
@@ -307,7 +298,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="soy"
                 checked={allergens.soy || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("soy", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Soy</IonLabel>
             </div>
@@ -318,7 +309,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="eggs"
                 checked={allergens.eggs || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("eggs", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Eggs</IonLabel>
             </div>
@@ -329,7 +320,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="peanuts"
                 checked={allergens.peanuts || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("peanuts", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Peanuts</IonLabel>
             </div>
@@ -340,7 +331,7 @@ const CreateAccountPage: React.FC = () => {
               <IonCheckbox
                 name="gluten"
                 checked={allergens.gluten || false}
-                onIonChange={handleAllergenChange}
+                onIonChange={e => setAllergen("gluten", e.detail.checked)}
               />
               <IonLabel style={{ marginLeft: "0.5rem" }}>Gluten</IonLabel>
             </div>

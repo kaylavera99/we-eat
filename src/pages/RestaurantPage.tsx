@@ -23,7 +23,6 @@ import { useParams } from "react-router-dom";
 import {
   fetchFullMenuFromRestaurants,
   MenuCategory,
-  MenuItem,
 } from "../services/restaurantService";
 import { addMenuItemToSavedMenus } from "../services/menuService";
 import {
@@ -37,6 +36,7 @@ import {
 import { db, auth } from "../firebaseConfig";
 import SearchBar from '../components/SearchBar';
 import { searchOutline } from "ionicons/icons";
+import {MenuItem} from '../types/menu';
 
 interface UserData {
   allergens: { [key: string]: boolean };
@@ -48,7 +48,7 @@ const RestaurantPage: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
-  const [filteredCategories, setFilteredCategories] = useState<MenuCategory[]>([]); //filteredCategories state
+  const [filteredCategories, setFilteredCategories] = useState<MenuCategory[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -117,7 +117,7 @@ const RestaurantPage: React.FC = () => {
   }, [restaurantId]);
 
   const handleAddToSavedMenu = async (item: MenuItem) => {
-    const convertedItem: import("../services/menuService").MenuItem = {
+    const convertedItem: import("../types/menu").MenuItem = {
       ...item,
       allergens: Array.isArray(item.allergens)
         ? item.allergens
@@ -160,7 +160,7 @@ const RestaurantPage: React.FC = () => {
 
 
   const handleSearchButtonClick = () => {
-    handleSearch(searchQuery); // Trigger search when button is clicked
+    handleSearch(searchQuery); // trigger search when button is clicked
   };
 
   const renderMenuItems = (items: MenuItem[]) => {

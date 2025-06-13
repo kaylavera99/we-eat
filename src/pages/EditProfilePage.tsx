@@ -22,98 +22,60 @@ import { uploadImage } from "../services/storageService";
 import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/EditProfilePage.css";
 import { personCircleSharp } from "ionicons/icons";
+import { useAllergens } from "../hooks/useAllergens";
+import { DEFAULT_ALLERGENS_STATE } from "../types/user";
 
-interface AllergenState {
-  eggs: boolean;
-  wheat: boolean;
-  dairy: boolean;
-  soy: boolean;
-  tree_nuts: boolean;
-  fish: boolean;
-  shellfish: boolean;
-  peanuts: boolean;
-  gluten: boolean;
-}
 
 const EditProfilePage: React.FC = () => {
-  const [allergens, setAllergens] = useState<AllergenState>({
-    eggs: false,
-    wheat: false,
-    dairy: false,
-    soy: false,
-    tree_nuts: false,
-    fish: false,
-    shellfish: false,
-    peanuts: false,
-    gluten: false,
-  });
   const { file: profileImage, previewUrl: profilePreview, handleFileChange} = useImageUpload();
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [address, setAddress] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const history = useHistory();
+  const { allergens, setAllergen } = useAllergens(DEFAULT_ALLERGENS_STATE);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      setIsLoading(true);
+    useEffect(() => {
+    (async () => {
+      if (!auth.currentUser) {
+        setLoading(false);
+        return;
+      }
       try {
-        if (auth.currentUser) {
-          const docRef = doc(db, "users", auth.currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const userData = docSnap.data();
-            const allergenData = userData.allergens || {};
-            setAllergens({
-              eggs: Boolean(allergenData.eggs),
-              wheat: Boolean(allergenData.wheat),
-              dairy: Boolean(allergenData.dairy),
-              soy: Boolean(allergenData.soy),
-              tree_nuts: Boolean(allergenData.tree_nuts),
-              fish: Boolean(allergenData.fish),
-              shellfish: Boolean(allergenData.shellfish),
-              peanuts: Boolean(allergenData.peanuts),
-              gluten: Boolean(allergenData.gluten),
+        const ref = doc(db, "users", auth.currentUser.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          setFirstName(data.firstName || "");
+          setLastName(data.lastName || "");
+          setAddress(data.address || "");
+          setProfileImageUrl(data.profileImageUrl || null);
+
+          if (data.allergens) {
+            (Object.entries(data.allergens) as Array<
+              [keyof typeof DEFAULT_ALLERGENS_STATE, any]
+            >).forEach(([k, v]) => {
+              setAllergen(k, Boolean(v));
             });
-            setProfileImageUrl(userData.profileImageUrl);
-            setFirstName(userData.firstName || "");
-            setLastName(userData.lastName || "");
-            setAddress(userData.address || "");
           }
         }
-        setIsLoading(false);
-      } catch (error: any) {
-        setIsLoading(false);
-        setToastMessage(error.message);
+      } catch (e: any) {
+        console.error(e);
+        setToastMessage(e.message);
         setShowToast(true);
       }
-    };
+      setLoading(false);
+    })();
+  }, [setAllergen]);
 
-    fetchUserData();
-  }, []);
 
-  const handleAllergenChange = (allergen: keyof AllergenState) => {
-    setAllergens((prevAllergens) => ({
-      ...prevAllergens,
-      [allergen]: !prevAllergens[allergen],
-    }));
-  };
 
-/*   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setProfileImage(file);
-
-      const localImageUrl = URL.createObjectURL(file);
-      setProfileImageUrl(localImageUrl);
-    }
-  }; */
 
   const handleSave = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       if (auth.currentUser) {
         let updatedProfileImageUrl = profileImageUrl;
@@ -122,34 +84,21 @@ const EditProfilePage: React.FC = () => {
           updatedProfileImageUrl = await uploadImage(profileImage, `profilePictures/${auth.currentUser.uid}/profile-jpg`)
 
         }
-
-        const updatedAllergens = {
-          eggs: Boolean(allergens.eggs),
-          wheat: Boolean(allergens.wheat),
-          dairy: Boolean(allergens.dairy),
-          soy: Boolean(allergens.soy),
-          tree_nuts: Boolean(allergens.tree_nuts),
-          fish: Boolean(allergens.fish),
-          shellfish: Boolean(allergens.shellfish),
-          peanuts: Boolean(allergens.peanuts),
-          gluten: Boolean(allergens.gluten),
-        };
-
         await updateDoc(doc(db, "users", auth.currentUser.uid), {
           firstName,
           lastName,
           address,
-          allergens: updatedAllergens,
+          allergens,
           profileImageUrl: updatedProfileImageUrl,
         });
 
-        setIsLoading(false);
+        setLoading(false);
         setToastMessage("Profile updated successfully!");
         setShowToast(true);
         history.push("/profile");
       }
     } catch (error: any) {
-      setIsLoading(false);
+      setLoading(false);
       setToastMessage(error.message);
       setShowToast(true);
     }
@@ -233,85 +182,23 @@ const EditProfilePage: React.FC = () => {
           />
         </IonItem>
         <h3>Allergens</h3>
-        <div className="allergens-content-profile">
-          <IonItem lines="none">
+        {(
+          Object.keys(DEFAULT_ALLERGENS_STATE) as Array<keyof typeof DEFAULT_ALLERGENS_STATE>
+        ).map((key) => (
+          <IonItem lines="none" key={key}>
             <IonCheckbox
               slot="start"
-              checked={allergens.eggs}
-              onIonChange={() => handleAllergenChange("eggs")}
+              checked={allergens[key]}
+              onIonChange={e => setAllergen(key, e.detail.checked)}
             />
-            <IonLabel className="input-field-profile">Eggs</IonLabel>
+            <IonLabel>{key.replace("_", " ")}</IonLabel>
           </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.gluten}
-              onIonChange={() => handleAllergenChange("gluten")}
-            />
-            <IonLabel className="input-field-profile">Gluten</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.wheat}
-              onIonChange={() => handleAllergenChange("wheat")}
-            />
-            <IonLabel className="input-field-profile">Wheat</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.dairy}
-              onIonChange={() => handleAllergenChange("dairy")}
-            />
-            <IonLabel className="input-field-profile">Dairy</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.soy}
-              onIonChange={() => handleAllergenChange("soy")}
-            />
-            <IonLabel className="input-field-profile">Soy</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.tree_nuts}
-              onIonChange={() => handleAllergenChange("tree_nuts")}
-            />
-            <IonLabel className="input-field-profile">Tree Nuts</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.fish}
-              onIonChange={() => handleAllergenChange("fish")}
-            />
-            <IonLabel className="input-field-profile">Fish</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              slot="start"
-              checked={allergens.shellfish}
-              onIonChange={() => handleAllergenChange("shellfish")}
-            />
-            <IonLabel className="input-field-profile">Shellfish</IonLabel>
-          </IonItem>
-          <IonItem lines="none">
-            <IonCheckbox
-              mode="ios"
-              slot="start"
-              checked={allergens.peanuts}
-              onIonChange={() => handleAllergenChange("peanuts")}
-            />
-            <IonLabel className="input-field-profile">Peanuts</IonLabel>
-          </IonItem>
-        </div>
+        ))}
+        
         <IonButton expand="full" className="save-edit" onClick={handleSave}>
           Save
         </IonButton>
-        <IonLoading isOpen={isLoading} message="Saving profile..." />
+        <IonLoading isOpen={loading} message="Saving profile..." />
         <IonToast
           isOpen={showToast}
           onDidDismiss={() => setShowToast(false)}

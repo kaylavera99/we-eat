@@ -11,11 +11,12 @@ import {
   IonTextarea,
 } from "@ionic/react";
 import {
-  MenuItem,
+  
   updateNotesInSavedMenus,
   updateNotesInCreatedMenus,
 } from "../services/menuService";
 import "../styles/ModalStyles.css";
+import {MenuItem} from '../types/menu';
 
 interface EditNotesModalProps {
   isOpen: boolean;

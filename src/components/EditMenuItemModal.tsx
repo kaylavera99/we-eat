@@ -19,7 +19,7 @@ import {
 
 } from "firebase/firestore";
 import { db, auth } from "../firebaseConfig";
-import { MenuItem } from "../services/menuService";
+import { MenuItem } from "../types/menu";
 import {uploadImage } from "../services/storageService";
 import { useImageUpload } from "../hooks/useImageUpload";
 import "../styles/ModalStyles.css";
