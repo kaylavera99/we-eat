@@ -7,8 +7,8 @@ WeEat is a web application designed to help users create, save, and discover res
 - [Overview](#overview)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Service Layer Design]((https://github.com/kaylavera99/we-eat/blob/main/design/services/Re-Design_%20Service%20Layer%20Design_Duffy.pdf))
-- [Database Design]((https://github.com/kaylavera99/we-eat/blob/main/design/services/Re-Design_%20Database%20Design_Duffy.pdf))
+- [Service Layer Design](design/services/Re-Design_ Service Layer Design_Duffy.pdf)
+- [Database Design](design/services/Re-Design_ Database Design_Duffy.pdf)
 
 
 ## Overview
