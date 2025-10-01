@@ -17,7 +17,10 @@ import {
   IonSegment,
   IonSegmentButton,
   IonLabel,
-  IonIcon
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol
 } from "@ionic/react";
 import { useParams } from "react-router-dom";
 import {fetchFullMenuFromRestaurants} from "../services/restaurantService";

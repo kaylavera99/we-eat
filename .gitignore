@@ -16,13 +16,11 @@ routes/
 /dist
 
 src/firebaseConfig.ts
-.firebaserc
 
-src/services/googlePlacesService.ts
-src/services/geocodingService.ts
+
+
 proxy-server.cjs
-
-
+routes\weeat-1a169-firebase-adminsdk-h7v29-a6434e1825.json
 # misc
 .DS_Store
 .env.local
@@ -33,16 +31,30 @@ proxy-server.cjs
 /.nx/cache
 /.vscode/*
 !/.vscode/extensions.json
-.idea
+setupTests.ts
 
+.eslintrc.cjs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 google-places-proxy/
 
-google-places-proxy
-routes/weeat-1a169-firebase-adminsdk-h7v29-a6434e1825.json
-# Optional eslint cache
+public/manifest.json
+
+*/node_modules
 .eslintcache
 
 weeat-release-key.jks
+.vscode
+.vs
+.firebase
+*.log
+.log
+
+*.jks
+
+cypress/
+
+ionic.config.json
+.env
+
