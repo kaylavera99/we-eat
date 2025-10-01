@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "weeat-1a169",
     "public": "dist",
     "ignore": [
       "firebase.json",

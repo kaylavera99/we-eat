@@ -11,11 +11,7 @@ export interface SavedMenu {
   thumbnailUrl?: string;
 }
 
-/* export interface  {
-  name: string;
-  email: string;
-  allergens: { [key: string]: boolean };
-} */
+
 // Used in fetchMenuData, fetchSavedMenus
 const fetchMenuItems = async (menuDocRef: any): Promise<MenuItem[]> => {
   const dishesSnapshot = await getDocs(collection(menuDocRef, 'dishes'));
