@@ -44,6 +44,7 @@ public/manifest.json
 */node_modules
 .eslintcache
 
+paths-to-purge.txt
 
 .vscode
 .vs
