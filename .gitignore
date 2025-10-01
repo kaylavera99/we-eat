@@ -20,7 +20,7 @@ src/firebaseConfig.ts
 
 
 proxy-server.cjs
-routes\weeat-1a169-firebase-adminsdk-h7v29-a6434e1825.json
+routes/*.json
 # misc
 .DS_Store
 .env.local
@@ -44,7 +44,7 @@ public/manifest.json
 */node_modules
 .eslintcache
 
-weeat-release-key.jks
+
 .vscode
 .vs
 .firebase
