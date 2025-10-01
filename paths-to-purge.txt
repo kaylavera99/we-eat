@@ -1,0 +1,6 @@
+.env
+proxy-server.cjs
+weeat-release-key.jks
+routes/**
+google-places-proxy/.env
+dist/*firebase-adminsdk-*.json
