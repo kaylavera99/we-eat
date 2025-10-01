@@ -1,15 +1,15 @@
-// src/services/searchService.ts
+
 import axios from 'axios';
 import { collection, getDocs, doc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 
 const FORCE_HEROKU = true;
 
-// Never put a trailing slash at the end of these bases.
+
 const HEROKU_BASE = 'https://proxy-server-we-eat-e24e32c11d10.herokuapp.com';
 const LOCAL_BASE  = 'http://localhost:3000';
 
-// Decide which base to use
+//  base to use - local or live
 const PROXY_BASE =
   FORCE_HEROKU
     ? HEROKU_BASE
@@ -17,11 +17,11 @@ const PROXY_BASE =
         ? LOCAL_BASE
         : HEROKU_BASE);
 
-// Clean join to avoid double slashes
+//  join to avoid double slashes
 const join = (base: string, path: string) =>
   `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
 
-export const PROXY = PROXY_BASE; // exported if you use it elsewhere
+export const PROXY = PROXY_BASE; 
 
 const cache: Record<string, any[]> = {};
 
