@@ -68,9 +68,10 @@
 
 
 .menu-list {
-  display:flex!important;
+/*  display:flex!important;
   flex-direction: column;
-  background-color:transparent!important;
+  background-color:transparent!important;*/
+  gap:1rem;
 }
 
 

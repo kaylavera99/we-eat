@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+import { isPlatform } from "@ionic/react";
 import {
   IonContent,
   IonHeader,
@@ -26,6 +27,7 @@ import useCustomPadding from "../hooks/useCustomPadding";
 import { PROFILE_PLACEHOLDER } from "../constants";
 import { DEFAULT_ALLERGENS_STATE } from "../types/user";
 import {useAllergens} from '../hooks/useAllergens';
+import { usePhotoPicker } from "../hooks/usePhotoPicker";
 
 
 const CreateAccountPage: React.FC = () => {
@@ -44,6 +46,7 @@ const CreateAccountPage: React.FC = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
   const {file: profileFile, previewUrl: profilePreview, handleFileChange: handleProfileChange } = useImageUpload(PROFILE_PLACEHOLDER);
+  const { preview, file, pick} = usePhotoPicker();
   const history = useHistory();
 
   const handleRegister = async () => {
@@ -190,41 +193,56 @@ const CreateAccountPage: React.FC = () => {
         <IonLabel position="stacked">Profile Picture</IonLabel>
 
         <IonItem
-          lines="none"
-          className="flex-item"
-          style={{ display: "flex", flexDirection: "column" }}
-        >
-          <div className="flex-column">
-            <div className="image-wrapper">
-              
-                <IonAvatar className = "profile-picture"   style={{
-                    width: "250px",
-                    height: "250px",
-                    objectFit: "cover",
-                  }}>
+  lines="none"
+  className="flex-item"
+  style={{ display: "flex", flexDirection: "column" }}
+>
+  <div className="flex-column">
+    <div className="image-wrapper">
+      <IonAvatar
+        className="profile-picture"
+        style={{
+          width: "250px",
+          height: "250px",
+          objectFit: "cover",
+        }}
+      >
+        <IonImg
+          src={profilePreview || PROFILE_PLACEHOLDER}
+          alt="Profile Picture"
+        />
+      </IonAvatar>
+    </div>
 
-                
-                <IonImg src={profilePreview || PROFILE_PLACEHOLDER} alt="Profile Picture" />
-                </IonAvatar>
-              
-            </div>
-            <div className="upload-wrapper">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProfileChange}
-                className="input-btn"
-                id="fileInput"
-              />
-              <IonButton
-                onClick={() => document.getElementById("fileInput")?.click()}
-                className="custom-upload-btn"
-              >
-                Choose File
-              </IonButton>
-            </div>
-          </div>
-        </IonItem>
+    <div className="upload-wrapper">
+      {isPlatform('hybrid') ? (
+        // on device: trigger Capacitor Camera prompt
+        <IonButton onClick={pick}>
+          {preview ? 'Change Photo' : 'Choose Photo'}
+        </IonButton>
+      ) : (
+        // in web: trigger hidden file input
+        <>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleProfileChange}
+            className="input-btn"
+            id="fileInput"
+            style={{ display: 'none' }}
+          />
+          <IonButton
+            onClick={() => document.getElementById("fileInput")?.click()}
+            className="custom-upload-btn"
+          >
+            {profilePreview ? 'Change Photo' : 'Choose File'}
+          </IonButton>
+        </>
+      )}
+    </div>
+  </div>
+</IonItem>
+
 
         <h3>Allergens</h3>
 
