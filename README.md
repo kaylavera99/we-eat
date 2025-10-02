@@ -5,14 +5,16 @@ WeEat is a web application designed to help users create, save, and discover res
 
 ## Overview
 WeEat is designed to provide a personalized dining experience. Finding a place to eat is hard when you have allergies or dietary restrictions. WeEat makes it quick to search nearby, flag potential risks and build a list of safe go-tos. Users can create their own menus, save their favorite dishes, search for restaurants, and view personalized menus tailored to their food allergies or food sensitivities. 
+
 [Try WeEat Live](https://we-eat.app/login)
 
 ## How It Works
-<img width="1999" height="1414" alt="download" src="https://github.com/user-attachments/assets/352e326e-7a4e-4d56-896a-c4239e72ab55" />
 - The app calls a small proxy server for /proxy and /photo
 - The proxy injects the Google Places API key server-side and returns results and photos.
 - Users sign in with Firebase; saved and created menus are stored in Firestore
 - Caching and simple Haversine distance sorting keeps results quick.
+<img width="1999" height="1414" alt="download" src="https://github.com/user-attachments/assets/352e326e-7a4e-4d56-896a-c4239e72ab55" />
+
 
 ## Highlights
 - Nearby search by keyword + radius, sorted by actual distance
