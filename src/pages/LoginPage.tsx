@@ -79,17 +79,8 @@ const LoginPage: React.FC = () => {
                 <IonInputPasswordToggle slot="end"></IonInputPasswordToggle>
               </IonInput>
             </IonItem>
-            <IonRow style={{ justifyContent: "flex-end" }}>
-              <IonText
-                className="forgot-password-link"
-                onClick={() => {
-                  console.log("Navigating to Password Reset");
-                  history.push("/password-reset");
-                }}
-              >
-                Forgot Password?
-              </IonText>
-            </IonRow>
+
+            <div className = "login-actions">
             <IonButton
               className=" tert-btn"
               style={{ "--background": "var(--ion-color-secondary)" }}
@@ -110,6 +101,19 @@ const LoginPage: React.FC = () => {
             >
               Create Account
             </IonButton>
+              
+            </div>
+            <IonRow style={{ justifyContent: "flex-end" }}>
+              <IonText
+                className="forgot-password-link"
+                onClick={() => {
+                  console.log("Navigating to Password Reset");
+                  history.push("/password-reset");
+                }}
+              >
+                Forgot Password?
+              </IonText>
+            </IonRow>
           </form>
 
           <IonToast

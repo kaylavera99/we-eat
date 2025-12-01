@@ -73,7 +73,7 @@ http://ionicframework.com/docs/theming/ */
 	--ion-color-dark-contrast: #ffffff;
 	--ion-color-dark-contrast-rgb: 255,255,255;
 	--ion-color-dark-shade: #292929;
-	--ion-color-dark-tint: #444444;
+	--ion-color-dark-tint: #202729;
     --font-family-primary: 'Urbanist', sans-serif!important;
     --font-family-secondary: 'Nunito Sans', sans-serif!important;
 
@@ -83,6 +83,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-toolbar-background: #02382E; 
     --ion-toolbar-height: 56px!important;
     --ion-color-primary: #02382E;
+
   --ion-tab-bar-background-color: #02382E!important; 
   --ion-tab-bar-color: #FFFFFF;
   --ion-tab-bar-selected-color: var(--ion-color-secondary); 

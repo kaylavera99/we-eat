@@ -1,6 +1,6 @@
 .login-item {
     --background: #f2efef;
-    margin-bottom:10px;
+    margin-bottom:20px;
     border-radius:10px;
 
 }
@@ -33,14 +33,16 @@ h2 {
 
 .login-lbl {
     font-weight:600;
-    font-size:16px!important;
+    font-size:18px!important;
     color:white;
+    padding-bottom:10px;
 }
 
 .login-logo {
     height:100px!important;
     display: block;
     margin: 0 auto 20px;
+    margin-bottom:20px;
 }
 
 
@@ -48,7 +50,46 @@ h2 {
     color:white!important;
     text-decoration: underline;
     justify-content:flex-end!important;
-    font-weight:500;
-    font-size:12px;
+    font-weight: 300!important;
+    font-size:15px;
     cursor:pointer;
+    padding-top: 40px!important;
 }
+
+
+.login-form-container {
+    padding-top: 30px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.login-form-container form {
+    padding-top: 35px;
+}
+
+.login-actions {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+
+}
+
+@media (min-width: 768px) {
+    .login-actions {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .login-actions ion-button {
+        height: 46px;
+        --border-radius: 8px;
+        margin:0;
+        padding-top: 24px;
+    }
+
+    .forgot-password-link {
+        font-size: 17px;
+        font-weight: 600;
+        padding-top: 24px;
+    }
+}
+
