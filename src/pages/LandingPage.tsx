@@ -27,7 +27,7 @@ const LandingPage: React.FC = () => {
                             </div>
                             <div className = "hero-right">
                                 <img
-                                    className = "hero-phone" src = "/public/assets/homepage.png" alt = "WeEat app preview">
+                                    className = "hero-phone" src = "/assets/homepage.png" alt = "WeEat app preview">
                                 
                                 </img>
                             </div>
@@ -45,7 +45,7 @@ const LandingPage: React.FC = () => {
                             <div className = "about-left">
                                 
                                 <img
-                                    className = "about-image" src = "/public/assets/about-img.png" alt = "About WeEat">
+                                    className = "about-image" src = "/assets/about-img.png" alt = "About WeEat">
                                 </img>
                             </div>
                             <div className = "about-right">
