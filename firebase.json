@@ -23,13 +23,7 @@
         "source": "**",
         "destination": "/index.html"
       }
-    ],
-    "redirects": [
-      {
-        "source": "/",
-        "destination": "/",
-        "type": 301
-      }
     ]
+
   }
 }
