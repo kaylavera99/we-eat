@@ -13,7 +13,7 @@ const LandingPage: React.FC = () => {
                         <div className = "hero-grid">
                             <div className = "hero-left">
                                 <img
-                                    src = "../src/assets/WeEat_logo_transparent.webp" alt = "Landing" className = "hero-logo">
+                                    src = "/assets/WeEat_logo_transparent.webp" alt = "Landing" className = "hero-logo">
                                 
                                 </img>
                                 <h1 className = "hero-title">Allergen-aware restaurant menus, saved your way</h1>
@@ -27,7 +27,7 @@ const LandingPage: React.FC = () => {
                             </div>
                             <div className = "hero-right">
                                 <img
-                                    className = "hero-phone" src = "../src/assets/homepage.png" alt = "WeEat app preview">
+                                    className = "hero-phone" src = "/public/assets/homepage.png" alt = "WeEat app preview">
                                 
                                 </img>
                             </div>
@@ -45,7 +45,7 @@ const LandingPage: React.FC = () => {
                             <div className = "about-left">
                                 
                                 <img
-                                    className = "about-image" src = "../src/assets/about-img.png" alt = "About WeEat">
+                                    className = "about-image" src = "/public/assets/about-img.png" alt = "About WeEat">
                                 </img>
                             </div>
                             <div className = "about-right">
