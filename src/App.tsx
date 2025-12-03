@@ -155,14 +155,20 @@ const AppContent: React.FC = () => {
       <IonTabs>
         <IonRouterOutlet id="main-content">
           <Switch>
-            <PrivateRoute path="/login" component={LoginPage} exact />
-            <Route path="/create-account" component={CreateAccountPage} exact />
+            <Route exact path="/">
+              <Redirect to="/home" /> 
+            </Route>
+            <Route exact path="/login">
+              <Redirect to="/home"/>
+            </Route>
+            <Route path="/create-account">
+              <Redirect to="/home"/>
+            </Route>
             <Route path="/password-reset" component={PasswordResetPage} exact />
             <PrivateRoute path="/home" component={HomePage} exact />
             <PrivateRoute path="/personalized-menu" component={PersonalizedMenuPage} exact />
             <PrivateRoute path="/create-menu" component={CreateMenuPage} exact />
             <PrivateRoute exact path="/add-dishes/:menuId" component={AddDishesPage} />
-            <PrivateRoute exact path="/personalized-menu" component={PersonalizedMenuPage} />
             <PrivateRoute path="/restaurants/:restaurantId/full" component={RestaurantPage} exact />
             <PrivateRoute path="/saved-menus/:savedMenuDocId" component={SavedMenuPage} exact />
             <PrivateRoute path="/created-menus/:menuDocId" component={CreatedMenuPage} exact />
@@ -170,10 +176,8 @@ const AppContent: React.FC = () => {
             <PrivateRoute path="/all-restaurants" component={AllRestaurantsPage} exact />
             <PrivateRoute path="/restaurant/:restaurantName/create" component={CreateMenuPage} />
             <PrivateRoute path="/edit-profile" component={EditProfilePage} exact />
-            <PrivateRoute path="/profile" component={UserProfilePage} exact />
             <PrivateRoute path="/recommendations" component={RecommendationsPage} exact />
-            {/* <Redirect exact from="/" to="/login" /> */}
-            <Route path="/" component={LandingPage} exact />
+            
             <PrivateRoute path="/profile">
               <ErrorBoundary>
                 <UserProfilePage />

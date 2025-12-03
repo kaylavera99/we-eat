@@ -5,7 +5,9 @@
 
 }
 
-
+.login-actions .ion-button {
+    border-radius: 20px!important;
+}
 
 .login-item .item-inner {
     height:55px!important;

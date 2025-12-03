@@ -127,6 +127,7 @@ const CreateAccountPage: React.FC = () => {
       </IonHeader>
       <IonContent id="createAccountContent" className="ion-padding">
         <h1 className="pageTitle">Account Registration</h1>
+        <div className = "form-shell">
         <IonLabel position="stacked">First Name</IonLabel>
 
         <IonItem lines="none" className="flex-column-item">
@@ -253,7 +254,7 @@ const CreateAccountPage: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 marginTop: "1rem",
-                marginBottom: "1rem",
+                
               }}
             >
               <IonCheckbox
@@ -357,7 +358,7 @@ const CreateAccountPage: React.FC = () => {
         </div>
 
         <div className="terms-container">
-          <h3>Terms & Conditions</h3>
+          <h3 className = "terms-title">Terms & Conditions</h3>
           <div className="terms-content">
             <p>
               <strong>WeEat </strong>provides allergen information sourced from
@@ -408,6 +409,7 @@ const CreateAccountPage: React.FC = () => {
           message={toastMessage}
           duration={2000}
         />
+        </div>
       </IonContent>
     </IonPage>
   );

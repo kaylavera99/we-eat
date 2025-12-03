@@ -83,7 +83,7 @@ const LoginPage: React.FC = () => {
             <div className = "login-actions">
             <IonButton
               className=" tert-btn"
-              style={{ "--background": "var(--ion-color-secondary)" }}
+              style={{ "--background": "var(--ion-color-secondary)", "--border-radius": "10px" }}
               expand="block"
               type="submit"
             >
@@ -92,7 +92,7 @@ const LoginPage: React.FC = () => {
             <IonButton
               className="tert-btn"
               expand="block"
-              style={{ "--background": "var(--ion-color-tertiary-shade" }}
+              style={{ "--background": "var(--ion-color-tertiary-shade", "--border-radius": "10px" }}
               fill="default"
               onClick={() => {
                 console.log("Create account button clicked");

@@ -189,6 +189,8 @@ ion-content {
 .button {
     color:white!important;
 }
+
+
   @media (max-width: 768px) {
     .app-logo {
       height: 45px;
