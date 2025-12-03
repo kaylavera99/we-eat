@@ -27,7 +27,7 @@
     "redirects": [
       {
         "source": "/",
-        "destination": "/login",
+        "destination": "/",
         "type": 301
       }
     ]
