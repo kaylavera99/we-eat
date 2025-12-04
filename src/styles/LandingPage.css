@@ -230,7 +230,6 @@ ion-button.landing-page-btn {
 .how-3-container ion-icon {
     width: 55px;
     height: 55px;
-    margin-top: 35px;
     color: var(--ion-color-tertiary) !important;
 }
 
@@ -398,9 +397,19 @@ ion-button.landing-page-btn {
 
 @media (max-width: 768px) {
     .hero-grid {
-        grid-template-columns: 1fr;
-        gap: 28px;
         text-align: center;
+        display:flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .hero-left {
+        justify-content:center;
+
+    }
+
+    .hero-subtitle {
+        max-width: 100%;
     }
 
     .hero-cta {
@@ -420,11 +429,18 @@ ion-button.landing-page-btn {
         align-items: center;
     }
 
+    .about-image {
+        width: min(400px, 100%);
+    }
+
 
 
 
     .about-grid {
         gap: 10px;
+        display:flex;
+        flex-direction:column;
+        text-align: center;
     }
 
     .how-3-container {
