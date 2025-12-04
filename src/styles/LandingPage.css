@@ -404,8 +404,13 @@ ion-button.landing-page-btn {
     }
 
     .hero-left {
-        justify-content:center;
+        padding-left:0px;
+        text-align:center!important;
 
+    }
+
+    .h1 {
+        text-align:center!important;
     }
 
     .hero-subtitle {
@@ -414,6 +419,8 @@ ion-button.landing-page-btn {
 
     .hero-cta {
         justify-content: center;
+        padding-left: 20px;
+        padding-right:20px;
     }
 
     .hero-phone {
@@ -466,6 +473,7 @@ ion-button.landing-page-btn {
 
     .hero-title {
         font-size: 30px;
+        text-align:center!important;
 
     }
 
