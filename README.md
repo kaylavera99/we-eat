@@ -6,7 +6,7 @@ WeEat is a web application designed to help users create, save, and discover res
 ## Overview
 WeEat is designed to provide a personalized dining experience. Finding a place to eat is hard when you have allergies or dietary restrictions. WeEat makes it quick to search nearby, flag potential risks and build a list of safe go-tos. Users can create their own menus, save their favorite dishes, search for restaurants, and view personalized menus tailored to their food allergies or food sensitivities. 
 
-[Try WeEat Live](https://we-eat.app/login)
+[Try WeEat Live](https://we-eat.app)
 
 ## How It Works
 - The app calls a small proxy server for /proxy and /photo
