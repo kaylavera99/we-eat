@@ -203,6 +203,7 @@ const HomePage: React.FC = () => {
                   <IonIcon icon={person} />
                 </IonFabButton>
               </div>
+              <div className = "desktop-nav-menu">
               <IonItem className="search-box" style={{ borderRadius: "20px" }}>
                 <IonInput
                   placeholder="Search"
@@ -245,7 +246,7 @@ const HomePage: React.FC = () => {
                 >
                   Your Menus
                 </IonButton>
-              </div>
+              </div></div>
             </div>
             <div className="car-header">
               <h2>All Restaurants</h2>

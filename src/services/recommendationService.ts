@@ -6,7 +6,7 @@ import {UserData} from '../types/user'
 import { Restaurant } from '../types/menu';
 
 
-
+const menuCache = new Map<string, MenuCategory[]>();
 
 
 export const fetchUserData = async (): Promise<string[]> => {
@@ -40,6 +40,10 @@ export const fetchAllRestaurants = async (): Promise<{ id: string; name: string;
 };
 
 export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Promise<MenuCategory[]> => {
+  const cached = menuCache.get(restaurantId);
+  if (cached) {
+    return cached;
+  }
   const categories: MenuCategory[] = [];
   const restaurantDocRef = doc(db, 'restaurants', restaurantId);
   const menuCollectionRef = collection(restaurantDocRef, 'menu');
@@ -71,6 +75,8 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
         index: categoryData.index
       });
     }
+    menuCache.set(restaurantId, categories);
+
   } else {
     console.log("No menu found for restaurant:", restaurantId);
   }
@@ -78,20 +84,16 @@ export const fetchFullMenuFromRestaurantById = async (restaurantId: string): Pro
   return categories;
 };
 
-export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [key: string]: Restaurant }> => {
-  const menus: { [key: string]: Restaurant } = {};
-  for (const id of restaurantIds) {
-    const categories: MenuCategory[] = [];
+
+export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<Record<string, Restaurant>> => {
+  const entries = await Promise.all(restaurantIds.map(async (id) => {
     const restaurantDocRef = doc(db, 'restaurants', id);
     const menuCollectionRef = collection(restaurantDocRef, 'menu');
     const menuSnapshot = await getDocs(menuCollectionRef);
-
-    if (!menuSnapshot.empty) {
-      for (const categoryDoc of menuSnapshot.docs) {
+    const categories: MenuCategory[] = await Promise.all(
+      menuSnapshot.docs.map(async (categoryDoc) => {
         const categoryData = categoryDoc.data();
-        const itemsCollectionRef = collection(categoryDoc.ref, 'items');
-        const itemsSnapshot = await getDocs(itemsCollectionRef);
-
+        const itemsSnapshot = await getDocs(collection(categoryDoc.ref, 'items'));
         const items: MenuItem[] = itemsSnapshot.docs.map(itemDoc => {
           const itemData = itemDoc.data();
           return {
@@ -104,22 +106,19 @@ export const fetchRestaurantMenus = async (restaurantIds: string[]): Promise<{ [
             imageUrl: itemData.imageUrl
           };
         });
-
-        categories.push({
+        return {
           id: categoryDoc.id,
           category: categoryData.category,
           items,
           index: categoryData.index
-        });
-      }
-    } else {
-      console.log("No menu found for restaurant:", id);
-    }
-
-    menus[id] = { id, name: '', menu: categories, thumbnailUrl: '' };
-  }
-  return menus;
+        };
+      })
+    );
+    return [id, { id, name: '', thumbnailUrl: '' , menu: categories}] as const;
+  }));
+  return Object.fromEntries(entries);
 };
+
 
 export const filterAndRankRestaurants = (
   restaurants: { id: string; name: string; thumbnailUrl: string; }[],
