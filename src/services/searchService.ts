@@ -1,27 +1,8 @@
 
 import axios from 'axios';
-import { collection, getDocs, doc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
-
-const FORCE_HEROKU = true;
+import {apiUrl, API_BASE} from './api';
 
 
-const HEROKU_BASE = 'https://proxy-server-we-eat-e24e32c11d10.herokuapp.com';
-const LOCAL_BASE  = 'http://localhost:3000';
-
-//  base to use - local or live
-const PROXY_BASE =
-  FORCE_HEROKU
-    ? HEROKU_BASE
-    : (typeof window !== 'undefined' && window.location.hostname === 'localhost'
-        ? LOCAL_BASE
-        : HEROKU_BASE);
-
-//  join to avoid double slashes
-const join = (base: string, path: string) =>
-  `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
-
-export const PROXY = PROXY_BASE; 
 
 const cache: Record<string, any[]> = {};
 
@@ -60,7 +41,9 @@ export const searchRestaurants = async (
       type: 'restaurant',
       fields: 'name,geometry,icon,photos,vicinity',
     };
-    const { data } = await axios.get(`${PROXY}/proxy`, { params });
+    console.log("API_BASE", API_BASE);
+    console.log("proxyUrl", apiUrl('/proxy'));
+    const { data } = await axios.get(apiUrl('/proxy'), { params });
     allResults = data.results || [];
     console.log(`[PROXY] returned ${allResults.length} results for "${keyword}"`);
   } catch (err) {
@@ -83,10 +66,11 @@ export const searchRestaurants = async (
         name: r.name,
         vicinity: r.vicinity || r.formatted_address || '',
         geometry: r.geometry,
+        placeId: r.place_id,
         distance: dist,
         icon: r.icon,
         photoReference: ref,
-        photoUrl: ref ? `${PROXY}/photo?photoreference=${ref}&maxwidth=400` : ''
+        photoUrl: ref ? apiUrl(`/photo?photoreference=${ref}&maxwidth=400`) : ""
       };
     })
     .filter(item => !isNaN(item.distance) && item.distance <= radius + 1)

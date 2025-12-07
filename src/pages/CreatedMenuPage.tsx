@@ -31,20 +31,27 @@ import "../styles/CreatedMenu..css";
 import { addOutline } from "ionicons/icons";
 import { PreferredLocation, UserData } from "../types/user";
 
-
-
-
 const CreatedMenuPage: React.FC = () => {
   const { menuDocId } = useParams<{ menuDocId: string }>();
+
   const [restaurantName, setRestaurantName] = useState<string>("");
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
+
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+
   const [userAllergens, setUserAllergens] = useState<string[]>([]);
-  const [preferredLocation, setPreferredLocation] = useState<PreferredLocation | null>(null);
+  const [preferredLocation, setPreferredLocation] =
+    useState<PreferredLocation | null>(null);
+
+  const [bannerUrl, setBannerUrl] = useState<string>("");
+
   const [showAddMenuItemModal, setShowAddMenuItemModal] = useState(false);
-  const [showPopover, setShowPopover] = useState({ isOpen: false, event: undefined as Event | undefined });
+  const [showPopover, setShowPopover] = useState<{
+    isOpen: boolean;
+    event: Event | undefined;
+  }>({ isOpen: false, event: undefined });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,14 +59,24 @@ const CreatedMenuPage: React.FC = () => {
         const userId = auth.currentUser?.uid;
         if (!userId) return;
 
+
         const menuDocRef = doc(db, "users", userId, "createdMenus", menuDocId);
         const menuDocSnap = await getDoc(menuDocRef);
 
+        let rn = "";
         if (menuDocSnap.exists()) {
           const data = menuDocSnap.data();
-          setRestaurantName(data.restaurantName);
+
+          rn = data.restaurantName || "";
+          setRestaurantName(rn);
+
+
+          setBannerUrl(data.thumbnailUrl || data.photoUrl || "");
+
           const dishesSnap = await getDocs(collection(menuDocRef, "dishes"));
-          const dishes: MenuItem[] = dishesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as MenuItem));
+          const dishes: MenuItem[] = dishesSnap.docs.map(
+            (d) => ({ id: d.id, ...d.data() } as MenuItem)
+          );
           setMenuItems(dishes);
         }
 
@@ -73,25 +90,32 @@ const CreatedMenuPage: React.FC = () => {
           setUserAllergens(allergens);
         }
 
-        const preferredLocationsSnap = await getDocs(collection(userDocRef, "preferredLocations"));
-        preferredLocationsSnap.forEach((doc) => {
-          const data = doc.data() as PreferredLocation;
-          if (data.name === restaurantName) {
-            setPreferredLocation(data);
-          }
+
+        const preferredLocationsSnap = await getDocs(
+          collection(userDocRef, "preferredLocations")
+        );
+
+        preferredLocationsSnap.forEach((d) => {
+          const pl = d.data() as PreferredLocation;
+          if (pl.name === rn) setPreferredLocation(pl);
         });
+
       } catch (error) {
         setToastMessage(`Error: ${(error as Error).message}`);
         setShowToast(true);
       }
     };
+
+
     fetchData();
-  }, [menuDocId, restaurantName]);
+  }, [menuDocId]);
 
   const handleSaveItem = async (updatedItem: MenuItem) => {
     try {
       await updateMenuItemInCreatedMenus(updatedItem, menuDocId, updatedItem.id!);
-      setMenuItems(menuItems.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+      setMenuItems((prev) =>
+        prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+      );
       setToastMessage("Item updated successfully!");
       setShowToast(true);
       setEditingItem(null);
@@ -104,7 +128,7 @@ const CreatedMenuPage: React.FC = () => {
   const handleDeleteItem = async (itemId: string) => {
     try {
       await deleteMenuItemFromCreatedMenus(itemId, menuDocId);
-      setMenuItems(menuItems.filter((item) => item.id !== itemId));
+      setMenuItems((prev) => prev.filter((item) => item.id !== itemId));
       setToastMessage("Item deleted successfully!");
       setShowToast(true);
     } catch (error) {
@@ -113,12 +137,12 @@ const CreatedMenuPage: React.FC = () => {
     }
   };
 
-  const handleAddMenuItem =  (newItem: MenuItem) => {
+  const handleAddMenuItem = (newItem: MenuItem) => {
     try {
       setMenuItems((items) => [...items, newItem]);
       setToastMessage("Item added successfully!");
       setShowToast(true);
-    setShowAddMenuItemModal(false);;
+      setShowAddMenuItemModal(false);
     } catch (error) {
       setToastMessage(`Error: ${(error as Error).message}`);
       setShowToast(true);
@@ -126,8 +150,13 @@ const CreatedMenuPage: React.FC = () => {
   };
 
   const truncateDescription = (description: string, maxLength: number) => {
-    return description.length <= maxLength ? description : description.substring(0, maxLength) + "...";
+    return description.length <= maxLength
+      ? description
+      : description.substring(0, maxLength) + "...";
   };
+
+  
+  const bannerSrc = bannerUrl || ""; 
 
   return (
     <IonPage>
@@ -136,29 +165,37 @@ const CreatedMenuPage: React.FC = () => {
           <IonTitle>{restaurantName} Created Menu</IonTitle>
         </IonToolbar>
       </IonHeader>
+
       <IonContent className="ion-padding">
-        {preferredLocation && (
+        {(preferredLocation || bannerSrc) && (
           <div className="preferred-location-banner">
-            <IonImg
-              className="menu-banner"
-              src={preferredLocation.photoUrl}
-              alt={preferredLocation.name}
-            />
+            {!!bannerSrc && (
+              <IonImg
+                className="menu-banner"
+                src={bannerSrc}
+                alt={preferredLocation?.name || restaurantName}
+                onIonError={() => {
+                  setBannerUrl("");
+                }}
+              />
+            )}
+
             <div className="info-column">
-              <h2 className="info-name">{preferredLocation.name}</h2>
-              <p className="address-text-save">
-                Address: {preferredLocation.address}
-              </p>
+              <h2 className="info-name">{preferredLocation?.name || restaurantName}</h2>
+
+              {preferredLocation?.address && (
+                <p className="address-text-save">Address: {preferredLocation.address}</p>
+              )}
 
               {userAllergens.length > 0 && (
                 <p className="allergen-warn-save" style={{ color: "red" }}>
-                  Menu items with allergens marked in red contain your
-                  allergens.
+                  Menu items with allergens marked in red contain your allergens.
                 </p>
               )}
             </div>
           </div>
         )}
+
         <IonFab vertical="top" horizontal="end" slot="fixed">
           <IonFabButton
             className="add-fab"
@@ -176,6 +213,7 @@ const CreatedMenuPage: React.FC = () => {
             {menuItems.length} Menu Item(s)
           </IonBadge>
         </div>
+
         <IonList className="full-list" lines="none">
           <div className="created-list">
             {menuItems.map((item, index) => (
@@ -184,36 +222,32 @@ const CreatedMenuPage: React.FC = () => {
                   <IonLabel>
                     <h3 className="item-h3">{item.name}</h3>
                     <p className="menu-item-description">
-                      {" "}
                       {truncateDescription(item.description, 75)}
                     </p>
+
                     <p className="allergen-label">
                       <strong>Allergens: </strong>
-                      {item.allergens.map((allergen, index) => {
+                      {item.allergens.map((allergen, i) => {
                         const isUserAllergen = userAllergens.includes(
                           allergen.toLowerCase().trim()
                         );
                         return (
-                          <span
-                            key={index}
-                            style={{ color: isUserAllergen ? "red" : "black" }}
-                          >
+                          <span key={i} style={{ color: isUserAllergen ? "red" : "black" }}>
                             {allergen}
-                            {index < item.allergens.length - 1 ? ", " : ""}
+                            {i < item.allergens.length - 1 ? ", " : ""}
                           </span>
                         );
                       })}
                     </p>
+
                     <p className="note-label">
                       <strong>Note: </strong>
                       {item.note}
                     </p>
                   </IonLabel>
+
                   <div className="create-btn-row">
-                    <IonButton
-                      onClick={() => setEditingItem(item)}
-                      className="btn-view"
-                    >
+                    <IonButton onClick={() => setEditingItem(item)} className="btn-view">
                       Edit Item
                     </IonButton>
                     <IonButton
@@ -223,16 +257,13 @@ const CreatedMenuPage: React.FC = () => {
                     >
                       Delete Item
                     </IonButton>
-                  </div>{" "}
+                  </div>
                 </div>
+
                 <div className="created-img">
                   {item.imageUrl && (
-                    <IonImg
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="menu-image"
-                    />
-                  )}{" "}
+                    <IonImg src={item.imageUrl} alt={item.name} className="menu-image" />
+                  )}
                 </div>
               </IonItem>
             ))}
@@ -242,26 +273,13 @@ const CreatedMenuPage: React.FC = () => {
         <IonPopover
           isOpen={showPopover.isOpen}
           event={showPopover.event}
-          onDidDismiss={() =>
-            setShowPopover({ isOpen: false, event: undefined })
-          }
+          onDidDismiss={() => setShowPopover({ isOpen: false, event: undefined })}
         >
           <IonList>
-            <IonItem
-              button
-              onClick={() => {
-                setShowPopover({ isOpen: false, event: undefined });
-              }}
-            >
+            <IonItem button onClick={() => setShowPopover({ isOpen: false, event: undefined })}>
               Edit Restaurant
             </IonItem>
-            <IonItem
-              button
-              color="danger"
-              onClick={() => {
-                setShowPopover({ isOpen: false, event: undefined });
-              }}
-            >
+            <IonItem button color="danger" onClick={() => setShowPopover({ isOpen: false, event: undefined })}>
               Delete Menu
             </IonItem>
           </IonList>
@@ -284,11 +302,11 @@ const CreatedMenuPage: React.FC = () => {
             menuDocId={menuDocId}
           />
         )}
+
         <AddMenuItemModal
           isOpen={showAddMenuItemModal}
           onClose={() => setShowAddMenuItemModal(false)}
           onAddMenuItem={handleAddMenuItem}
-          
           menuDocId={menuDocId}
         />
       </IonContent>

@@ -10,6 +10,7 @@ interface Place {
       lng: number;
     };
   };
+  placeId?:string;
 }
 
 export const setPreferredLocation = async (place: Place): Promise<void> => {

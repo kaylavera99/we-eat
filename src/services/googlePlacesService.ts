@@ -1,15 +1,11 @@
 import axios from 'axios';
 
 
-const API_BASE =
-  (typeof import.meta !== 'undefined' &&
-    (import.meta as any).env &&
-    ((import.meta as any).env.VITE_API_BASE as string)) ||
-  'http://localhost:3000';
+const API_BASE = "https://proxy-server-we-eat-e24e32c11d10.herokuapp.com";
 
 
 const PROXY_PLACES_URL = `${API_BASE}/proxy`;
-const PROXY_GEOCODE_URL = `${API_BASE}/proxy/geocode`;
+const PROXY_GEOCODE_URL = `${API_BASE}/geocode`;
 
 export const fetchRestaurantsFromGooglePlaces = async (
   lat: number,

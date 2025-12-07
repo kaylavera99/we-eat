@@ -32,10 +32,15 @@ import {
   fetchZipCode,
 } from "../services/restaurantLocationService";
 import "../styles/CreateMenu.css"
+import { apiUrl } from "../services/api";
+import axios from "axios";
+
+
 interface Place {
   name: string;
   geometry: { location: { lat: number; lng: number } };
   vicinity?: string;
+  placeId?:string;
 }
 interface LocationState {
   place?: Place;
@@ -94,6 +99,10 @@ const states = [
   { name: "Wyoming", code: "WY" },
 ];
 
+const stateCodeToName = (code?:string) => 
+  states.find(s => s.code === code)?.name || "";
+
+
 const CreateMenuPage: React.FC = () => {
   const { place } = useLocation<LocationState>().state || {};
   const history = useHistory();
@@ -118,26 +127,61 @@ const CreateMenuPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
+
   // prefill address from place.vicinity
   useEffect(() => {
     if (place?.vicinity) {
       const parts = place.vicinity.split(", ");
       if (parts.length >= 2) {
-        setStreetAddress(parts[0]);
-        setCity(parts[1]);
+        setStreetAddress((prev) => prev || parts[0]);
+        setCity((prev) => prev || parts[1]);
       }
     }
   }, [place]);
 
   // auto-fetch ZIP
   useEffect(() => {
-    if (streetAddress && city && stateName) {
+    if (streetAddress && city && stateName && !zipCode) {
       fetchZipCode(streetAddress, city, stateName).then((zc) => {
         if (zc) setZipCode(zc);
       });
     }
-  }, [streetAddress, city, stateName]);
+  }, [streetAddress, city, stateName, zipCode]);
 
+  useEffect(() => {
+    const run = async () => { 
+      if (!place?.placeId) return;
+
+      const { data } = await axios.get(apiUrl('/details'), {
+        params: { placeId: place.placeId },
+      });
+
+      const comps = data?.result?.address_components || [];
+
+      const get = (type: string) =>
+        comps.find((c: any) => c.types?.includes(type));
+
+      const streetNumber = get("street_number")?.long_name || "";
+      const route = get("route")?.long_name || "";
+      const locality = get("locality")?.long_name || "";
+      const stateCode = get("administrative_area_level_1")?.short_name || "";
+      const postalCode = get("postal_code")?.long_name || "";
+
+      const street = [streetNumber, route].filter(Boolean).join(" ");
+
+      console.log("ZIP CODE", postalCode);
+      console.log("STATE CODE", stateCode);
+      console.log("DETAILS", data )
+      if (street) setStreetAddress(street);
+      if (locality) setCity(locality);
+      if (stateCode) setStateName(stateCodeToName(stateCode));
+      if (postalCode) setZipCode(postalCode);
+    };
+
+    run().catch((err) => { 
+      console.error("Error fetching place details:", err);
+    }), [place?.placeId];
+  });
   // when switching to google mode,  fetch one preview
   useEffect(() => {
     if (mode === "google" && place?.geometry) {

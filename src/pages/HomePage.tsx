@@ -18,17 +18,26 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { useHistory } from "react-router-dom";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { add, person } from "ionicons/icons";
+import { add, person, restaurant } from "ionicons/icons";
 import "ionicons";
 import { arrowForward, search } from "ionicons/icons";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { Restaurant } from "../types/menu";
+import type {HomeMenuCard } from "../services/homeService";
+import { fetchYourMenusForHome } from "../services/homeService";
+import "../styles/HomePage.css";
+
+  
+
+
+  
 
 
 
 const HomePage: React.FC = () => {
+  const [yourMenus, setYourMenus] = useState<HomeMenuCard[]>([]);
   const [firstName, setFirstName] = useState("");
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -50,6 +59,8 @@ const HomePage: React.FC = () => {
     }
     return null;
   };
+
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -75,6 +86,9 @@ const HomePage: React.FC = () => {
               } as Restaurant)
           );
           setRestaurants(restaurantList);
+
+          const menus = await fetchYourMenusForHome(user.uid, restaurantList);
+          setYourMenus(menus);
         } catch (error: any) {
           setToastMessage(error.message);
           setShowToast(true);
@@ -195,7 +209,7 @@ const HomePage: React.FC = () => {
         {isLoading ? (
           <IonLoading isOpen={isLoading} message="Loading..." />
         ) : (
-          <div>
+          <div className = "home-wrap">
             <div className="header">
               <div className="header-banner">
                 <h1>Let's Eat, {firstName}!</h1>
@@ -248,6 +262,43 @@ const HomePage: React.FC = () => {
                 </IonButton>
               </div></div>
             </div>
+            <div className = "car-header">
+              <h2>Your Menus</h2>
+              <IonButton
+                className="rounded-icon-button"
+                size="small"
+                onClick={goToPersonalizedMenuPage}
+                style={{ marginLeft: "10px", padding: 0, borderRadius: "20px" }}
+              >
+                <IonIcon className="rounded-icon" icon={arrowForward} />
+              </IonButton>
+            </div>
+            <p>Menus you've created and saved</p>
+            {yourMenus.length >0 ? (
+              <Slider {...settings}>
+                {yourMenus.map((menu) => (
+                  <div
+                    className="card m-2"
+                    style={{ cursor: "pointer" }}
+                    key={menu.key}
+                    onClick={() => history.push(menu.to)}
+                  >
+                    <img
+                      src={menu.photoUrl}
+                      className="card-img-top"
+                      alt={menu.title}     />
+                    <div className="card-body">
+                      <h4 className="card-title">{menu.title}</h4>
+                      </div>
+                  </div>
+                ))}
+              </Slider>
+            ) : (
+              <p>You have no saved or created menus yet.</p>
+            )}
+
+
+
             <div className="car-header">
               <h2>All Restaurants</h2>
 

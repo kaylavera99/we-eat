@@ -178,6 +178,10 @@ label {
     height:30px!important;
 }
 
+.header p, .home-wrap p {
+    font-size: 16px;
+}
+
 
 @media only screen and (max-width: 399px) { 
     .card-title  {
@@ -303,54 +307,103 @@ label {
 
 
     @media only screen and (min-width: 1024px) {
-        .card-img-top {
+
+
+      .header {
+        border-radius: 16px;
+        margin:16px auto;
+      }
+
+      .desktop-nav-menu {
+        display:grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+      }
+
+      .search-box {
+        margin: 0;
+      }
+
+      .desktop-nav-menu > div:last-child {
+        margin-top:0;
+        display:flex;
+        gap:10px;
+        justify-content:flex-end;
+      }
+
+      .card {
+        border:0;
+        box-shadow: 5px 5px 15px #8080803b!important;
+        width:220px!important;
+        margin:0!important;
+      }
+
+      .card-img-top {
+        height: 140px!important;
+        max-height: 140px!important;
+      }
+
+      .card-title {
+        font-size: 14px!important;
+      }
+
+      .slick-slide > div {
+        padding: 0 8px;
+      
+      }
+
+
+
+/*         .card-img-top {
           max-height: 400px!important;
           object-fit: cover;
           width:100%;
           height:200px;
       
-      }
+      } */
     
-      .card-title {
+    /*   .card-title {
         font-size:26px;
-      }
+      } */
     
     
-      .card {
+/*       .card {
         width: 90%!important;
       }
-
+ */
       .card-body {
         padding-left:10px;
         padding-top: 30px;
       }
 
 
-      .car-header h2 {
+    /*   .car-header h2 {
         font-size:34px!important;
-      }
+      } */
     
        p {
         font-size:24px!important;
       }
 
-      .banner-btn {
+   /*    .banner-btn {
         width:300px;
         font-size:24px!important;
         height:55px!important;
         margin-top:20px;
         --border-radius:10px!important;
-      }
+      } */
 
       .header-banner {
         padding-left:40px!important;
         padding-right:40px;
         padding-bottom:30px;
       }
-
+/* 
       .header-banner h1 {
         font-size:40px;
-      }
+      } */
 
       .search-box {
 
@@ -467,3 +520,10 @@ label {
    
     
         }
+
+
+.home-wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 16px;
+}

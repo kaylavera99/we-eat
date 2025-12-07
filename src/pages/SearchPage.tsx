@@ -44,6 +44,7 @@ interface Place {
       lng: number;
     };
   };
+  placeId?:string;
   address?: string;
   coordinates?: GeoPoint;
   distance: number;

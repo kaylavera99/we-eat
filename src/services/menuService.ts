@@ -121,8 +121,13 @@ export const addMenuToCreatedMenus = async (menu: SavedMenu) => {
   if (auth.currentUser) {
     const userDocRef = doc(db, 'users', auth.currentUser.uid);
     const createdMenusRef = collection(userDocRef, 'createdMenus');
-    const newMenuDocRef = doc(createdMenusRef);
-    await setDoc(newMenuDocRef, menu);
+
+    const newMenuDocRef = await addDoc(createdMenusRef, {
+      restaurantName: menu.restaurantName,
+      restaurantId: menu.restaurantId || "",
+      thumbnailUrl: menu.thumbnailUrl || ""
+    });
+    return newMenuDocRef.id;
   }
 };
 
@@ -238,6 +243,7 @@ export const fetchCreatedMenus = async (): Promise<SavedMenu[]> => {
       createdMenus.push({
         restaurantName: menuData.restaurantName,
         dishes,
+        thumbnailUrl: menuData.photoUrl || menuData.thumbnailUrl || ""
       });
     }
   }
